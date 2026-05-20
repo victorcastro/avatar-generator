@@ -1,0 +1,14 @@
+{
+  "name": "avatar-generator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Simple Node.js avatar generator for community teams",
+  "scripts": {
+    "start": "node server.js",
+    "build": "node build.js"
+  },
+  "dependencies": {
+    "@picocss/pico": "^2.1.1",
+    "lucide": "^1.16.0"
+  }
+}

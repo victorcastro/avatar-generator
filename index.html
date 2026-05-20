@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Community Avatar Generator</title>
+    <link rel="stylesheet" href="/node_modules/@picocss/pico/css/pico.red.min.css">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="shell container-fluid">
+      <section class="hero-panel">
+        <p class="eyebrow">Node.js Utility</p>
+        <div class="hero-copy">
+          <div>
+            <h1>Community Avatar Generator</h1>
+            <p>Standardize community avatars with a circular template, consistent icons, and immediate PNG export.</p>
+          </div>
+          <div class="role-chip" id="roleChip">
+            <span class="role-chip__icon" id="roleChipIcon" data-lucide="bird"></span>
+            <strong id="roleChipLabel">iOS</strong>
+          </div>
+        </div>
+      </section>
+
+      <div class="workspace">
+        <article class="controls-card">
+          <header class="section-heading">
+            <p class="eyebrow">Configuración</p>
+          </header>
+
+          <div class="controls-stack">
+            <select id="role" name="role" aria-describedby="roleHelp">
+              <option value="ios">iOS</option>
+              <option value="android">Android</option>
+              <option value="qa">QA</option>
+              <option value="adm">ADM</option>
+              <option value="pm">PM</option>
+              <option value="po">PO</option>
+            </select>
+
+            <input id="titleText" name="titleText" type="text" maxlength="64" value="Tech Lead iOS" placeholder="Ej. Tech Lead iOS">
+
+            <div class="file-row">
+              <label for="backgroundUpload">Imagen de fondo</label>
+              <input id="backgroundUpload" name="backgroundUpload" type="file" accept="image/png,image/jpeg,image/webp">
+            </div>
+
+            <div class="file-row">
+              <label for="portraitUpload">PNG de la persona</label>
+              <input id="portraitUpload" name="portraitUpload" type="file" accept="image/png">
+            </div>
+
+            <div class="icon-preview-card">
+              <span class="icon-preview-card__glyph" id="selectedRoleIcon" data-lucide="bird"></span>
+              <div>
+                <strong>Icono asignado</strong>
+                <small id="selectedRoleText">Bird para iOS</small>
+              </div>
+            </div>
+          </div>
+
+          <footer class="actions-row">
+            <button id="downloadButton" type="button">
+              <span data-lucide="download"></span>
+              Descargar PNG
+            </button>
+          </footer>
+        </article>
+
+        <article class="preview-card">
+          <header class="section-heading">
+            <p class="eyebrow">Preview</p>
+          </header>
+
+          <div class="canvas-frame">
+            <canvas id="avatarCanvas" width="640" height="640" aria-label="Vista previa del avatar"></canvas>
+          </div>
+          <div class="tuning-grid">
+            <div class="tuning-column">
+              <h3>Background</h3>
+
+              <div class="range-block">
+                <label for="backgroundScale">Escala del fondo</label>
+                <input id="backgroundScale" name="backgroundScale" type="range" min="0.5" max="1.8" step="0.01" value="1">
+              </div>
+
+              <div class="range-block">
+                <label for="backgroundOffsetX">Posición horizontal del fondo</label>
+                <input id="backgroundOffsetX" name="backgroundOffsetX" type="range" min="-160" max="160" step="1" value="0">
+              </div>
+
+              <div class="range-block">
+                <label for="backgroundOffsetY">Posición vertical del fondo</label>
+                <input id="backgroundOffsetY" name="backgroundOffsetY" type="range" min="-160" max="160" step="1" value="0">
+              </div>
+            </div>
+
+            <div class="tuning-column">
+              <h3>Persona</h3>
+
+              <div class="range-block">
+                <label for="portraitScale">Escala de la persona</label>
+                <input id="portraitScale" name="portraitScale" type="range" min="0.5" max="1.8" step="0.01" value="1">
+              </div>
+
+              <div class="range-block">
+                <label for="portraitOffsetX">Posición horizontal</label>
+                <input id="portraitOffsetX" name="portraitOffsetX" type="range" min="-160" max="160" step="1" value="0">
+              </div>
+
+              <div class="range-block">
+                <label for="portraitOffsetY">Posición vertical</label>
+                <input id="portraitOffsetY" name="portraitOffsetY" type="range" min="-160" max="160" step="1" value="12">
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </main>
+
+    <script src="/node_modules/lucide/dist/umd/lucide.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
