@@ -314,7 +314,8 @@ function drawLayerUser(metrics) {
 function drawLayerFooter(metrics) {
   const footerPadding = metrics.clipRadius * 0.06;
   const footerWidth = metrics.clipRadius * 2 - footerPadding * 2;
-  const titleMetrics = getFittedTitle(state.titleText, footerWidth * 0.84);
+  const titlePaddingX = metrics.clipRadius * 0.14;
+  const titleMetrics = getFittedTitle(state.titleText, footerWidth - titlePaddingX * 4);
   const role = ROLE_CONFIG[state.role];
 
   withCircularClip(metrics, () => {
