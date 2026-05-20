@@ -318,7 +318,7 @@ function drawLayerFooter(metrics) {
   const role = ROLE_CONFIG[state.role];
 
   withCircularClip(metrics, () => {
-    context.fillStyle = "#f7f8fa";
+    context.fillStyle = "#090909";
     context.fillRect(
       metrics.centerX - footerWidth / 2,
       metrics.footerTop,
@@ -326,7 +326,15 @@ function drawLayerFooter(metrics) {
       metrics.footerHeight + 26
     );
 
-    context.fillStyle = "#2a3139";
+    context.fillStyle = "#c8102e";
+    context.fillRect(
+      metrics.centerX - footerWidth / 2,
+      metrics.footerTop,
+      footerWidth,
+      4
+    );
+
+    context.fillStyle = "#d4d4d4";
     context.font = `700 ${titleMetrics.fontSize}px "Segoe UI", Arial, sans-serif`;
     context.textAlign = "center";
     context.textBaseline = "middle";
@@ -345,7 +353,7 @@ function drawLayerFooter(metrics) {
 // layer-mask
 function drawLayerMask(metrics) {
   context.save();
-  context.strokeStyle = "#ffffff";
+  context.strokeStyle = "#090909";
   context.lineWidth = metrics.borderWidth;
   context.beginPath();
   context.arc(metrics.centerX, metrics.centerY, metrics.clipRadius, 0, Math.PI * 2);
