@@ -46,3 +46,8 @@ The project is split into runtime and build/quality dependencies:
   - `eslint`
   - `@eslint/js`
   - `globals`
+
+## Notes
+
+- [Releases](https://github.com/victorcastro/avatar-generator/releases)
+- [Changelog](CHANGELOG.md)
