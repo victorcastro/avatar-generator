@@ -448,7 +448,7 @@ controls.portraitOffsetX.addEventListener("input", (event) => {
 });
 
 controls.portraitOffsetY.addEventListener("input", (event) => {
-  updateState("portraitOffsetY", Number(event.target.value));
+  updateState("portraitOffsetY", -Number(event.target.value));
 });
 
 controls.backgroundUpload.addEventListener("change", (event) => {

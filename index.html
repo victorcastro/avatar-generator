@@ -38,16 +38,6 @@
             </select>
 
             <input id="titleText" name="titleText" type="text" maxlength="64" value="Tech Lead iOS" placeholder="Ej. Tech Lead iOS">
-
-            <div class="file-row">
-              <label for="backgroundUpload">Imagen de fondo</label>
-              <input id="backgroundUpload" name="backgroundUpload" type="file" accept="image/png,image/jpeg,image/webp">
-            </div>
-
-            <div class="file-row">
-              <label for="portraitUpload">PNG de la persona</label>
-              <input id="portraitUpload" name="portraitUpload" type="file" accept="image/png">
-            </div>
           </div>
         </article>
 
@@ -68,6 +58,11 @@
               <h3>Background</h3>
 
               <div class="range-block">
+                <label for="backgroundUpload">Adjunta imagen</label>
+                <input id="backgroundUpload" name="backgroundUpload" type="file" accept="image/png,image/jpeg,image/webp">
+              </div>
+
+              <div class="range-block">
                 <label for="backgroundScale">Escala</label>
                 <input id="backgroundScale" name="backgroundScale" type="range" min="0.5" max="1.8" step="0.01" value="1">
               </div>
@@ -77,14 +72,23 @@
                 <input id="backgroundOffsetX" name="backgroundOffsetX" type="range" min="-160" max="160" step="1" value="0">
               </div>
 
-              <div class="range-block">
+              <div class="range-block range-block--vertical">
                 <label for="backgroundOffsetY">Posición vertical</label>
-                <input id="backgroundOffsetY" name="backgroundOffsetY" type="range" min="-160" max="160" step="1" value="0">
+                <div class="vertical-range">
+                  <div class="vertical-range__track">
+                    <input id="backgroundOffsetY" name="backgroundOffsetY" type="range" min="-160" max="160" step="1" value="0" aria-orientation="vertical">
+                  </div>
+                </div>
               </div>
             </div>
 
             <div class="tuning-column">
               <h3>Persona</h3>
+
+              <div class="range-block">
+                <label for="portraitUpload">Adjunta imagen</label>
+                <input id="portraitUpload" name="portraitUpload" type="file" accept="image/png">
+              </div>
 
               <div class="range-block">
                 <label for="portraitScale">Escala</label>
@@ -96,9 +100,13 @@
                 <input id="portraitOffsetX" name="portraitOffsetX" type="range" min="-160" max="160" step="1" value="0">
               </div>
 
-              <div class="range-block">
+              <div class="range-block range-block--vertical">
                 <label for="portraitOffsetY">Posición vertical</label>
-                <input id="portraitOffsetY" name="portraitOffsetY" type="range" min="-160" max="160" step="1" value="12">
+                <div class="vertical-range">
+                  <div class="vertical-range__track">
+                    <input id="portraitOffsetY" name="portraitOffsetY" type="range" min="-160" max="160" step="1" value="12" aria-orientation="vertical">
+                  </div>
+                </div>
               </div>
             </div>
           </div>

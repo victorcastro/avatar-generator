@@ -136,6 +136,33 @@ small {
   gap: 0.5rem;
 }
 
+.range-block--vertical {
+  gap: 0.75rem;
+}
+
+.vertical-range {
+  display: grid;
+  grid-template-rows: 1fr;
+  justify-items: center;
+  align-items: center;
+  min-height: 180px;
+  padding: 0.25rem 0;
+}
+
+.vertical-range__track {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 160px;
+}
+
+.vertical-range__track input[type="range"] {
+  width: 180px;
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
 .tuning-grid {
   margin-top: 1.25rem;
   display: grid;
@@ -216,5 +243,13 @@ canvas {
 
   .section-heading button {
     align-self: flex-end;
+  }
+
+  .vertical-range {
+    min-height: 180px;
+  }
+
+  .vertical-range__track input[type="range"] {
+    width: 160px;
   }
 }
