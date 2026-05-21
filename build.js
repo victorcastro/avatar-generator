@@ -9,6 +9,21 @@ const distDir = path.join(rootDir, "dist");
 const vendorDir = path.join(distDir, "vendor");
 const picoSource = path.join(rootDir, "node_modules", "@picocss", "pico", "css", "pico.red.min.css");
 const lucideSource = path.join(rootDir, "node_modules", "lucide", "dist", "umd", "lucide.min.js");
+const fontAwesomeCssSource = path.join(
+  rootDir,
+  "node_modules",
+  "@fortawesome",
+  "fontawesome-free",
+  "css",
+  "all.min.css"
+);
+const fontAwesomeWebfontsSource = path.join(
+  rootDir,
+  "node_modules",
+  "@fortawesome",
+  "fontawesome-free",
+  "webfonts"
+);
 
 function ensureDir(dirPath) {
   fs.mkdirSync(dirPath, { recursive: true });
@@ -17,6 +32,22 @@ function ensureDir(dirPath) {
 function copyFile(source, destination) {
   ensureDir(path.dirname(destination));
   fs.copyFileSync(source, destination);
+}
+
+function copyDirectory(source, destination) {
+  ensureDir(destination);
+
+  for (const entry of fs.readdirSync(source, { withFileTypes: true })) {
+    const sourcePath = path.join(source, entry.name);
+    const destinationPath = path.join(destination, entry.name);
+
+    if (entry.isDirectory()) {
+      copyDirectory(sourcePath, destinationPath);
+      continue;
+    }
+
+    copyFile(sourcePath, destinationPath);
+  }
 }
 
 function copyTextFile(source, destination, transform) {
@@ -56,6 +87,8 @@ async function build() {
 
   copyFile(picoSource, path.join(vendorDir, "pico.red.min.css"));
   copyFile(lucideSource, path.join(vendorDir, "lucide.min.js"));
+  copyFile(fontAwesomeCssSource, path.join(vendorDir, "fontawesome", "css", "all.min.css"));
+  copyDirectory(fontAwesomeWebfontsSource, path.join(vendorDir, "fontawesome", "webfonts"));
   await writeMinifiedTextFile(path.join(rootDir, "styles.css"), path.join(distDir, "styles.css"), async (css) =>
     minifyCss(css)
   );
@@ -76,6 +109,7 @@ async function build() {
     minifyHtml(
       html
         .replace("/node_modules/@picocss/pico/css/pico.red.min.css", "./vendor/pico.red.min.css")
+        .replace("/node_modules/@fortawesome/fontawesome-free/css/all.min.css", "./vendor/fontawesome/css/all.min.css")
         .replace("/node_modules/lucide/dist/umd/lucide.min.js", "./vendor/lucide.min.js"),
       {
         collapseWhitespace: true,

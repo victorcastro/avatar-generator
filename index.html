@@ -1,12 +1,13 @@
 <!doctype html>
 <html lang="es" data-theme="dark">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Community Avatar Generator</title>
-    <link rel="stylesheet" href="/node_modules/@picocss/pico/css/pico.red.min.css">
-    <link rel="stylesheet" href="styles.css">
-  </head>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Community Avatar Generator</title>
+      <link rel="stylesheet" href="/node_modules/@picocss/pico/css/pico.red.min.css">
+      <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+      <link rel="stylesheet" href="styles.css">
+    </head>
   <body>
     <main class="shell container-fluid">
       <section class="hero-panel">
@@ -29,6 +30,7 @@
             <select id="role" name="role" aria-describedby="roleHelp">
               <option value="ios">iOS</option>
               <option value="android">Android</option>
+              <option value="react">React</option>
               <option value="qa">QA</option>
               <option value="adm">ADM</option>
               <option value="pm">PM</option>
@@ -45,14 +47,6 @@
             <div class="file-row">
               <label for="portraitUpload">PNG de la persona</label>
               <input id="portraitUpload" name="portraitUpload" type="file" accept="image/png">
-            </div>
-
-            <div class="icon-preview-card">
-              <span class="icon-preview-card__glyph" id="selectedRoleIcon" data-lucide="bird"></span>
-              <div>
-                <strong>Icono asignado</strong>
-                <small id="selectedRoleText">Bird para iOS</small>
-              </div>
             </div>
           </div>
         </article>

@@ -1,34 +1,63 @@
 const ROLE_CONFIG = {
   ios: {
     label: "iOS",
-    lucideName: "Bird",
-    iconLabel: "Bird"
+    iconProvider: "fontawesome",
+    iconStyle: "brands",
+    iconName: "swift",
+    iconLabel: "Swift"
   },
   android: {
     label: "Android",
-    lucideName: "Bot",
-    iconLabel: "Bot"
+    iconProvider: "fontawesome",
+    iconStyle: "brands",
+    iconName: "android",
+    iconLabel: "Android"
+  },
+  react: {
+    label: "React",
+    iconProvider: "fontawesome",
+    iconStyle: "brands",
+    iconName: "react",
+    iconLabel: "React"
   },
   qa: {
     label: "QA",
-    lucideName: "Bug",
+    iconProvider: "fontawesome",
+    iconStyle: "solid",
+    iconName: "bug",
     iconLabel: "Bug"
   },
   adm: {
     label: "ADM",
-    lucideName: "Compass",
+    iconProvider: "fontawesome",
+    iconStyle: "solid",
+    iconName: "compass",
     iconLabel: "Compass"
   },
   pm: {
     label: "PM",
-    lucideName: "BriefcaseBusiness",
-    iconLabel: "BriefcaseBusiness"
+    iconProvider: "fontawesome",
+    iconStyle: "solid",
+    iconName: "briefcase",
+    iconLabel: "Briefcase"
   },
   po: {
     label: "PO",
-    lucideName: "Target",
-    iconLabel: "Target"
+    iconProvider: "fontawesome",
+    iconStyle: "solid",
+    iconName: "bullseye",
+    iconLabel: "Bullseye"
   }
+};
+
+const FONT_AWESOME_GLYPHS = {
+  swift: "\uf8e1",
+  android: "\uf17b",
+  react: "\uf41b",
+  bug: "\uf188",
+  compass: "\uf14e",
+  briefcase: "\uf0b1",
+  bullseye: "\uf140"
 };
 
 const canvas = document.getElementById("avatarCanvas");
@@ -60,11 +89,6 @@ const controls = {
   portraitOffsetX: document.getElementById("portraitOffsetX"),
   portraitOffsetY: document.getElementById("portraitOffsetY"),
   downloadButton: document.getElementById("downloadButton")
-};
-
-const ui = {
-  selectedRoleIcon: document.getElementById("selectedRoleIcon"),
-  selectedRoleText: document.getElementById("selectedRoleText")
 };
 
 function loadImageFromFile(file) {
@@ -130,15 +154,22 @@ function renderLucideMarkup(name, attrs = {}) {
   return `<svg ${attributesText}>${children}</svg>`;
 }
 
-function syncLucideUi() {
-  const role = ROLE_CONFIG[state.role];
+function drawFontAwesomeIcon(iconName, iconStyle, centerX, centerY, size, color) {
+  const glyph = FONT_AWESOME_GLYPHS[iconName];
 
-  ui.selectedRoleText.textContent = `${role.iconLabel} para ${role.label}`;
-  ui.selectedRoleIcon.innerHTML = renderLucideMarkup(role.lucideName, {
-    width: "24",
-    height: "24",
-    "stroke-width": "2.1"
-  });
+  if (!glyph) {
+    return;
+  }
+
+  context.save();
+  context.fillStyle = color;
+  context.font = `${iconStyle === "solid" ? 900 : 400} ${size}px ${
+    iconStyle === "solid" ? '"Font Awesome 7 Free"' : '"Font Awesome 7 Brands"'
+  }`;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(glyph, centerX, centerY);
+  context.restore();
 }
 
 function getCompositionMetrics() {
@@ -208,8 +239,13 @@ function drawLucideNode(tagName, attrs) {
   }
 }
 
-function drawRoleIcon(iconName, centerX, centerY, size, color) {
-  const iconData = getLucideData(iconName);
+function drawRoleIcon(role, centerX, centerY, size, color) {
+  if (role.iconProvider === "fontawesome") {
+    drawFontAwesomeIcon(role.iconName, role.iconStyle, centerX, centerY, size, color);
+    return;
+  }
+
+  const iconData = getLucideData(role.iconName);
 
   if (!iconData) {
     return;
@@ -334,7 +370,7 @@ function drawLayerFooter(metrics) {
     context.fillText(titleMetrics.text, metrics.centerX, metrics.footerTop + metrics.footerHeight * 0.38);
 
     drawRoleIcon(
-      role.lucideName,
+      role,
       metrics.centerX,
       metrics.footerTop + metrics.footerHeight * 0.74,
       metrics.clipRadius * 0.18,
@@ -380,7 +416,6 @@ async function handleImageInput(file, target) {
 
 function updateState(key, value) {
   state[key] = value;
-  syncLucideUi();
   drawAvatar();
 }
 
@@ -439,5 +474,11 @@ lucideLibrary.createIcons({
     "stroke-width": 2.1
   }
 });
-syncLucideUi();
+
 drawAvatar();
+
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(() => {
+    drawAvatar();
+  });
+}
