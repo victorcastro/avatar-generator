@@ -1,64 +1,12 @@
-const ROLE_CONFIG = {
-  ios: {
-    label: "iOS",
-    iconProvider: "fontawesome",
-    iconStyle: "brands",
-    iconName: "swift",
-    iconLabel: "Swift"
-  },
-  android: {
-    label: "Android",
-    iconProvider: "fontawesome",
-    iconStyle: "brands",
-    iconName: "android",
-    iconLabel: "Android"
-  },
-  react: {
-    label: "React",
-    iconProvider: "fontawesome",
-    iconStyle: "brands",
-    iconName: "react",
-    iconLabel: "React"
-  },
-  qa: {
-    label: "QA",
-    iconProvider: "fontawesome",
-    iconStyle: "solid",
-    iconName: "bug",
-    iconLabel: "Bug"
-  },
-  adm: {
-    label: "ADM",
-    iconProvider: "fontawesome",
-    iconStyle: "solid",
-    iconName: "compass",
-    iconLabel: "Compass"
-  },
-  pm: {
-    label: "PM",
-    iconProvider: "fontawesome",
-    iconStyle: "solid",
-    iconName: "briefcase",
-    iconLabel: "Briefcase"
-  },
-  po: {
-    label: "PO",
-    iconProvider: "fontawesome",
-    iconStyle: "solid",
-    iconName: "bullseye",
-    iconLabel: "Bullseye"
-  }
-};
-
-const FONT_AWESOME_GLYPHS = {
-  swift: "\uf8e1",
-  android: "\uf17b",
-  react: "\uf41b",
-  bug: "\uf188",
-  compass: "\uf14e",
-  briefcase: "\uf0b1",
-  bullseye: "\uf140"
-};
+const {
+  ROLE_CONFIG,
+  FONT_AWESOME_GLYPHS,
+  getCompositionMetrics: getCoreCompositionMetrics,
+  getFittedTitle: getCoreFittedTitle,
+  getImageDrawBounds,
+  getPortraitOffsetYFromSlider,
+  getDownloadFilename
+} = window.AvatarCore;
 
 const canvas = document.getElementById("avatarCanvas");
 const context = canvas.getContext("2d");
@@ -105,10 +53,6 @@ function loadImageFromFile(file) {
     reader.onerror = () => reject(new Error("No se pudo leer el archivo."));
     reader.readAsDataURL(file);
   });
-}
-
-function ptToPx(points) {
-  return points * (96 / 72);
 }
 
 function getLucideData(name) {
@@ -173,47 +117,14 @@ function drawFontAwesomeIcon(iconName, iconStyle, centerX, centerY, size, color)
 }
 
 function getCompositionMetrics() {
-  const size = canvas.width;
-  const centerX = size / 2;
-  const centerY = size / 2;
-  const borderWidth = 4;
-  const radius = size * 0.36;
-  const clipRadius = radius - borderWidth / 2;
-  const footerHeight = radius * 0.56;
-  const footerTop = centerY + clipRadius - footerHeight;
-
-  return {
-    size,
-    centerX,
-    centerY,
-    radius,
-    clipRadius,
-    borderWidth,
-    footerHeight,
-    footerTop
-  };
+  return getCoreCompositionMetrics(canvas.width);
 }
 
 function getFittedTitle(text, maxWidth) {
-  const content = text.trim() || ROLE_CONFIG[state.role].label;
-  const maxFontSize = ptToPx(26);
-  const minFontSize = ptToPx(10);
-  let fontSize = maxFontSize;
-
-  while (fontSize >= minFontSize) {
+  return getCoreFittedTitle(text, maxWidth, ROLE_CONFIG[state.role].label, (content, fontSize) => {
     context.font = `700 ${fontSize}px "Segoe UI", Arial, sans-serif`;
-
-    if (context.measureText(content).width <= maxWidth) {
-      break;
-    }
-
-    fontSize -= 1;
-  }
-
-  return {
-    text: content,
-    fontSize: Math.max(fontSize, minFontSize)
-  };
+    return context.measureText(content).width;
+  });
 }
 
 function drawLucideNode(tagName, attrs) {
@@ -277,15 +188,13 @@ function withCircularClip(metrics, drawFn) {
 }
 
 function drawLayerImage(image, scaleMultiplier, offsetX, offsetY, metrics) {
-  const baseScale = Math.max(
-    (metrics.clipRadius * 2) / image.width,
-    (metrics.clipRadius * 2) / image.height
+  const { left, top, width, height } = getImageDrawBounds(
+    image,
+    scaleMultiplier,
+    offsetX,
+    offsetY,
+    metrics
   );
-  const scale = baseScale * scaleMultiplier;
-  const width = image.width * scale;
-  const height = image.height * scale;
-  const left = metrics.centerX - width / 2 + offsetX;
-  const top = metrics.centerY - height / 2 + offsetY;
 
   context.drawImage(image, left, top, width, height);
 }
@@ -448,7 +357,7 @@ controls.portraitOffsetX.addEventListener("input", (event) => {
 });
 
 controls.portraitOffsetY.addEventListener("input", (event) => {
-  updateState("portraitOffsetY", -Number(event.target.value));
+  updateState("portraitOffsetY", getPortraitOffsetYFromSlider(event.target.value));
 });
 
 controls.backgroundUpload.addEventListener("change", (event) => {
@@ -462,10 +371,8 @@ controls.portraitUpload.addEventListener("change", (event) => {
 controls.downloadButton.addEventListener("click", () => {
   drawAvatar();
   const link = document.createElement("a");
-  const safeRole = ROLE_CONFIG[state.role].label.toLowerCase();
-  const safeTitle = (state.titleText.trim() || safeRole).toLowerCase().replace(/[^a-z0-9]+/g, "-");
   link.href = canvas.toDataURL("image/png");
-  link.download = `avatar-${safeTitle || safeRole}.png`;
+  link.download = getDownloadFilename(state.titleText, ROLE_CONFIG[state.role].label);
   link.click();
 });
 

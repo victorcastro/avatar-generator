@@ -92,6 +92,18 @@ async function build() {
   await writeMinifiedTextFile(path.join(rootDir, "styles.css"), path.join(distDir, "styles.css"), async (css) =>
     minifyCss(css)
   );
+  await writeMinifiedTextFile(path.join(rootDir, "avatar-core.js"), path.join(distDir, "avatar-core.js"), (js) =>
+    terser.minify(js, {
+      compress: true,
+      mangle: true
+    }).then((result) => {
+      if (result.error) {
+        throw result.error;
+      }
+
+      return result.code || "";
+    })
+  );
   await writeMinifiedTextFile(path.join(rootDir, "script.js"), path.join(distDir, "script.js"), (js) =>
     terser.minify(js, {
       compress: true,
