@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5] - 2026-05-21
+
+### Updated
+- Frontend source files are now grouped under `src/` to keep source and build output separated.
+- The homepage now builds from `src/index.hbs` into static `dist/index.html`.
+- The project now uses `yarn` as its package manager and CI install command.
+
 ## [1.4] - 2026-05-21
 
 ### Added

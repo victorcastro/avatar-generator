@@ -8,7 +8,12 @@ const terser = require("terser");
 const rootDir = __dirname;
 const distDir = path.join(rootDir, "dist");
 const vendorDir = path.join(distDir, "vendor");
-const templateSource = path.join(rootDir, "index.hbs");
+const sourceDir = path.join(rootDir, "src");
+const templateSource = path.join(sourceDir, "index.hbs");
+const stylesSource = path.join(sourceDir, "styles.css");
+const avatarCoreSource = path.join(sourceDir, "avatar-core.js");
+const scriptSource = path.join(sourceDir, "script.js");
+const ogImageSource = path.join(sourceDir, "og-image.png");
 const picoSource = path.join(rootDir, "node_modules", "@picocss", "pico", "css", "pico.red.min.css");
 const lucideSource = path.join(rootDir, "node_modules", "lucide", "dist", "umd", "lucide.min.js");
 const fontAwesomeCssSource = path.join(
@@ -104,11 +109,11 @@ async function build() {
   copyFile(lucideSource, path.join(vendorDir, "lucide.min.js"));
   copyFile(fontAwesomeCssSource, path.join(vendorDir, "fontawesome", "css", "all.min.css"));
   copyDirectory(fontAwesomeWebfontsSource, path.join(vendorDir, "fontawesome", "webfonts"));
-  copyFile(path.join(rootDir, "og-image.png"), path.join(distDir, "og-image.png"));
-  await writeMinifiedTextFile(path.join(rootDir, "styles.css"), path.join(distDir, "styles.css"), async (css) =>
+  copyFile(ogImageSource, path.join(distDir, "og-image.png"));
+  await writeMinifiedTextFile(stylesSource, path.join(distDir, "styles.css"), async (css) =>
     minifyCss(css)
   );
-  await writeMinifiedTextFile(path.join(rootDir, "avatar-core.js"), path.join(distDir, "avatar-core.js"), (js) =>
+  await writeMinifiedTextFile(avatarCoreSource, path.join(distDir, "avatar-core.js"), (js) =>
     terser.minify(js, {
       compress: true,
       mangle: true
@@ -120,7 +125,7 @@ async function build() {
       return result.code || "";
     })
   );
-  await writeMinifiedTextFile(path.join(rootDir, "script.js"), path.join(distDir, "script.js"), (js) =>
+  await writeMinifiedTextFile(scriptSource, path.join(distDir, "script.js"), (js) =>
     terser.minify(js, {
       compress: true,
       mangle: true

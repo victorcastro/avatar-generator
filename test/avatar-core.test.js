@@ -9,7 +9,7 @@ const {
   getImageDrawBounds,
   getPortraitOffsetYFromSlider,
   getDownloadFilename
-} = require("../avatar-core.js");
+} = require("../src/avatar-core.js");
 
 test("role config keeps every supported selector option mapped to a Font Awesome icon", () => {
   const expectedRoles = ["ios", "android", "react", "qa", "adm", "pm", "po"];

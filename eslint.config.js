@@ -18,7 +18,7 @@ module.exports = [
   },
   {
     ...js.configs.recommended,
-    files: ["script.js", "avatar-core.js"],
+    files: ["src/script.js", "src/avatar-core.js"],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "script",
