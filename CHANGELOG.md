@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3] - 2026-05-21
+
+### Release Automation
+- Removed automatic GitHub Release generation from the pipeline.
+- The workflow now creates only numeric tags from `package.json` on merges to `main`.
+
 ## [1.2] - 2026-05-21
 
 ### Release Automation
