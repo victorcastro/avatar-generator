@@ -7,6 +7,11 @@
     "start": "node server.js",
     "build": "node build.js"
   },
+  "devDependencies": {
+    "clean-css": "^5.3.3",
+    "html-minifier-terser": "^7.2.0",
+    "terser": "^5.44.1"
+  },
   "dependencies": {
     "@picocss/pico": "^2.1.1",
     "lucide": "^1.16.0"

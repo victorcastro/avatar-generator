@@ -16,10 +16,6 @@
             <h1>Community Avatar Generator</h1>
             <p>Standardize community avatars with a circular template, consistent icons, and immediate PNG export.</p>
           </div>
-          <div class="role-chip" id="roleChip">
-            <span class="role-chip__icon" id="roleChipIcon" data-lucide="bird"></span>
-            <strong id="roleChipLabel">iOS</strong>
-          </div>
         </div>
       </section>
 
@@ -59,18 +55,15 @@
               </div>
             </div>
           </div>
-
-          <footer class="actions-row">
-            <button id="downloadButton" type="button">
-              <span data-lucide="download"></span>
-              Descargar PNG
-            </button>
-          </footer>
         </article>
 
         <article class="preview-card">
           <header class="section-heading">
             <p class="eyebrow">Preview</p>
+            <button id="downloadButton" type="button" aria-label="Download PNG" title="Download PNG">
+              <span class="download-button__label">Download</span>
+              <span data-lucide="download"></span>
+            </button>
           </header>
 
           <div class="canvas-frame">

@@ -38,7 +38,6 @@ body {
 .hero-copy {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
   gap: 1.25rem;
 }
 
@@ -56,19 +55,6 @@ small {
   text-transform: uppercase;
 }
 
-.role-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.85rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(8px);
-  white-space: nowrap;
-}
-
-.role-chip__icon,
 .icon-preview-card__glyph {
   display: inline-flex;
   align-items: center;
@@ -99,7 +85,33 @@ small {
 }
 
 .section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   margin-bottom: 1.25rem;
+}
+
+.section-heading > :last-child {
+  margin-bottom: 0;
+}
+
+.section-heading button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 0;
+  border-radius: 999px;
+}
+
+.download-button__label {
+  color: inherit;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .section-heading h2 {
@@ -131,8 +143,7 @@ small {
   background: rgba(255, 255, 255, 0.03);
 }
 
-.icon-preview-card strong,
-.role-chip strong {
+.icon-preview-card strong {
   display: block;
 }
 
@@ -144,25 +155,6 @@ small {
 .range-block {
   display: grid;
   gap: 0.5rem;
-}
-
-.actions-row {
-  display: flex;
-  gap: 0.85rem;
-  flex-wrap: wrap;
-  margin-top: 1.5rem;
-}
-
-.actions-row button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  margin-bottom: 0;
-}
-
-.secondary-action {
-  color: #f5f7fa;
 }
 
 .tuning-grid {
@@ -206,12 +198,11 @@ canvas {
 }
 
 [data-lucide] {
-  width: 1rem;
-  height: 1rem;
+  width: 0.95rem;
+  height: 0.95rem;
   stroke-width: 2.1;
 }
 
-.role-chip [data-lucide],
 .icon-preview-card [data-lucide] {
   width: 1.25rem;
   height: 1.25rem;
@@ -244,11 +235,12 @@ canvas {
     flex-direction: column;
   }
 
-  .actions-row {
+  .section-heading {
+    align-items: flex-start;
     flex-direction: column;
   }
 
-  .actions-row button {
-    width: 100%;
+  .section-heading button {
+    align-self: flex-end;
   }
 }

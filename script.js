@@ -63,8 +63,6 @@ const controls = {
 };
 
 const ui = {
-  roleChipIcon: document.getElementById("roleChipIcon"),
-  roleChipLabel: document.getElementById("roleChipLabel"),
   selectedRoleIcon: document.getElementById("selectedRoleIcon"),
   selectedRoleText: document.getElementById("selectedRoleText")
 };
@@ -135,13 +133,7 @@ function renderLucideMarkup(name, attrs = {}) {
 function syncLucideUi() {
   const role = ROLE_CONFIG[state.role];
 
-  ui.roleChipLabel.textContent = role.label;
   ui.selectedRoleText.textContent = `${role.iconLabel} para ${role.label}`;
-  ui.roleChipIcon.innerHTML = renderLucideMarkup(role.lucideName, {
-    width: "20",
-    height: "20",
-    "stroke-width": "2.1"
-  });
   ui.selectedRoleIcon.innerHTML = renderLucideMarkup(role.lucideName, {
     width: "24",
     height: "24",
