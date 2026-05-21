@@ -2,6 +2,7 @@
   "name": "avatar-generator",
   "version": "1.5",
   "private": true,
+  "packageManager": "yarn@1.22.22",
   "description": "Avatar generator for community teams",
   "scripts": {
     "start": "node server.js",

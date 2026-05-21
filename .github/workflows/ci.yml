@@ -20,21 +20,21 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 24
-          cache: npm
+          cache: yarn
 
       - name: Install dependencies
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Check syntax
         run: |
           node --check server.js
-          node --check script.js
+          node --check src/script.js
 
       - name: Run linter
-        run: npm run lint
+        run: yarn lint
 
       - name: Run unit tests
-        run: npm test
+        run: yarn test
 
   build:
     runs-on: ubuntu-latest
@@ -48,10 +48,10 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 24
-          cache: npm
+          cache: yarn
 
       - name: Install dependencies
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Build static export
-        run: npm run build
+        run: yarn build

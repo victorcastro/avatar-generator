@@ -10,15 +10,15 @@ A simple Node.js tool for generating circular community avatars. It allows you t
 ## Requirements
 
 - Node.js 24+
-- npm 10+
+- Yarn 1.22+
 
 The project uses modern actions and dependencies compatible with Node 24. It is not intended for earlier versions.
 
 ## Run
 
 ```bash
-npm install
-npm start
+yarn install
+yarn start
 ```
 
 Open `http://localhost:3000`.
@@ -26,12 +26,12 @@ Open `http://localhost:3000`.
 ## Quality and Build
 
 ```bash
-npm run lint
-npm test
-npm run build
+yarn lint
+yarn test
+yarn build
 ```
 
-After `npm run build`, the production-ready static site is available in `dist/`.
+After `yarn build`, the production-ready static site is available in `dist/`.
 
 ## Dependencies
 

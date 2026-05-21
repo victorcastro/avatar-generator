@@ -5,6 +5,7 @@
 ### Updated
 - Frontend source files are now grouped under `src/` to keep source and build output separated.
 - The homepage now builds from `src/index.hbs` into static `dist/index.html`.
+- The project now uses `yarn` as its package manager and CI install command.
 
 ## [1.4] - 2026-05-21
 
@@ -16,6 +17,7 @@
 
 ### Features
 - The static build now copies `og-image.png` into `dist/` for deployment.
+- The homepage now builds from `index.hbs` into static `dist/index.html`.
 
 ## [1.3] - 2026-05-21
 
