@@ -3,7 +3,23 @@
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Generate standardized community avatars with a circular template, role badges, and instant PNG export.">
       <title>Community Avatar Generator</title>
+      <link rel="canonical" href="https://victorcastro.github.io/avatar-generator/">
+      <meta property="og:locale" content="en_US">
+      <meta property="og:type" content="website">
+      <meta property="og:site_name" content="Community Avatar Generator">
+      <meta property="og:title" content="Community Avatar Generator">
+      <meta property="og:description" content="Generate standardized community avatars with a circular template, role badges, and instant PNG export.">
+      <meta property="og:url" content="https://victorcastro.github.io/avatar-generator/">
+      <meta property="og:image" content="https://victorcastro.github.io/avatar-generator/og-image.png">
+      <meta property="og:image:type" content="image/png">
+      <meta property="og:image:width" content="1200">
+      <meta property="og:image:height" content="630">
+      <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:title" content="Community Avatar Generator">
+      <meta name="twitter:description" content="Generate standardized community avatars with a circular template, role badges, and instant PNG export.">
+      <meta name="twitter:image" content="https://victorcastro.github.io/avatar-generator/og-image.png">
       <link rel="stylesheet" href="/node_modules/@picocss/pico/css/pico.red.min.css">
       <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
       <link rel="stylesheet" href="styles.css">
@@ -11,17 +27,20 @@
   <body>
     <main class="shell container-fluid">
       <section class="hero-panel">
-        <a
-          class="repo-link"
-          href="https://github.com/victorcastro/avatar-generator"
-          target="_blank"
-          rel="noreferrer noopener"
-          aria-label="Open GitHub repository"
-          title="GitHub repository"
-        >
-          <i class="fa-brands fa-github" aria-hidden="true"></i>
-          <span class="repo-link__text">View code</span>
-        </a>
+        <div class="hero-actions">
+          <span class="site-version" aria-label="Website version">v{{appVersion}}</span>
+          <a
+            class="repo-link"
+            href="https://github.com/victorcastro/avatar-generator"
+            target="_blank"
+            rel="noreferrer noopener"
+            aria-label="Open GitHub repository"
+            title="GitHub repository"
+          >
+            <i class="fa-brands fa-github" aria-hidden="true"></i>
+            <span class="repo-link__text">Source Code</span>
+          </a>
+        </div>
         <p class="eyebrow">Node.js Utility</p>
         <div class="hero-copy">
           <div>

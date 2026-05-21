@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const Handlebars = require("handlebars");
 const CleanCSS = require("clean-css");
 const { minify: minifyHtml } = require("html-minifier-terser");
 const terser = require("terser");
@@ -7,6 +8,7 @@ const terser = require("terser");
 const rootDir = __dirname;
 const distDir = path.join(rootDir, "dist");
 const vendorDir = path.join(distDir, "vendor");
+const templateSource = path.join(rootDir, "index.hbs");
 const picoSource = path.join(rootDir, "node_modules", "@picocss", "pico", "css", "pico.red.min.css");
 const lucideSource = path.join(rootDir, "node_modules", "lucide", "dist", "umd", "lucide.min.js");
 const fontAwesomeCssSource = path.join(
@@ -81,6 +83,19 @@ function cleanDist() {
   ensureDir(vendorDir);
 }
 
+function getTemplateContext() {
+  const packageJson = JSON.parse(fs.readFileSync(path.join(rootDir, "package.json"), "utf8"));
+
+  return {
+    appVersion: packageJson.version
+  };
+}
+
+function renderIndexTemplate() {
+  const template = fs.readFileSync(templateSource, "utf8");
+  return Handlebars.compile(template)(getTemplateContext());
+}
+
 async function build() {
   cleanDist();
   fs.writeFileSync(path.join(distDir, ".nojekyll"), "");
@@ -89,6 +104,7 @@ async function build() {
   copyFile(lucideSource, path.join(vendorDir, "lucide.min.js"));
   copyFile(fontAwesomeCssSource, path.join(vendorDir, "fontawesome", "css", "all.min.css"));
   copyDirectory(fontAwesomeWebfontsSource, path.join(vendorDir, "fontawesome", "webfonts"));
+  copyFile(path.join(rootDir, "og-image.png"), path.join(distDir, "og-image.png"));
   await writeMinifiedTextFile(path.join(rootDir, "styles.css"), path.join(distDir, "styles.css"), async (css) =>
     minifyCss(css)
   );
@@ -117,9 +133,9 @@ async function build() {
     })
   );
 
-  await writeMinifiedTextFile(path.join(rootDir, "index.html"), path.join(distDir, "index.html"), (html) =>
+  await writeMinifiedTextFile(templateSource, path.join(distDir, "index.html"), () =>
     minifyHtml(
-      html
+      renderIndexTemplate()
         .replace("/node_modules/@picocss/pico/css/pico.red.min.css", "./vendor/pico.red.min.css")
         .replace("/node_modules/@fortawesome/fontawesome-free/css/all.min.css", "./vendor/fontawesome/css/all.min.css")
         .replace("/node_modules/lucide/dist/umd/lucide.min.js", "./vendor/lucide.min.js"),

@@ -1,10 +1,12 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const Handlebars = require("handlebars");
 
 const PORT = process.env.PORT || 3000;
 const HOST = "127.0.0.1";
 const ROOT = __dirname;
+const TEMPLATE_PATH = path.join(ROOT, "index.hbs");
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -29,8 +31,29 @@ function resolveFile(urlPath) {
   return filePath;
 }
 
+function getTemplateContext() {
+  const packageJson = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
+
+  return {
+    appVersion: packageJson.version
+  };
+}
+
+function renderIndex() {
+  const template = fs.readFileSync(TEMPLATE_PATH, "utf8");
+  return Handlebars.compile(template)(getTemplateContext());
+}
+
 const server = http.createServer((req, res) => {
-  const filePath = resolveFile(req.url.split("?")[0]);
+  const urlPath = req.url.split("?")[0];
+
+  if (urlPath === "/" || urlPath === "/index.html") {
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    res.end(renderIndex());
+    return;
+  }
+
+  const filePath = resolveFile(urlPath);
 
   if (!filePath) {
     res.writeHead(403);

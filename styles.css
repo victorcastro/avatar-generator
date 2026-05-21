@@ -36,10 +36,25 @@ body {
   max-width: 1360px;
 }
 
-.repo-link {
+.hero-actions {
   position: absolute;
   top: 0.1rem;
   right: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.site-version {
+  color: rgba(198, 204, 212, 0.34);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.repo-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -278,6 +293,10 @@ canvas {
   }
 
   .repo-link {
+    top: 0;
+  }
+
+  .hero-actions {
     top: 0;
     right: 0;
   }
