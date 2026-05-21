@@ -8,12 +8,9 @@
 - Subtle visible version label in the homepage header to identify the active web revision.
 - `Handlebars` templating for the homepage so the visible app version is rendered from `package.json`.
 
-### Build
+### Features
 - The static build now copies `og-image.png` into `dist/` for deployment.
 - The homepage now builds from `index.hbs` into static `dist/index.html`.
-
-### Runtime
-- `npm start` now renders the `Handlebars` homepage template dynamically in local development.
 
 ## [1.3] - 2026-05-21
 
