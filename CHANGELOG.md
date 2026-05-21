@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2] - 2026-05-21
+
+### Release Automation
+- Added a GitHub Actions workflow that creates numeric tags from `package.json` on merges to `main`.
+- The release workflow now creates a GitHub Release using the matching section from `CHANGELOG.md`.
+
 ## [1.1] - 2026-05-21
 
 ### Added
