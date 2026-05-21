@@ -1,6 +1,16 @@
 # Changelog
 
-## [1.0.0] - Current
+## [1.1] - 2026-05-21
+
+### Added
+- Subtle GitHub repo link in the hero header with a `View code` label.
+- Automated GitHub Actions workflow that creates numeric tags from `package.json` on merges to `main`.
+
+### Updated
+- All homepage copy in `index.html` is now in English.
+- Card headers keep the rounded top corners visually clean.
+
+## [1.0] - 2026-05-19
 
 ### Added
 - Generacion de avatares circulares para comunidades y equipos.
@@ -25,4 +35,3 @@
 - Servidor local Node.js para desarrollo con `npm start`.
 - Carga de `Lucide` para los iconos secundarios de la interfaz.
 - Carga local de `Font Awesome` para los iconos de rol.
-
