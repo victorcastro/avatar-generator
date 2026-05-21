@@ -1,0 +1,50 @@
+name: Tag Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Fetch tags
+        run: git fetch --tags --force
+
+      - name: Read version
+        id: version
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+$'; then
+            echo "Version must be in the form X.Y, got: $VERSION" >&2
+            exit 1
+          fi
+
+          echo "value=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Create tag
+        run: |
+          TAG="${{ steps.version.outputs.value }}"
+
+          if git rev-parse --verify "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists. Skipping."
+            exit 0
+          fi
+
+          git tag "$TAG"
+          git push origin "$TAG"
