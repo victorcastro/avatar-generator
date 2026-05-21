@@ -1,10 +1,18 @@
 # Avatar Generator
 
+[![Deploy GithubPages](https://github.com/victorcastro/avatar-generator/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/victorcastro/avatar-generator/actions/workflows/deploy-pages.yml)
+[![Build Check](https://github.com/victorcastro/avatar-generator/actions/workflows/ci.yml/badge.svg)](https://github.com/victorcastro/avatar-generator/actions/workflows/ci.yml)
+
+Live site: https://victorcastro.github.io/avatar-generator
+
 A simple Node.js tool for generating circular community avatars. It allows you to upload a background image, a transparent PNG of the person, adjust scale and position, choose a role, and print the result as a PNG.
 
-## Requisitos
+## Requirements
 
-- Node.js 18+
+- Node.js 24+
+- npm 10+
+
+The project uses modern actions and dependencies compatible with Node 24. It is not intended for earlier versions.
 
 ## Run
 
@@ -13,20 +21,28 @@ npm install
 npm start
 ```
 
-open `http://localhost:3000`.
+Open `http://localhost:3000`.
 
-## Export for static site
+## Quality and Build
 
 ```bash
+npm run lint
+npm test
 npm run build
 ```
 
 ## Dependencies
 
-- `@picocss/pico`
-- `lucide`
+The project is split into runtime and build/quality dependencies:
 
-## Notes
-
-- El render vive en `canvas`
-- La exportación usa el mismo estado que el preview
+- Runtime:
+  - `@fortawesome/fontawesome-free`
+  - `@picocss/pico`
+  - `lucide`
+- Build and quality:
+  - `clean-css`
+  - `html-minifier-terser`
+  - `terser`
+  - `eslint`
+  - `@eslint/js`
+  - `globals`
