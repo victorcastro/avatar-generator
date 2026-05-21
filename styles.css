@@ -31,8 +31,50 @@ body {
 }
 
 .hero-panel {
+  position: relative;
   margin: 0 auto 1.5rem;
   max-width: 1360px;
+}
+
+.repo-link {
+  position: absolute;
+  top: 0.1rem;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  color: rgba(198, 204, 212, 0.54);
+  font-size: 0.74rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    color 160ms ease,
+    opacity 160ms ease;
+}
+
+.repo-link .fa-github {
+  font-size: 1.05rem;
+  opacity: 0.72;
+}
+
+.repo-link__text {
+  color: inherit;
+}
+
+.repo-link:hover,
+.repo-link:focus-visible {
+  color: rgba(215, 221, 228, 0.92);
+  opacity: 1;
+}
+
+.repo-link:focus-visible {
+  outline: 2px solid rgba(214, 40, 57, 0.35);
+  outline-offset: 0.3rem;
+  border-radius: 0;
 }
 
 .hero-copy {
@@ -70,6 +112,7 @@ small {
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(16, 18, 22, 0.82);
   box-shadow: var(--panel-shadow);
+  overflow: hidden;
 }
 
 .controls-card {
@@ -83,6 +126,8 @@ small {
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1.25rem;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
 }
 
 .section-heading > :last-child {
@@ -230,6 +275,11 @@ canvas {
 @media (max-width: 720px) {
   .shell {
     padding-inline: 0.85rem;
+  }
+
+  .repo-link {
+    top: 0;
+    right: 0;
   }
 
   .hero-copy {
