@@ -6,7 +6,8 @@ const Handlebars = require("handlebars");
 const PORT = process.env.PORT || 3000;
 const HOST = "127.0.0.1";
 const ROOT = __dirname;
-const TEMPLATE_PATH = path.join(ROOT, "index.hbs");
+const SOURCE_DIR = path.join(ROOT, "src");
+const TEMPLATE_PATH = path.join(SOURCE_DIR, "index.hbs");
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -22,13 +23,19 @@ const MIME_TYPES = {
 
 function resolveFile(urlPath) {
   const cleanPath = urlPath === "/" ? "/index.html" : urlPath;
-  const filePath = path.normalize(path.join(ROOT, cleanPath));
+  const sourcePath = path.normalize(path.join(SOURCE_DIR, cleanPath));
 
-  if (!filePath.startsWith(ROOT)) {
+  if (sourcePath.startsWith(SOURCE_DIR) && fs.existsSync(sourcePath)) {
+    return sourcePath;
+  }
+
+  const rootPath = path.normalize(path.join(ROOT, cleanPath));
+
+  if (!rootPath.startsWith(ROOT)) {
     return null;
   }
 
-  return filePath;
+  return rootPath;
 }
 
 function getTemplateContext() {

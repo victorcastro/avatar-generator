@@ -7,8 +7,6 @@ Live site: https://victorcastro.github.io/avatar-generator
 
 A simple Node.js tool for generating circular community avatars. It allows you to upload a background image, a transparent PNG of the person, adjust scale and position, choose a role, and print the result as a PNG.
 
-The main page is authored as a `Handlebars` template in `index.hbs`. During local development, `npm start` renders that template on the fly, and `npm run build` compiles it into a static `dist/index.html` ready for GitHub Pages or any static hosting.
-
 ## Requirements
 
 - Node.js 24+
