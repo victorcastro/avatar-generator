@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.6] - 2026-08-21
+
+### Changed
+- Replaced the three GitHub Actions workflows (`ci.yml`, `tag-release.yml`, `deploy-pages.yml`) with two: `pr.yml` (pull requests) and `main.yml` (pushes to `main`).
+- Pull requests now gate on a version bump (`package.json`) and matching `CHANGELOG.md` entry versus `main` before merge.
+
 ## [1.5] - 2026-05-21
 
 ### Updated
