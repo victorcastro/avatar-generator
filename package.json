@@ -1,6 +1,6 @@
 {
   "name": "avatar-generator",
-  "version": "1.7",
+  "version": "1.8",
   "private": true,
   "packageManager": "yarn@1.22.22",
   "description": "Avatar generator for community teams",
@@ -20,8 +20,10 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.2.0",
+    "@imgly/background-removal": "1.7.0",
     "@picocss/pico": "^2.1.1",
     "handlebars": "^4.7.9",
-    "lucide": "^1.16.0"
+    "lucide": "^1.16.0",
+    "onnxruntime-web": "1.21.0"
   }
 }

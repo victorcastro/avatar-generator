@@ -17,7 +17,12 @@ const {
   getDropTargetLayer,
   getLayerHint,
   getDefaultLayerTransform,
-  isAcceptedImageType
+  isAcceptedImageType,
+  hasAlphaChannel,
+  getAlphaSampleSize,
+  getCutoutProgressMessage,
+  BACKGROUND_REMOVAL,
+  SCALE_LIMITS
 } = window.AvatarCore;
 
 const canvas = document.getElementById("avatarCanvas");
@@ -34,7 +39,16 @@ const state = {
   portraitScale: 1,
   portraitOffsetX: 0,
   portraitOffsetY: 12,
-  portraitImage: null
+  portraitImage: null,
+  removePortraitBackground: true
+};
+
+const portraitSource = {
+  file: null,
+  originalImage: null,
+  cutoutImage: null,
+  requestId: 0,
+  busy: false
 };
 
 const controls = {
@@ -44,6 +58,8 @@ const controls = {
   backgroundScale: document.getElementById("backgroundScale"),
   portraitUpload: document.getElementById("portraitUpload"),
   portraitScale: document.getElementById("portraitScale"),
+  portraitCutout: document.getElementById("portraitCutout"),
+  portraitCutoutStatus: document.getElementById("portraitCutoutStatus"),
   downloadButton: document.getElementById("downloadButton"),
   canvasFrame: document.getElementById("canvasFrame"),
   canvasHint: document.getElementById("canvasHint"),
@@ -51,8 +67,12 @@ const controls = {
   backgroundDropzone: document.getElementById("backgroundDropzone"),
   portraitDropzone: document.getElementById("portraitDropzone"),
   backgroundFileName: document.getElementById("backgroundFileName"),
-  portraitFileName: document.getElementById("portraitFileName")
+  portraitFileName: document.getElementById("portraitFileName"),
+  backgroundClear: document.getElementById("backgroundClear"),
+  portraitClear: document.getElementById("portraitClear")
 };
+
+const EMPTY_FILE_NAME = "No file selected";
 
 const LAYER_KEYS = {
   background: {
@@ -61,7 +81,8 @@ const LAYER_KEYS = {
     offsetX: "backgroundOffsetX",
     offsetY: "backgroundOffsetY",
     scaleControl: "backgroundScale",
-    fileName: "backgroundFileName"
+    fileName: "backgroundFileName",
+    clearButton: "backgroundClear"
   },
   portrait: {
     image: "portraitImage",
@@ -69,7 +90,8 @@ const LAYER_KEYS = {
     offsetX: "portraitOffsetX",
     offsetY: "portraitOffsetY",
     scaleControl: "portraitScale",
-    fileName: "portraitFileName"
+    fileName: "portraitFileName",
+    clearButton: "portraitClear"
   }
 };
 
@@ -90,7 +112,7 @@ const CHECKER_LIGHT = "#2b3038";
 const CHECKER_DARK = "#22262d";
 const PLACEHOLDER_RING = "rgba(255, 255, 255, 0.16)";
 
-function loadImageFromFile(file) {
+function loadImageFromBlob(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
@@ -104,6 +126,33 @@ function loadImageFromFile(file) {
     reader.onerror = () => reject(new Error("No se pudo leer el archivo"));
     reader.readAsDataURL(file);
   });
+}
+
+function imageHasTransparency(image) {
+  const sample = getAlphaSampleSize(image.width, image.height);
+
+  if (!sample.width || !sample.height) {
+    return false;
+  }
+
+  const sampleCanvas = document.createElement("canvas");
+  sampleCanvas.width = sample.width;
+  sampleCanvas.height = sample.height;
+
+  const sampleContext = sampleCanvas.getContext("2d", { willReadFrequently: true });
+  sampleContext.drawImage(image, 0, 0, sample.width, sample.height);
+
+  return hasAlphaChannel(sampleContext.getImageData(0, 0, sample.width, sample.height).data);
+}
+
+let backgroundRemoval = null;
+
+function loadBackgroundRemoval() {
+  if (!backgroundRemoval) {
+    backgroundRemoval = import(window.AVATAR_BACKGROUND_REMOVAL_URL);
+  }
+
+  return backgroundRemoval;
 }
 
 function getLucideData(name) {
@@ -355,13 +404,15 @@ function getCheckerPattern() {
 }
 
 function drawLayerPlaceholder(metrics) {
-  if (state.backgroundImage || state.portraitImage) {
-    return;
-  }
+  const isEmpty = !state.backgroundImage && !state.portraitImage;
 
   withCircularClip(metrics, () => {
     context.fillStyle = getCheckerPattern();
     context.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (!isEmpty) {
+      return;
+    }
 
     context.strokeStyle = PLACEHOLDER_RING;
     context.lineWidth = 2;
@@ -504,6 +555,136 @@ function panLayer(layer, dx, dy) {
   });
 }
 
+const CUTOUT_IDLE_MESSAGE = "Runs in your browser, the first run downloads the model";
+
+function setCutoutStatus(message) {
+  controls.portraitCutoutStatus.textContent = message;
+}
+
+function setCutoutBusy(busy) {
+  portraitSource.busy = busy;
+  controls.portraitCutout.disabled = busy;
+  controls.portraitDropzone.classList.toggle("is-busy", busy);
+}
+
+function setPortraitImage(image) {
+  state.portraitImage = image;
+  applyLayerTransform("portrait", {
+    scale: state.portraitScale,
+    offsetX: state.portraitOffsetX,
+    offsetY: state.portraitOffsetY
+  });
+}
+
+async function runBackgroundRemoval() {
+  if (!portraitSource.file) {
+    return;
+  }
+
+  if (portraitSource.cutoutImage) {
+    setPortraitImage(portraitSource.cutoutImage);
+    setCutoutStatus("Background removed");
+    return;
+  }
+
+  if (imageHasTransparency(portraitSource.originalImage)) {
+    portraitSource.cutoutImage = portraitSource.originalImage;
+    setCutoutStatus("The image already has transparency");
+    return;
+  }
+
+  portraitSource.requestId += 1;
+  const requestId = portraitSource.requestId;
+
+  setCutoutBusy(true);
+  setCutoutStatus("Preparing the background remover");
+
+  try {
+    const { removeBackground } = await loadBackgroundRemoval();
+    const cutout = await removeBackground(portraitSource.file, {
+      model: BACKGROUND_REMOVAL.model,
+      output: { format: BACKGROUND_REMOVAL.outputFormat },
+      progress: (key, current, total) => {
+        if (requestId === portraitSource.requestId) {
+          setCutoutStatus(getCutoutProgressMessage(key, current, total));
+        }
+      }
+    });
+
+    const image = await loadImageFromBlob(cutout);
+
+    if (requestId !== portraitSource.requestId) {
+      return;
+    }
+
+    portraitSource.cutoutImage = image;
+
+    if (state.removePortraitBackground) {
+      setPortraitImage(image);
+      setCutoutStatus("Background removed");
+      setStatus("The portrait background was removed");
+    }
+  } catch (error) {
+    backgroundRemoval = null;
+
+    if (requestId !== portraitSource.requestId) {
+      return;
+    }
+
+    setCutoutStatus("Background removal failed, keeping the original image");
+    setStatus(`Background removal failed: ${error.message}`);
+  } finally {
+    if (requestId === portraitSource.requestId) {
+      setCutoutBusy(false);
+    }
+  }
+}
+
+function resetPortraitSource(file, image) {
+  portraitSource.file = file;
+  portraitSource.originalImage = image;
+  portraitSource.cutoutImage = null;
+  portraitSource.requestId += 1;
+
+  setCutoutBusy(false);
+  setCutoutStatus(CUTOUT_IDLE_MESSAGE);
+
+  if (state.removePortraitBackground) {
+    runBackgroundRemoval();
+  }
+}
+
+function setLayerFileName(layer, message) {
+  const keys = LAYER_KEYS[layer];
+
+  controls[keys.fileName].textContent = message;
+  controls[keys.clearButton].hidden = !state[keys.image];
+}
+
+function clearLayer(layer) {
+  const keys = LAYER_KEYS[layer];
+
+  state[keys.image] = null;
+  state[keys.scale] = SCALE_LIMITS.min;
+  state[keys.offsetX] = 0;
+  state[keys.offsetY] = 0;
+  controls[keys.scaleControl].value = String(SCALE_LIMITS.min);
+
+  if (layer === "portrait") {
+    portraitSource.file = null;
+    portraitSource.originalImage = null;
+    portraitSource.cutoutImage = null;
+    portraitSource.requestId += 1;
+    setCutoutBusy(false);
+    setCutoutStatus(CUTOUT_IDLE_MESSAGE);
+  }
+
+  setLayerFileName(layer, EMPTY_FILE_NAME);
+  setStatus(`The ${layer} image was removed`);
+  requestRender();
+  refreshHint(false);
+}
+
 async function handleImageInput(file, layer) {
   if (!file) {
     return;
@@ -513,17 +694,21 @@ async function handleImageInput(file, layer) {
 
   if (!isAcceptedImageType(layer, file.type)) {
     const message = `That file type is not supported for the ${layer}`;
-    controls[keys.fileName].textContent = message;
+    setLayerFileName(layer, message);
     setStatus(message);
     return;
   }
 
   try {
-    const image = await loadImageFromFile(file);
+    const image = await loadImageFromBlob(file);
     state[keys.image] = image;
     applyLayerTransform(layer, getDefaultLayerTransform(layer));
-    controls[keys.fileName].textContent = file.name;
+    setLayerFileName(layer, file.name);
     setStatus(`${file.name} loaded as the ${layer}`);
+
+    if (layer === "portrait") {
+      resetPortraitSource(file, image);
+    }
   } catch (error) {
     window.alert(error.message);
   }
@@ -558,6 +743,34 @@ function bindUploadControl(layer) {
 
 bindUploadControl("background");
 bindUploadControl("portrait");
+
+function bindClearControl(layer) {
+  controls[LAYER_KEYS[layer].clearButton].addEventListener("click", () => {
+    clearLayer(layer);
+  });
+}
+
+bindClearControl("background");
+bindClearControl("portrait");
+
+controls.portraitCutout.addEventListener("change", (event) => {
+  state.removePortraitBackground = event.target.checked;
+
+  if (!portraitSource.file) {
+    setCutoutStatus(CUTOUT_IDLE_MESSAGE);
+    return;
+  }
+
+  if (state.removePortraitBackground) {
+    runBackgroundRemoval();
+    return;
+  }
+
+  portraitSource.requestId += 1;
+  setCutoutBusy(false);
+  setPortraitImage(portraitSource.originalImage);
+  setCutoutStatus("Using the original image");
+});
 
 canvas.addEventListener("pointerdown", (event) => {
   if (event.pointerType === "mouse" && event.button !== 0) {
@@ -770,6 +983,8 @@ Object.values(ROLE_CONFIG).forEach((role) => {
     getSvgIcon(role.iconSrc);
   }
 });
+
+state.removePortraitBackground = controls.portraitCutout.checked;
 
 refreshHint(false);
 drawAvatar();

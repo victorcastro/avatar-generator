@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.8] - 2026-08-21
+
+### Added
+- The portrait layer now accepts JPG and WEBP on top of PNG, matching what the background already took. Requiring a pre-cut PNG was the only reason the two layers had different rules.
+- Background removal for the portrait, running entirely in the browser through `@imgly/background-removal` and `onnxruntime-web`. It is on by default and a `Remove background` checkbox switches back to the original image; both versions are kept in memory, so toggling never re-runs the model.
+- Portraits that already carry a transparent pixel are detected from a downscaled sample and skip the model entirely, so cut-out PNGs keep their own alpha.
+- Progress feedback under the checkbox while the model downloads and runs, and an inline failure message that keeps the original image instead of leaving the layer empty.
+- A clear button next to each file name, shown only while that layer holds an image. It drops the image, resets the zoom and the offsets, and on the portrait it also drops the cached cut-out. Replacing a layer used to be the only way to get rid of it.
+
+### Changed
+- The transparency checkerboard now stays under the composition instead of only showing on the empty state, so the holes left by a cut-out portrait read as transparent. The dashed outline still belongs to the empty state, and neither is drawn when rendering for export.
+- `src/index.hbs` declares an import map for `onnxruntime-web`; `@imgly/background-removal` resolves that bare specifier at runtime and cannot load without it.
+- The dev server serves `.mjs` as JavaScript and `.wasm` as `application/wasm`.
+
+### Fixed
+- A background loaded on its own claimed the hint `Moving the background — release Alt to move the portrait`, naming a modifier that was not held and a portrait that did not exist. It now reads as a plain drag.
+
+### Notes
+- Only the two ES modules are vendored into `dist/` (~570 KB). The segmentation model and the ONNX Runtime WebAssembly binaries — around 55 MB for the `isnet_quint8` model — are fetched from `staticimgly.com` on first use and cached by the browser. Images are never uploaded anywhere: only the model travels over the network.
+- Removal runs on the WebAssembly execution provider (`device: "cpu"`). WebGPU would be faster but pulls a 23 MB runtime instead of 11.8 MB and is uneven across browsers.
+
 ## [1.7] - 2026-08-21
 
 ### Added

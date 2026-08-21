@@ -20,7 +20,10 @@ const {
   getDropTargetLayer,
   getLayerHint,
   getDefaultLayerTransform,
-  isAcceptedImageType
+  isAcceptedImageType,
+  hasAlphaChannel,
+  getAlphaSampleSize,
+  getCutoutProgressMessage
 } = require("../src/avatar-core.js");
 
 test("role config keeps every supported selector option mapped to a drawable icon", () => {
@@ -266,13 +269,42 @@ test("arrow keys pan by one pixel and by ten while shift is held", () => {
   assert.equal(getKeyboardPanStep("Enter", false), null);
 });
 
-test("the portrait layer only accepts PNG while the background also takes JPEG and WEBP", () => {
+test("both layers accept PNG, JPEG and WEBP and reject anything else", () => {
   assert.equal(isAcceptedImageType("portrait", "image/png"), true);
-  assert.equal(isAcceptedImageType("portrait", "image/jpeg"), false);
+  assert.equal(isAcceptedImageType("portrait", "image/jpeg"), true);
+  assert.equal(isAcceptedImageType("portrait", "image/webp"), true);
   assert.equal(isAcceptedImageType("background", "image/jpeg"), true);
   assert.equal(isAcceptedImageType("background", "image/webp"), true);
   assert.equal(isAcceptedImageType("background", ""), false);
   assert.equal(isAcceptedImageType("portrait", "application/pdf"), false);
+});
+
+test("alpha detection only reports images that carry a non-opaque pixel", () => {
+  const opaque = new Uint8ClampedArray([10, 20, 30, 255, 40, 50, 60, 255]);
+  const translucent = new Uint8ClampedArray([10, 20, 30, 255, 40, 50, 60, 254]);
+  const cutout = new Uint8ClampedArray([10, 20, 30, 0, 40, 50, 60, 255]);
+
+  assert.equal(hasAlphaChannel(opaque), false);
+  assert.equal(hasAlphaChannel(translucent), true);
+  assert.equal(hasAlphaChannel(cutout), true);
+  assert.equal(hasAlphaChannel(null), false);
+});
+
+test("the alpha sample is capped on its longest side and never collapses to zero", () => {
+  assert.deepEqual(getAlphaSampleSize(4096, 2048), { width: 256, height: 128 });
+  assert.deepEqual(getAlphaSampleSize(120, 60), { width: 120, height: 60 });
+  assert.deepEqual(getAlphaSampleSize(4096, 1), { width: 256, height: 1 });
+  assert.deepEqual(getAlphaSampleSize(0, 0), { width: 0, height: 0 });
+});
+
+test("cutout progress names the phase and clamps the percentage", () => {
+  assert.equal(
+    getCutoutProgressMessage("fetch:/models/isnet_quint8", 22, 44),
+    "Downloading the background remover 50%"
+  );
+  assert.equal(getCutoutProgressMessage("compute:inference", 1, 1), "Removing the background 100%");
+  assert.equal(getCutoutProgressMessage("compute:inference", 1, 0), "Removing the background 0%");
+  assert.equal(getCutoutProgressMessage("", 3, 2), "Removing the background 100%");
 });
 
 test("the hint names the Alt shortcut only when a background is available", () => {
@@ -285,6 +317,14 @@ test("the hint names the Alt shortcut only when a background is available", () =
   assert.doesNotMatch(portraitOnly, /Alt/);
   assert.match(empty, /Add a portrait/);
   assert.match(locked, /Zoom in/);
+});
+
+test("a background left on its own is dragged without Alt", () => {
+  const alone = getLayerHint({ layer: "background", hasPortrait: false, hasBackground: true, canPan: true });
+  const withPortrait = getLayerHint({ layer: "background", hasPortrait: true, hasBackground: true, canPan: true });
+
+  assert.doesNotMatch(alone, /Alt/);
+  assert.match(withPortrait, /Alt/);
 });
 
 test("layer defaults preserve the portrait nudge and load images already zoomed", () => {

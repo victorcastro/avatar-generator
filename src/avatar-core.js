@@ -76,7 +76,18 @@
 
   const ACCEPTED_IMAGE_TYPES = {
     background: ["image/png", "image/jpeg", "image/webp"],
-    portrait: ["image/png"]
+    portrait: ["image/png", "image/jpeg", "image/webp"]
+  };
+
+  const BACKGROUND_REMOVAL = {
+    model: "isnet_quint8",
+    outputFormat: "image/png",
+    alphaSampleSize: 256
+  };
+
+  const CUTOUT_PHASE_LABELS = {
+    fetch: "Downloading the background remover",
+    compute: "Removing the background"
   };
 
   const WHEEL_ZOOM_SENSITIVITY = 0.0015;
@@ -309,7 +320,9 @@
     }
 
     if (layer === "background") {
-      return "Moving the background — release Alt to move the portrait";
+      return hasPortrait
+        ? "Moving the background — release Alt to move the portrait"
+        : "Drag to move the background — scroll to zoom, double-click to center";
     }
 
     if (hasBackground) {
@@ -335,6 +348,44 @@
     return accepted.includes(mimeType);
   }
 
+  function hasAlphaChannel(pixels) {
+    if (!pixels || typeof pixels.length !== "number") {
+      return false;
+    }
+
+    for (let index = 3; index < pixels.length; index += 4) {
+      if (pixels[index] < 255) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function getAlphaSampleSize(width, height) {
+    const largestSide = Math.max(Number(width) || 0, Number(height) || 0);
+
+    if (largestSide <= 0) {
+      return { width: 0, height: 0 };
+    }
+
+    const ratio = Math.min(1, BACKGROUND_REMOVAL.alphaSampleSize / largestSide);
+
+    return {
+      width: Math.max(1, Math.round(width * ratio)),
+      height: Math.max(1, Math.round(height * ratio))
+    };
+  }
+
+  function getCutoutProgressMessage(key, current, total) {
+    const phase = String(key || "").split(":")[0];
+    const label = CUTOUT_PHASE_LABELS[phase] || CUTOUT_PHASE_LABELS.compute;
+    const ratio = Number(total) > 0 ? Number(current) / Number(total) : 0;
+    const percent = clampNumber(Math.round(ratio * 100), 0, 100);
+
+    return `${label} ${percent}%`;
+  }
+
   function getDownloadFilename(titleText, roleLabel) {
     const safeRole = roleLabel.toLowerCase();
     const safeTitle = (titleText.trim() || safeRole).toLowerCase().replace(/[^a-z0-9]+/g, "-");
@@ -349,6 +400,8 @@
     LAYER_DEFAULTS,
     KEYBOARD_PAN_STEP,
     ACCEPTED_IMAGE_TYPES,
+    BACKGROUND_REMOVAL,
+    CUTOUT_PHASE_LABELS,
     ptToPx,
     getCompositionMetrics,
     getFittedTitle,
@@ -367,7 +420,10 @@
     getDropTargetLayer,
     getLayerHint,
     getDefaultLayerTransform,
-    isAcceptedImageType
+    isAcceptedImageType,
+    hasAlphaChannel,
+    getAlphaSampleSize,
+    getCutoutProgressMessage
   };
 
   if (typeof module !== "undefined" && module.exports) {
