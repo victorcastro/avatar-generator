@@ -1,7 +1,6 @@
 # Avatar Generator
 
-[![Deploy GithubPages](https://github.com/victorcastro/avatar-generator/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/victorcastro/avatar-generator/actions/workflows/deploy-pages.yml)
-[![Build Check](https://github.com/victorcastro/avatar-generator/actions/workflows/ci.yml/badge.svg)](https://github.com/victorcastro/avatar-generator/actions/workflows/ci.yml)
+[![Release](https://github.com/victorcastro/avatar-generator/actions/workflows/merge.yml/badge.svg)](https://github.com/victorcastro/avatar-generator/actions/workflows/merge.yml)
 
 Live site: https://victorcastro.github.io/avatar-generator
 
