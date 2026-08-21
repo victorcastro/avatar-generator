@@ -52,19 +52,131 @@
 
       <div class="workspace">
         <article class="controls-card">
-          <div class="controls-stack">
-            <select id="role" name="role" aria-describedby="roleHelp">
-              <option value="ios">iOS</option>
-              <option value="android">Android</option>
-              <option value="react">React</option>
-              <option value="qa">QA</option>
-              <option value="adm">ADM</option>
-              <option value="pm">PM</option>
-              <option value="po">PO</option>
-            </select>
+          <section class="setup-card">
+            <header class="setup-card__header">
+              <span class="step-badge">1</span>
+              <div class="setup-card__heading">
+                <h2>Template and name</h2>
+              </div>
+            </header>
 
-            <input id="titleText" name="titleText" type="text" maxlength="64" value="Tech Lead iOS" placeholder="e.g. Tech Lead iOS">
-          </div>
+            <div class="controls-stack">
+              <div class="field-group">
+                <p class="field-eyebrow">Community</p>
+                <div class="role-chips" id="role">
+                  <label class="role-chip">
+                    <input type="radio" name="role" value="ios" checked>
+                    <span><i class="role-chip__dot" aria-hidden="true"></i>iOS</span>
+                  </label>
+                  <label class="role-chip">
+                    <input type="radio" name="role" value="android">
+                    <span><i class="role-chip__dot" aria-hidden="true"></i>Android</span>
+                  </label>
+                  <label class="role-chip">
+                    <input type="radio" name="role" value="react">
+                    <span><i class="role-chip__dot" aria-hidden="true"></i>React</span>
+                  </label>
+                  <label class="role-chip">
+                    <input type="radio" name="role" value="qa">
+                    <span><i class="role-chip__dot" aria-hidden="true"></i>QA</span>
+                  </label>
+                  <label class="role-chip">
+                    <input type="radio" name="role" value="adm">
+                    <span><i class="role-chip__dot" aria-hidden="true"></i>ADM</span>
+                  </label>
+                  <label class="role-chip">
+                    <input type="radio" name="role" value="pm">
+                    <span><i class="role-chip__dot" aria-hidden="true"></i>PM</span>
+                  </label>
+                  <label class="role-chip">
+                    <input type="radio" name="role" value="po">
+                    <span><i class="role-chip__dot" aria-hidden="true"></i>PO</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div class="field-label-row">
+                  <label for="titleText">Role / Position</label>
+                  <span class="char-counter" id="titleTextCounter">13/64</span>
+                </div>
+                <input id="titleText" name="titleText" type="text" maxlength="64" value="Tech Lead iOS" placeholder="e.g. Tech Lead iOS">
+              </div>
+            </div>
+          </section>
+
+          <section class="setup-card">
+            <header class="setup-card__header">
+              <span class="step-badge">2</span>
+              <div class="setup-card__heading">
+                <h2>Images</h2>
+                <p class="setup-card__subtitle">With either one you can already export.</p>
+              </div>
+            </header>
+
+            <div class="tuning-grid">
+              <div class="tuning-column">
+                <div class="dropzone" id="backgroundDropzone" data-layer="background">
+                  <input id="backgroundUpload" name="backgroundUpload" class="dropzone__input" type="file" accept="image/png,image/jpeg,image/webp">
+                  <label class="dropzone__label" for="backgroundUpload">
+                    <span class="dropzone__icon" data-lucide="image" aria-hidden="true"></span>
+                    <span class="dropzone__text">
+                      <span class="dropzone__title">Background</span>
+                      <span class="dropzone__formats">PNG · JPG · WEBP</span>
+                    </span>
+                    <span class="dropzone__upload-btn">Upload</span>
+                  </label>
+                  <div class="dropzone__status">
+                    <p class="dropzone__file" id="backgroundFileName">No file selected</p>
+                    <button class="dropzone__clear" id="backgroundClear" type="button" hidden aria-label="Remove the background image" title="Remove image">
+                      <span data-lucide="x" aria-hidden="true"></span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="range-block">
+                  <label for="backgroundScale">Zoom</label>
+                  <input id="backgroundScale" name="backgroundScale" type="range" min="1" max="1.8" step="0.01" value="1">
+                </div>
+              </div>
+
+              <div class="tuning-column">
+                <div class="dropzone" id="portraitDropzone" data-layer="portrait">
+                  <input id="portraitUpload" name="portraitUpload" class="dropzone__input" type="file" accept="image/png,image/jpeg,image/webp">
+                  <label class="dropzone__label" for="portraitUpload">
+                    <span class="dropzone__icon" data-lucide="image" aria-hidden="true"></span>
+                    <span class="dropzone__text">
+                      <span class="dropzone__title">Portrait</span>
+                      <span class="dropzone__formats">PNG, JPG or WEBP</span>
+                    </span>
+                    <span class="dropzone__upload-btn">Upload</span>
+                  </label>
+                  <div class="dropzone__status">
+                    <p class="dropzone__file" id="portraitFileName">No file selected</p>
+                    <button class="dropzone__clear" id="portraitClear" type="button" hidden aria-label="Remove the portrait image" title="Remove image">
+                      <span data-lucide="x" aria-hidden="true"></span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="cutout-block">
+                  <label class="cutout-block__toggle" for="portraitCutout">
+                    <span class="switch">
+                      <input id="portraitCutout" name="portraitCutout" type="checkbox" checked aria-describedby="portraitCutoutStatus">
+                      <span class="switch__track"></span>
+                    </span>
+                    <span>Remove background</span>
+                  </label>
+                  <p class="cutout-block__status" id="portraitCutoutStatus">Runs in your browser, the first run downloads the model</p>
+                </div>
+
+                <div class="range-block">
+                  <label for="portraitScale">Zoom</label>
+                  <input id="portraitScale" name="portraitScale" type="range" min="1" max="1.8" step="0.01" value="1">
+                </div>
+              </div>
+            </div>
+          </section>
         </article>
 
         <article class="preview-card">
@@ -88,64 +200,6 @@
           </div>
 
           <p id="canvasStatus" class="sr-only" role="status" aria-live="polite"></p>
-
-          <div class="tuning-grid">
-            <div class="tuning-column">
-              <h3>Background</h3>
-
-              <div class="dropzone" id="backgroundDropzone" data-layer="background">
-                <input id="backgroundUpload" name="backgroundUpload" class="dropzone__input" type="file" accept="image/png,image/jpeg,image/webp">
-                <label class="dropzone__label" for="backgroundUpload">
-                  <span class="dropzone__icon" data-lucide="image-plus" aria-hidden="true"></span>
-                  <span class="dropzone__title">Drop an image or click to browse</span>
-                  <span class="dropzone__formats">PNG, JPG or WEBP</span>
-                </label>
-                <div class="dropzone__status">
-                  <p class="dropzone__file" id="backgroundFileName">No file selected</p>
-                  <button class="dropzone__clear" id="backgroundClear" type="button" hidden aria-label="Remove the background image" title="Remove image">
-                    <span data-lucide="x" aria-hidden="true"></span>
-                  </button>
-                </div>
-              </div>
-
-              <div class="range-block">
-                <label for="backgroundScale">Zoom</label>
-                <input id="backgroundScale" name="backgroundScale" type="range" min="1" max="1.8" step="0.01" value="1">
-              </div>
-            </div>
-
-            <div class="tuning-column">
-              <h3>Portrait</h3>
-
-              <div class="dropzone" id="portraitDropzone" data-layer="portrait">
-                <input id="portraitUpload" name="portraitUpload" class="dropzone__input" type="file" accept="image/png,image/jpeg,image/webp">
-                <label class="dropzone__label" for="portraitUpload">
-                  <span class="dropzone__icon" data-lucide="image-plus" aria-hidden="true"></span>
-                  <span class="dropzone__title">Drop an image or click to browse</span>
-                  <span class="dropzone__formats">PNG, JPG or WEBP</span>
-                </label>
-                <div class="dropzone__status">
-                  <p class="dropzone__file" id="portraitFileName">No file selected</p>
-                  <button class="dropzone__clear" id="portraitClear" type="button" hidden aria-label="Remove the portrait image" title="Remove image">
-                    <span data-lucide="x" aria-hidden="true"></span>
-                  </button>
-                </div>
-              </div>
-
-              <div class="cutout-block">
-                <label class="cutout-block__toggle" for="portraitCutout">
-                  <input id="portraitCutout" name="portraitCutout" type="checkbox" checked aria-describedby="portraitCutoutStatus">
-                  <span>Remove background</span>
-                </label>
-                <p class="cutout-block__status" id="portraitCutoutStatus">Runs in your browser, the first run downloads the model</p>
-              </div>
-
-              <div class="range-block">
-                <label for="portraitScale">Zoom</label>
-                <input id="portraitScale" name="portraitScale" type="range" min="1" max="1.8" step="0.01" value="1">
-              </div>
-            </div>
-          </div>
         </article>
       </div>
     </main>

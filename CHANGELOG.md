@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.9] - 2026-08-21
+
+### Changed
+- The sidebar is now the only column: the role select, name field, and both image dropzones moved out of the preview area into the left sidebar, and the preview card holds only the canvas.
+- The sidebar is split into two numbered sections, `Template and name` and `Images`, each with its own heading and description, instead of one flat panel.
+- The role `<select>` is replaced by a row of community chips (iOS, Android, React, QA, ADM, PM, PO); picking one still drives the same `role` state as before.
+- The name field now shows a live `n/64` character counter next to its label.
+- Each dropzone is now a horizontal row — icon, file formats, and an `Upload` button — instead of a stacked drag-and-drop panel, matching the rest of the sidebar's density.
+- The `Remove background` checkbox is now styled as an iOS-style switch; it is still the same checkbox input underneath, so existing behavior is unchanged.
+
+### Fixed
+- A failed background removal left the layer stuck with no way to try again short of re-uploading the file. The failure message now includes a `Retry` link that re-runs the removal, guarded so a second click while a run is already in flight is a no-op.
+
 ## [1.8] - 2026-08-21
 
 ### Added

@@ -123,11 +123,6 @@ small {
   margin: 0 auto;
 }
 
-.controls-card {
-  position: sticky;
-  top: 1rem;
-}
-
 .controls-card,
 .preview-card {
   padding: 0;
@@ -168,6 +163,134 @@ small {
 .controls-stack {
   display: grid;
   gap: 1rem;
+}
+
+.setup-card {
+  display: grid;
+  gap: 1.1rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.setup-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  flex: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f7fa;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.setup-card__heading h2 {
+  margin: 0;
+  color: #f5f7fa;
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+}
+
+.setup-card__subtitle {
+  margin: 0.2rem 0 0;
+  color: var(--soft-copy);
+  font-size: 0.82rem;
+}
+
+.field-group {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.field-eyebrow {
+  margin: 0;
+  color: var(--soft-copy);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.field-label-row label {
+  color: #f5f7fa;
+  font-size: 0.85rem;
+}
+
+.char-counter {
+  color: var(--soft-copy);
+  font-size: 0.72rem;
+}
+
+.role-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.role-chip {
+  position: relative;
+  display: inline-flex;
+}
+
+.role-chip input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.role-chip span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: 999px;
+  color: var(--page-copy);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.role-chip__dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--soft-copy);
+}
+
+.role-chip input:checked + span {
+  border-color: var(--pico-primary);
+  background: rgba(214, 40, 57, 0.12);
+  color: #fff;
+}
+
+.role-chip input:checked + span .role-chip__dot {
+  background: var(--pico-primary);
+}
+
+.role-chip input:focus-visible + span {
+  outline: 2px solid var(--pico-primary);
+  outline-offset: 2px;
 }
 
 .range-block {
@@ -211,7 +334,6 @@ small {
   position: relative;
   display: grid;
   gap: 0.4rem;
-  margin-bottom: 1rem;
 }
 
 .dropzone__input {
@@ -223,15 +345,15 @@ small {
 }
 
 .dropzone__label {
-  display: grid;
-  justify-items: center;
-  gap: 0.3rem;
-  padding: 1rem 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem;
   border: 1px dashed var(--pico-muted-border-color);
-  border-radius: 0.75rem;
+  border-radius: 0.9rem;
   background: rgba(255, 255, 255, 0.02);
   cursor: pointer;
-  text-align: center;
+  text-align: left;
   transition:
     border-color 160ms ease,
     background 160ms ease;
@@ -250,18 +372,32 @@ small {
 
 .dropzone__icon {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: none;
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.04);
   color: var(--pico-secondary);
 }
 
 .dropzone__icon svg {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.dropzone__text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 0.15rem;
 }
 
 .dropzone__title {
   color: #f5f7fa;
-  font-size: 0.82rem;
-  font-weight: 500;
+  font-size: 0.86rem;
+  font-weight: 600;
 }
 
 .dropzone__formats {
@@ -269,6 +405,17 @@ small {
   font-size: 0.7rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+.dropzone__upload-btn {
+  flex: none;
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f7fa;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .dropzone__status {
@@ -329,7 +476,6 @@ small {
 .cutout-block {
   display: grid;
   gap: 0.3rem;
-  margin-bottom: 1rem;
 }
 
 .cutout-block__toggle {
@@ -343,8 +489,59 @@ small {
   cursor: pointer;
 }
 
-.cutout-block__toggle input {
+.switch {
+  position: relative;
+  display: inline-flex;
+  width: 2.25rem;
+  height: 1.25rem;
+  flex: none;
+}
+
+.switch input {
+  position: absolute;
+  inset: 0;
   margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.switch__track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  transition: background 160ms ease;
+}
+
+.switch__track::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  transition: transform 160ms ease;
+}
+
+.switch input:checked ~ .switch__track {
+  background: var(--pico-primary);
+}
+
+.switch input:checked ~ .switch__track::before {
+  transform: translateX(1rem);
+}
+
+.switch input:focus-visible ~ .switch__track {
+  outline: 2px solid var(--pico-primary);
+  outline-offset: 2px;
+}
+
+.switch input:disabled ~ .switch__track {
+  opacity: 0.6;
 }
 
 .cutout-block__toggle:has(input:disabled) {
@@ -354,32 +551,35 @@ small {
 
 .cutout-block__status {
   margin: 0;
-  overflow: hidden;
   color: var(--soft-copy);
   font-size: 0.72rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+.cutout-block__retry {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--pico-primary);
+  font-size: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.cutout-block__retry:hover,
+.cutout-block__retry:focus-visible {
+  color: var(--pico-primary-hover);
 }
 
 .tuning-grid {
-  margin-top: 1.25rem;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: 1fr;
+  gap: 1.1rem;
 }
 
 .tuning-column {
-  padding: 1rem 1.1rem 0.2rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 1.15rem;
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.tuning-column h3 {
-  margin-bottom: 0.9rem;
-  color: #f5f7fa;
-  font-size: 1rem;
-  letter-spacing: 0.02em;
+  display: grid;
+  gap: 0.6rem;
 }
 
 .canvas-frame {
