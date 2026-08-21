@@ -102,7 +102,6 @@ body {
 }
 
 .hero-copy p,
-.section-heading p,
 small {
   color: var(--page-copy);
 }
@@ -124,42 +123,38 @@ small {
   margin: 0 auto;
 }
 
-.controls-card,
-.preview-card {
-  border-radius: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(16, 18, 22, 0.82);
-  box-shadow: var(--panel-shadow);
-  overflow: hidden;
-}
-
 .controls-card {
   position: sticky;
   top: 1rem;
 }
 
-.section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.25rem;
-  border-top-left-radius: inherit;
-  border-top-right-radius: inherit;
+.controls-card,
+.preview-card {
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
 }
 
-.section-heading > :last-child {
-  margin-bottom: 0;
-}
-
-.section-heading button {
+.canvas-download {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  padding: 0.25rem 0.5rem;
+  width: auto;
+  padding: 0.35rem 0.7rem;
   margin-bottom: 0;
   border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.canvas-download [data-lucide] {
+  width: 0.85rem;
+  height: 0.85rem;
 }
 
 .download-button__label {
@@ -168,20 +163,6 @@ small {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-.section-heading button .fa-brands,
-.section-heading button .fa-solid {
-  font-size: 0.95rem;
-  line-height: 1;
-}
-
-.section-heading h2 {
-  margin-bottom: 0.4rem;
-}
-
-.section-heading p:last-child {
-  margin-bottom: 0;
 }
 
 .controls-stack {
@@ -207,11 +188,23 @@ small {
 }
 
 .canvas-hint {
-  margin: 0.75rem 0 0;
-  min-height: 1.2em;
-  color: var(--soft-copy);
-  font-size: 0.8rem;
+  position: absolute;
+  left: 50%;
+  bottom: 1rem;
+  z-index: 2;
+  max-width: calc(100% - 2rem);
+  padding: 0.35rem 0.8rem;
+  margin: 0;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: rgba(9, 11, 14, 0.72);
+  color: var(--page-copy);
+  font-size: 0.76rem;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
 }
 
 .dropzone {
@@ -309,12 +302,13 @@ small {
 }
 
 .canvas-frame {
+  position: relative;
   display: grid;
   place-items: center;
   min-height: 640px;
   padding: 1.25rem;
   border-radius: 1.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 0;
   background-color: #10141a;
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
@@ -327,7 +321,8 @@ small {
 }
 
 .canvas-frame.is-dropping {
-  border-color: var(--pico-primary);
+  outline: 2px dashed var(--pico-primary);
+  outline-offset: -8px;
   background-color: #1d1418;
 }
 
@@ -391,12 +386,8 @@ canvas:focus-visible {
     flex-direction: column;
   }
 
-  .section-heading {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .section-heading button {
-    align-self: flex-end;
+  .canvas-download {
+    top: 0.6rem;
+    right: 0.6rem;
   }
 }

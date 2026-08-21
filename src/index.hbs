@@ -52,10 +52,6 @@
 
       <div class="workspace">
         <article class="controls-card">
-          <header class="section-heading">
-            <p class="eyebrow">Settings</p>
-          </header>
-
           <div class="controls-stack">
             <select id="role" name="role" aria-describedby="roleHelp">
               <option value="ios">iOS</option>
@@ -72,15 +68,12 @@
         </article>
 
         <article class="preview-card">
-          <header class="section-heading">
-            <p class="eyebrow">Preview</p>
-            <button id="downloadButton" type="button" aria-label="Download PNG" title="Download PNG">
+          <div class="canvas-frame" id="canvasFrame">
+            <button id="downloadButton" class="canvas-download" type="button" aria-label="Download PNG" title="Download PNG">
               <span class="download-button__label">Download</span>
               <span data-lucide="download"></span>
             </button>
-          </header>
 
-          <div class="canvas-frame" id="canvasFrame">
             <canvas
               id="avatarCanvas"
               width="640"
@@ -90,9 +83,10 @@
               aria-label="Avatar preview"
               aria-describedby="canvasHint"
               aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Alt"></canvas>
+
+            <p id="canvasHint" class="canvas-hint">Add a portrait or a background to start composing</p>
           </div>
 
-          <p id="canvasHint" class="canvas-hint">Add a portrait or a background to start composing.</p>
           <p id="canvasStatus" class="sr-only" role="status" aria-live="polite"></p>
 
           <div class="tuning-grid">

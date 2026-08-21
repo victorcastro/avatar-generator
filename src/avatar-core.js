@@ -295,26 +295,26 @@
     const { layer, hasPortrait, hasBackground, canPan } = options;
 
     if (!hasPortrait && !hasBackground) {
-      return "Add a portrait or a background to start composing.";
+      return "Add a portrait or a background to start composing";
     }
 
     if (!layer) {
-      return "Add a background image to move it with Alt.";
+      return "Add a background image to move it with Alt";
     }
 
     if (canPan === false) {
-      return `Zoom in to unlock panning on the ${layer}.`;
+      return `Zoom in to unlock panning on the ${layer}`;
     }
 
     if (layer === "background") {
-      return "Moving the background. Release Alt to move the portrait.";
+      return "Moving the background — release Alt to move the portrait";
     }
 
     if (hasBackground) {
-      return "Drag to move the portrait. Hold Alt to move the background.";
+      return "Drag to move the portrait — hold Alt to move the background";
     }
 
-    return "Drag to move the portrait. Scroll to zoom, double-click to center.";
+    return "Drag to move the portrait — scroll to zoom, double-click to center";
   }
 
   function getDefaultLayerTransform(layer) {

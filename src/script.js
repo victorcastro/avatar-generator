@@ -97,11 +97,11 @@ function loadImageFromFile(file) {
     reader.onload = () => {
       const image = new Image();
       image.onload = () => resolve(image);
-      image.onerror = () => reject(new Error("No se pudo cargar la imagen."));
+      image.onerror = () => reject(new Error("No se pudo cargar la imagen"));
       image.src = reader.result;
     };
 
-    reader.onerror = () => reject(new Error("No se pudo leer el archivo."));
+    reader.onerror = () => reject(new Error("No se pudo leer el archivo"));
     reader.readAsDataURL(file);
   });
 }
@@ -482,7 +482,7 @@ async function handleImageInput(file, layer) {
   const keys = LAYER_KEYS[layer];
 
   if (!isAcceptedImageType(layer, file.type)) {
-    const message = `That file type is not supported for the ${layer}.`;
+    const message = `That file type is not supported for the ${layer}`;
     controls[keys.fileName].textContent = message;
     setStatus(message);
     return;
@@ -493,7 +493,7 @@ async function handleImageInput(file, layer) {
     state[keys.image] = image;
     applyLayerTransform(layer, getDefaultLayerTransform(layer));
     controls[keys.fileName].textContent = file.name;
-    setStatus(`${file.name} loaded as the ${layer}.`);
+    setStatus(`${file.name} loaded as the ${layer}`);
   } catch (error) {
     window.alert(error.message);
   }
@@ -631,7 +631,7 @@ canvas.addEventListener("dblclick", (event) => {
   }
 
   applyLayerTransform(layer, getDefaultLayerTransform(layer));
-  setStatus(`The ${layer} is centered again.`);
+  setStatus(`The ${layer} is centered again`);
 });
 
 canvas.addEventListener("keydown", (event) => {
