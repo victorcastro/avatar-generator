@@ -85,6 +85,11 @@ const gesture = {
 
 const DRAG_THRESHOLD = 4;
 
+const CHECKER_TILE = 16;
+const CHECKER_LIGHT = "#2b3038";
+const CHECKER_DARK = "#22262d";
+const PLACEHOLDER_RING = "rgba(255, 255, 255, 0.16)";
+
 function loadImageFromFile(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -212,8 +217,6 @@ function drawLayerImage(image, scaleMultiplier, offsetX, offsetY, metrics) {
 
 // layer-background
 function drawLayerBackground(metrics) {
-  context.clearRect(0, 0, canvas.width, canvas.height);
-
   if (!state.backgroundImage) {
     return;
   }
@@ -299,8 +302,56 @@ function drawLayerFooter(metrics) {
   });
 }
 
-function drawAvatar() {
+let checkerPattern = null;
+
+function getCheckerPattern() {
+  if (checkerPattern) {
+    return checkerPattern;
+  }
+
+  const tile = document.createElement("canvas");
+  tile.width = CHECKER_TILE * 2;
+  tile.height = CHECKER_TILE * 2;
+
+  const tileContext = tile.getContext("2d");
+  tileContext.fillStyle = CHECKER_LIGHT;
+  tileContext.fillRect(0, 0, tile.width, tile.height);
+  tileContext.fillStyle = CHECKER_DARK;
+  tileContext.fillRect(0, 0, CHECKER_TILE, CHECKER_TILE);
+  tileContext.fillRect(CHECKER_TILE, CHECKER_TILE, CHECKER_TILE, CHECKER_TILE);
+
+  checkerPattern = context.createPattern(tile, "repeat");
+  return checkerPattern;
+}
+
+function drawLayerPlaceholder(metrics) {
+  if (state.backgroundImage || state.portraitImage) {
+    return;
+  }
+
+  withCircularClip(metrics, () => {
+    context.fillStyle = getCheckerPattern();
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    context.strokeStyle = PLACEHOLDER_RING;
+    context.lineWidth = 2;
+    context.setLineDash([10, 8]);
+    context.beginPath();
+    context.arc(metrics.centerX, metrics.centerY, metrics.clipRadius - 1, 0, Math.PI * 2);
+    context.stroke();
+    context.setLineDash([]);
+  });
+}
+
+function drawAvatar(options) {
   const metrics = getCompositionMetrics();
+  const showPlaceholder = !options || options.showPlaceholder !== false;
+
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (showPlaceholder) {
+    drawLayerPlaceholder(metrics);
+  }
 
   drawLayerBackground(metrics);
   drawLayerBlur(metrics);
@@ -321,13 +372,13 @@ function requestRender() {
   });
 }
 
-function renderNow() {
+function renderNow(options) {
   if (pendingFrame) {
     window.cancelAnimationFrame(pendingFrame);
     pendingFrame = 0;
   }
 
-  drawAvatar();
+  drawAvatar(options);
 }
 
 function updateState(key, value) {
@@ -670,11 +721,12 @@ document.addEventListener("drop", (event) => {
 });
 
 controls.downloadButton.addEventListener("click", () => {
-  renderNow();
+  renderNow({ showPlaceholder: false });
   const link = document.createElement("a");
   link.href = canvas.toDataURL("image/png");
   link.download = getDownloadFilename(state.titleText, ROLE_CONFIG[state.role].label);
   link.click();
+  renderNow();
 });
 
 lucideLibrary.createIcons({

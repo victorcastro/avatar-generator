@@ -315,19 +315,20 @@ small {
   padding: 1.25rem;
   border-radius: 1.25rem;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012)),
-    #1a1f28;
+  background-color: #10141a;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+  background-size: 26px 26px;
+  background-position: center center;
   transition:
     border-color 160ms ease,
-    background 160ms ease;
+    background-color 160ms ease;
 }
 
 .canvas-frame.is-dropping {
   border-color: var(--pico-primary);
-  background:
-    linear-gradient(180deg, rgba(214, 40, 57, 0.12), rgba(214, 40, 57, 0.04)),
-    #1a1f28;
+  background-color: #1d1418;
 }
 
 canvas {

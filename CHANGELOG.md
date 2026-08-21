@@ -7,6 +7,7 @@
 - Wheel zoom anchored at the cursor, so the point under the pointer stays pinned while scaling. The zoom slider reuses the same math anchored at the canvas center.
 - Drag-and-drop upload zones for both layers, plus dropping a file straight onto the canvas (`Alt` targets the background). Rejected file types now report inline instead of opening a blocking `alert`.
 - Keyboard panning on the focused canvas: arrows move 1px, `Shift`+arrow moves 10px, `Alt`+arrow moves the background. Double-click recenters the active layer.
+- A transparency checkerboard and dashed outline inside the circle while no image is loaded, so the avatar area reads as a distinct drop target instead of blending into the frame. It is a preview affordance only and is skipped when rendering for export. The frame itself now carries a faint grid to read as a canvas.
 
 ### Changed
 - Images now load at 1.1 zoom. Cover is exact at zoom 1, which leaves a square image with zero panning slack; loading slightly zoomed guarantees there is always something to drag.
