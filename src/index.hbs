@@ -65,29 +65,6 @@
 
             <input id="titleText" name="titleText" type="text" maxlength="64" value="Tech Lead iOS" placeholder="e.g. Tech Lead iOS">
           </div>
-        </article>
-
-        <article class="preview-card">
-          <div class="canvas-frame" id="canvasFrame">
-            <button id="downloadButton" class="canvas-download" type="button" aria-label="Download PNG" title="Download PNG">
-              <span class="download-button__label">Download</span>
-              <span data-lucide="download"></span>
-            </button>
-
-            <canvas
-              id="avatarCanvas"
-              width="640"
-              height="640"
-              tabindex="0"
-              role="img"
-              aria-label="Avatar preview"
-              aria-describedby="canvasHint"
-              aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Alt"></canvas>
-
-            <p id="canvasHint" class="canvas-hint">Add a portrait or a background to start composing</p>
-          </div>
-
-          <p id="canvasStatus" class="sr-only" role="status" aria-live="polite"></p>
 
           <div class="tuning-grid">
             <div class="tuning-column">
@@ -146,6 +123,29 @@
               </div>
             </div>
           </div>
+        </article>
+
+        <article class="preview-card">
+          <div class="canvas-frame" id="canvasFrame">
+            <button id="downloadButton" class="canvas-download" type="button" aria-label="Download PNG" title="Download PNG">
+              <span class="download-button__label">Download</span>
+              <span data-lucide="download"></span>
+            </button>
+
+            <canvas
+              id="avatarCanvas"
+              width="640"
+              height="640"
+              tabindex="0"
+              role="img"
+              aria-label="Avatar preview"
+              aria-describedby="canvasHint"
+              aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Alt"></canvas>
+
+            <p id="canvasHint" class="canvas-hint">Add a portrait or a background to start composing</p>
+          </div>
+
+          <p id="canvasStatus" class="sr-only" role="status" aria-live="polite"></p>
         </article>
       </div>
     </main>

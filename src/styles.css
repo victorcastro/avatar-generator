@@ -123,11 +123,6 @@ small {
   margin: 0 auto;
 }
 
-.controls-card {
-  position: sticky;
-  top: 1rem;
-}
-
 .controls-card,
 .preview-card {
   padding: 0;
@@ -364,7 +359,7 @@ small {
 .tuning-grid {
   margin-top: 1.25rem;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 1.25rem;
 }
 
