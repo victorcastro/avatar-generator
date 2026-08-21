@@ -69,7 +69,8 @@ const controls = {
   backgroundFileName: document.getElementById("backgroundFileName"),
   portraitFileName: document.getElementById("portraitFileName"),
   backgroundClear: document.getElementById("backgroundClear"),
-  portraitClear: document.getElementById("portraitClear")
+  portraitClear: document.getElementById("portraitClear"),
+  titleTextCounter: document.getElementById("titleTextCounter")
 };
 
 const EMPTY_FILE_NAME = "No file selected";
@@ -718,9 +719,16 @@ controls.role.addEventListener("change", (event) => {
   updateState("role", event.target.value);
 });
 
+function updateTitleTextCounter() {
+  controls.titleTextCounter.textContent = `${controls.titleText.value.length}/${controls.titleText.maxLength}`;
+}
+
 controls.titleText.addEventListener("input", (event) => {
   updateState("titleText", event.target.value);
+  updateTitleTextCounter();
 });
+
+updateTitleTextCounter();
 
 function bindScaleControl(layer) {
   const keys = LAYER_KEYS[layer];
