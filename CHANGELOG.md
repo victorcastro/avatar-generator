@@ -20,6 +20,7 @@
 
 ### Removed
 - The four position sliders, including the vertical one that was a horizontal `input[type=range]` rotated `-90deg`.
+- The dark ring stroked around the avatar, both in the preview and in the exported PNG.
 
 ### Notes
 - On some Linux window managers `Alt`+drag is captured by the desktop and never reaches the browser. The zoom slider and double-click reset remain available there.

@@ -299,17 +299,6 @@ function drawLayerFooter(metrics) {
   });
 }
 
-// layer-mask
-function drawLayerMask(metrics) {
-  context.save();
-  context.strokeStyle = "#090909";
-  context.lineWidth = metrics.borderWidth;
-  context.beginPath();
-  context.arc(metrics.centerX, metrics.centerY, metrics.clipRadius, 0, Math.PI * 2);
-  context.stroke();
-  context.restore();
-}
-
 function drawAvatar() {
   const metrics = getCompositionMetrics();
 
@@ -317,7 +306,6 @@ function drawAvatar() {
   drawLayerBlur(metrics);
   drawLayerUser(metrics);
   drawLayerFooter(metrics);
-  drawLayerMask(metrics);
 }
 
 let pendingFrame = 0;
