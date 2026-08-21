@@ -29,7 +29,7 @@ const lucideLibrary = window.lucide;
 
 const state = {
   role: "ios",
-  titleText: "Tech Lead iOS",
+  titleText: "",
   backgroundScale: 1,
   backgroundOffsetX: 0,
   backgroundOffsetY: 0,
