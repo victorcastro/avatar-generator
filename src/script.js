@@ -695,7 +695,7 @@ async function handleImageInput(file, layer) {
 
   const keys = LAYER_KEYS[layer];
 
-  if (!isAcceptedImageType(layer, file.type)) {
+  if (!isAcceptedImageType(layer, file.type, file.name)) {
     const message = `That file type is not supported for the ${layer}`;
     setLayerFileName(layer, message);
     setStatus(message);

@@ -333,6 +333,25 @@ test("both layers accept PNG, JPEG and WEBP and reject anything else", () => {
   assert.equal(isAcceptedImageType("portrait", "application/pdf"), false);
 });
 
+test("non-standard image mime types are normalized before being matched", () => {
+  assert.equal(isAcceptedImageType("background", "image/jpg"), true);
+  assert.equal(isAcceptedImageType("background", "IMAGE/JPEG"), true);
+  assert.equal(isAcceptedImageType("background", " image/pjpeg "), true);
+  assert.equal(isAcceptedImageType("portrait", "image/x-png"), true);
+});
+
+test("a file with no mime type falls back to its extension", () => {
+  assert.equal(isAcceptedImageType("background", "", "wallpaper.jpeg"), true);
+  assert.equal(isAcceptedImageType("background", "", "WALLPAPER.JPG"), true);
+  assert.equal(isAcceptedImageType("portrait", undefined, "cutout.webp"), true);
+  assert.equal(isAcceptedImageType("background", "", "notes.pdf"), false);
+  assert.equal(isAcceptedImageType("background", "", ""), false);
+});
+
+test("a declared mime type still wins over the extension", () => {
+  assert.equal(isAcceptedImageType("background", "application/pdf", "fake.jpg"), false);
+});
+
 test("alpha detection only reports images that carry a non-opaque pixel", () => {
   const opaque = new Uint8ClampedArray([10, 20, 30, 255, 40, 50, 60, 255]);
   const translucent = new Uint8ClampedArray([10, 20, 30, 255, 40, 50, 60, 254]);

@@ -81,6 +81,18 @@
     portrait: ["image/png", "image/jpeg", "image/webp"]
   };
 
+  const IMAGE_MIME_ALIASES = {
+    "image/jpg": "image/jpeg",
+    "image/pjpeg": "image/jpeg",
+    "image/x-png": "image/png"
+  };
+
+  const IMAGE_EXTENSIONS = {
+    "image/png": [".png"],
+    "image/jpeg": [".jpg", ".jpeg", ".jpe"],
+    "image/webp": [".webp"]
+  };
+
   const BACKGROUND_REMOVAL = {
     model: "isnet_quint8",
     outputFormat: "image/png",
@@ -340,14 +352,34 @@
     return { offsetX: defaults.offsetX, offsetY: defaults.offsetY, scale: defaults.scale };
   }
 
-  function isAcceptedImageType(layer, mimeType) {
+  function normalizeImageMimeType(mimeType) {
+    const normalized = String(mimeType || "").trim().toLowerCase();
+
+    return IMAGE_MIME_ALIASES[normalized] || normalized;
+  }
+
+  function isAcceptedImageType(layer, mimeType, fileName) {
     const accepted = ACCEPTED_IMAGE_TYPES[layer];
 
-    if (!accepted || !mimeType) {
+    if (!accepted) {
       return false;
     }
 
-    return accepted.includes(mimeType);
+    const normalized = normalizeImageMimeType(mimeType);
+
+    if (normalized) {
+      return accepted.includes(normalized);
+    }
+
+    const name = String(fileName || "").trim().toLowerCase();
+
+    if (!name) {
+      return false;
+    }
+
+    return accepted.some((type) =>
+      (IMAGE_EXTENSIONS[type] || []).some((extension) => name.endsWith(extension))
+    );
   }
 
   function hasAlphaChannel(pixels) {
