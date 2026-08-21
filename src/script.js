@@ -5,7 +5,6 @@ const {
   getFittedTitle: getCoreFittedTitle,
   getImageDrawBounds,
   getDownloadFilename,
-  getPanBounds,
   clampLayerOffsets,
   clampScaleMultiplier,
   getZoomAtPoint,
@@ -21,8 +20,7 @@ const {
   hasAlphaChannel,
   getAlphaSampleSize,
   getCutoutProgressMessage,
-  BACKGROUND_REMOVAL,
-  SCALE_LIMITS
+  BACKGROUND_REMOVAL
 } = window.AvatarCore;
 
 const canvas = document.getElementById("avatarCanvas");
@@ -486,19 +484,10 @@ function resolveActiveLayer(altKey) {
 
 function refreshHint(altKey) {
   const layer = resolveActiveLayer(altKey);
-  let canPan = true;
-
-  if (layer) {
-    const keys = LAYER_KEYS[layer];
-    const bounds = getPanBounds(state[keys.image], state[keys.scale], getCompositionMetrics());
-    canPan = bounds.maxOffsetX > 0 || bounds.maxOffsetY > 0;
-  }
-
   const hint = getLayerHint({
     layer,
     hasPortrait: hasLayerImage("portrait"),
-    hasBackground: hasLayerImage("background"),
-    canPan
+    hasBackground: hasLayerImage("background")
   });
 
   if (controls.canvasHint.textContent !== hint) {
@@ -678,12 +667,13 @@ function setLayerFileName(layer, message) {
 
 function clearLayer(layer) {
   const keys = LAYER_KEYS[layer];
+  const defaults = getDefaultLayerTransform(layer);
 
   state[keys.image] = null;
-  state[keys.scale] = SCALE_LIMITS.min;
-  state[keys.offsetX] = 0;
-  state[keys.offsetY] = 0;
-  controls[keys.scaleControl].value = String(SCALE_LIMITS.min);
+  state[keys.scale] = defaults.scale;
+  state[keys.offsetX] = defaults.offsetX;
+  state[keys.offsetY] = defaults.offsetY;
+  controls[keys.scaleControl].value = String(defaults.scale);
 
   if (layer === "portrait") {
     portraitSource.file = null;

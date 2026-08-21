@@ -63,7 +63,9 @@
     bullseye: "\uf140"
   };
 
-  const SCALE_LIMITS = { min: 1, max: 1.8, step: 0.01 };
+  const SCALE_LIMITS = { min: 0.25, max: 1.8, step: 0.01 };
+
+  const PAN_MIN_OVERLAP = 0.25;
 
   const AUTO_ZOOM_ON_LOAD = 1.1;
 
@@ -168,6 +170,10 @@
     return Math.min(Math.max(value, minValue), maxValue);
   }
 
+  function getPanAxisBound(size, diameter) {
+    return (size + diameter) / 2 - PAN_MIN_OVERLAP * Math.min(size, diameter);
+  }
+
   function getPanBounds(image, scaleMultiplier, metrics) {
     if (!image) {
       return { maxOffsetX: 0, maxOffsetY: 0 };
@@ -177,8 +183,8 @@
     const diameter = metrics.clipRadius * 2;
 
     return {
-      maxOffsetX: Math.max(0, (bounds.width - diameter) / 2),
-      maxOffsetY: Math.max(0, (bounds.height - diameter) / 2)
+      maxOffsetX: getPanAxisBound(bounds.width, diameter),
+      maxOffsetY: getPanAxisBound(bounds.height, diameter)
     };
   }
 
@@ -238,7 +244,7 @@
     const current = Number(scaleMultiplier);
 
     if (!(current > 0)) {
-      return SCALE_LIMITS.min;
+      return AUTO_ZOOM_ON_LOAD;
     }
 
     return clampScaleMultiplier(current * Math.exp(-normalized * WHEEL_ZOOM_SENSITIVITY));
@@ -305,7 +311,7 @@
   }
 
   function getLayerHint(options) {
-    const { layer, hasPortrait, hasBackground, canPan } = options;
+    const { layer, hasPortrait, hasBackground } = options;
 
     if (!hasPortrait && !hasBackground) {
       return "Add a portrait or a background to start composing";
@@ -313,10 +319,6 @@
 
     if (!layer) {
       return "Add a background image to move it with Alt";
-    }
-
-    if (canPan === false) {
-      return `Zoom in to unlock panning on the ${layer}`;
     }
 
     if (layer === "background") {
@@ -397,6 +399,7 @@
     FONT_AWESOME_GLYPHS,
     SCALE_LIMITS,
     AUTO_ZOOM_ON_LOAD,
+    PAN_MIN_OVERLAP,
     LAYER_DEFAULTS,
     KEYBOARD_PAN_STEP,
     ACCEPTED_IMAGE_TYPES,

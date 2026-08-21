@@ -5,6 +5,8 @@ const {
   ROLE_CONFIG,
   FONT_AWESOME_GLYPHS,
   SCALE_LIMITS,
+  AUTO_ZOOM_ON_LOAD,
+  PAN_MIN_OVERLAP,
   getCompositionMetrics,
   getFittedTitle,
   getImageDrawBounds,
@@ -86,12 +88,14 @@ test("image draw bounds cover the full circular clip area before offsets", () =>
   assert.equal(bounds.top, metrics.centerY - bounds.height / 2);
 });
 
-test("a square image at scale 1 has no panning slack because cover is exact", () => {
+test("a square image at scale 1 pans far past the exact cover instead of locking", () => {
   const metrics = getCompositionMetrics(640);
+  const diameter = metrics.clipRadius * 2;
   const bounds = getPanBounds({ width: 1000, height: 1000 }, 1, metrics);
+  const expected = diameter - PAN_MIN_OVERLAP * diameter;
 
-  assert.equal(bounds.maxOffsetX, 0);
-  assert.equal(bounds.maxOffsetY, 0);
+  assert.ok(Math.abs(bounds.maxOffsetX - expected) < 0.000001);
+  assert.equal(bounds.maxOffsetX, bounds.maxOffsetY);
 });
 
 test("zooming a square image unlocks symmetric panning slack on both axes", () => {
@@ -102,12 +106,53 @@ test("zooming a square image unlocks symmetric panning slack on both axes", () =
   assert.equal(bounds.maxOffsetX, bounds.maxOffsetY);
 });
 
-test("a wide image at scale 1 pans horizontally but is locked vertically", () => {
+test("a wide image at scale 1 pans on both axes and travels further across the long side", () => {
   const metrics = getCompositionMetrics(640);
   const bounds = getPanBounds({ width: 400, height: 200 }, 1, metrics);
 
-  assert.ok(bounds.maxOffsetX > 0);
-  assert.equal(bounds.maxOffsetY, 0);
+  assert.ok(bounds.maxOffsetY > 0);
+  assert.ok(bounds.maxOffsetX > bounds.maxOffsetY);
+});
+
+test("a square image below scale 1 shrinks to a fraction of the clip diameter", () => {
+  const metrics = getCompositionMetrics(640);
+  const bounds = getImageDrawBounds({ width: 1000, height: 1000 }, 0.5, 0, 0, metrics);
+
+  assert.ok(Math.abs(bounds.width - metrics.clipRadius) < 0.000001);
+  assert.ok(Math.abs(bounds.height - metrics.clipRadius) < 0.000001);
+});
+
+test("a square image below scale 1 pans past the circle edge instead of locking", () => {
+  const metrics = getCompositionMetrics(640);
+  const bounds = getPanBounds({ width: 1000, height: 1000 }, 0.5, metrics);
+  const expected = metrics.clipRadius * 1.25;
+
+  assert.ok(Math.abs(bounds.maxOffsetX - expected) < 0.000001);
+  assert.equal(bounds.maxOffsetX, bounds.maxOffsetY);
+});
+
+test("a fully panned image keeps the minimum overlap with the circular clip", () => {
+  const metrics = getCompositionMetrics(640);
+  const image = { width: 1000, height: 1000 };
+  const { maxOffsetX, maxOffsetY } = getPanBounds(image, 0.5, metrics);
+  const clamped = clampLayerOffsets(image, 0.5, 500, -500, metrics);
+  const bounds = getImageDrawBounds(image, 0.5, clamped.offsetX, clamped.offsetY, metrics);
+  const overlap = metrics.centerX + metrics.clipRadius - bounds.left;
+
+  assert.deepEqual(clamped, { offsetX: maxOffsetX, offsetY: -maxOffsetY });
+  assert.ok(Math.abs(overlap - PAN_MIN_OVERLAP * bounds.width) < 0.000001);
+});
+
+test("every supported zoom keeps panning available, including the lowest one", () => {
+  const metrics = getCompositionMetrics(640);
+  const image = { width: 1000, height: 1000 };
+
+  assert.ok(getPanBounds(image, SCALE_LIMITS.min, metrics).maxOffsetX > 0);
+  assert.ok(getPanBounds(image, SCALE_LIMITS.max, metrics).maxOffsetX > 0);
+  assert.ok(
+    getPanBounds(image, SCALE_LIMITS.max, metrics).maxOffsetX >
+      getPanBounds(image, SCALE_LIMITS.min, metrics).maxOffsetX
+  );
 });
 
 test("pan bounds collapse to zero when no image is loaded", () => {
@@ -136,17 +181,24 @@ test("offsets valid at high zoom are pulled back in when the zoom is reduced", (
   const metrics = getCompositionMetrics(640);
   const image = { width: 1000, height: 1000 };
   const wide = getPanBounds(image, 1.8, metrics);
+  const tight = getPanBounds(image, 1, metrics);
   const reclamped = clampLayerOffsets(image, 1, wide.maxOffsetX, wide.maxOffsetY, metrics);
 
-  assert.ok(wide.maxOffsetX > 0);
-  assert.equal(reclamped.offsetX, 0);
-  assert.equal(reclamped.offsetY, 0);
+  assert.ok(wide.maxOffsetX > tight.maxOffsetX);
+  assert.equal(reclamped.offsetX, tight.maxOffsetX);
+  assert.equal(reclamped.offsetY, tight.maxOffsetY);
 });
 
 test("scale multiplier is clamped to the supported range", () => {
-  assert.equal(clampScaleMultiplier(0.2), SCALE_LIMITS.min);
+  assert.equal(clampScaleMultiplier(0.05), SCALE_LIMITS.min);
   assert.equal(clampScaleMultiplier(5), SCALE_LIMITS.max);
   assert.equal(clampScaleMultiplier(1.4), 1.4);
+  assert.equal(clampScaleMultiplier(0.5), 0.5);
+});
+
+test("a corrupted scale recovers on the auto zoom instead of the lowest limit", () => {
+  assert.equal(getWheelScaleMultiplier(0, -100, 0), AUTO_ZOOM_ON_LOAD);
+  assert.equal(getWheelScaleMultiplier(Number.NaN, -100, 0), AUTO_ZOOM_ON_LOAD);
 });
 
 test("zooming at a pointer keeps the image point under the cursor pinned", () => {
@@ -176,23 +228,25 @@ test("zooming at a pointer keeps the image point under the cursor pinned", () =>
   assert.ok(Math.abs(beforeRatioY - afterRatioY) < 0.000001);
 });
 
-test("the pan clamp overrides the anchor when zooming would expose a gap", () => {
+test("the pan clamp overrides the anchor when zooming out past the pan bounds", () => {
   const metrics = getCompositionMetrics(640);
   const image = { width: 1000, height: 1000 };
+  const wide = getPanBounds(image, 1.8, metrics);
+  const tight = getPanBounds(image, 1, metrics);
   const zoomed = getZoomAtPoint({
     image,
     metrics,
     scaleMultiplier: 1.8,
-    offsetX: 80,
-    offsetY: 80,
+    offsetX: wide.maxOffsetX,
+    offsetY: wide.maxOffsetY,
     nextScaleMultiplier: 1,
     pointerX: 600,
     pointerY: 600
   });
 
   assert.equal(zoomed.scaleMultiplier, 1);
-  assert.equal(zoomed.offsetX, 0);
-  assert.equal(zoomed.offsetY, 0);
+  assert.equal(zoomed.offsetX, tight.maxOffsetX);
+  assert.equal(zoomed.offsetY, tight.maxOffsetY);
 });
 
 test("zooming anchored at the canvas center scales the offsets proportionally", () => {
@@ -308,20 +362,18 @@ test("cutout progress names the phase and clamps the percentage", () => {
 });
 
 test("the hint names the Alt shortcut only when a background is available", () => {
-  const withBoth = getLayerHint({ layer: "portrait", hasPortrait: true, hasBackground: true, canPan: true });
-  const portraitOnly = getLayerHint({ layer: "portrait", hasPortrait: true, hasBackground: false, canPan: true });
-  const empty = getLayerHint({ layer: null, hasPortrait: false, hasBackground: false, canPan: false });
-  const locked = getLayerHint({ layer: "portrait", hasPortrait: true, hasBackground: false, canPan: false });
+  const withBoth = getLayerHint({ layer: "portrait", hasPortrait: true, hasBackground: true });
+  const portraitOnly = getLayerHint({ layer: "portrait", hasPortrait: true, hasBackground: false });
+  const empty = getLayerHint({ layer: null, hasPortrait: false, hasBackground: false });
 
   assert.match(withBoth, /Alt/);
   assert.doesNotMatch(portraitOnly, /Alt/);
   assert.match(empty, /Add a portrait/);
-  assert.match(locked, /Zoom in/);
 });
 
 test("a background left on its own is dragged without Alt", () => {
-  const alone = getLayerHint({ layer: "background", hasPortrait: false, hasBackground: true, canPan: true });
-  const withPortrait = getLayerHint({ layer: "background", hasPortrait: true, hasBackground: true, canPan: true });
+  const alone = getLayerHint({ layer: "background", hasPortrait: false, hasBackground: true });
+  const withPortrait = getLayerHint({ layer: "background", hasPortrait: true, hasBackground: true });
 
   assert.doesNotMatch(alone, /Alt/);
   assert.match(withPortrait, /Alt/);

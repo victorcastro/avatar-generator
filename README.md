@@ -6,6 +6,8 @@ Live site: https://victorcastro.github.io/avatar-generator
 
 A simple Node.js tool for generating circular community avatars. It allows you to upload a background image and a portrait (PNG, JPG or WEBP), adjust scale and position, choose a role, and print the result as a PNG.
 
+Each layer is framed independently: the zoom slider runs from `0.25` to `1.8`, and both the scroll wheel over the canvas and dragging move the layer under the pointer — hold `Alt` to act on the background instead of the portrait, and double-click to recenter. Neither control forces the image to fill the circle, so it can be shrunk or pushed to the edge; whatever it leaves uncovered is exported as transparent.
+
 The portrait background is removed in the browser with `@imgly/background-removal`, so no image ever leaves the machine. The segmentation model and the ONNX Runtime WebAssembly binaries are downloaded on first use from `staticimgly.com` (~55 MB, cached by the browser afterwards) instead of being shipped in `dist/`. Portraits that already carry transparency are left untouched, and the `Remove background` checkbox restores the original image at any time.
 
 ## Requirements
