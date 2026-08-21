@@ -10,7 +10,8 @@
     },
     android: {
       label: "Android",
-      iconProvider: "fontawesome",
+      iconProvider: "svg",
+      iconSrc: "icons/android.svg",
       iconStyle: "brands",
       iconName: "android",
       iconLabel: "Android"
