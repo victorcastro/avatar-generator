@@ -1,4 +1,7 @@
 :root {
+  /* Pico scales the root font-size up to 131.25% (21px) on wide viewports.
+     Pin it to 16px so the rem-based layout keeps a consistent size. */
+  --pico-font-size: 100%;
   --pico-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --pico-background-color: #0a0b0d;
   --pico-card-background-color: rgba(16, 18, 22, 0.88);
@@ -186,41 +189,102 @@ small {
   gap: 1rem;
 }
 
-.file-row {
-  display: grid;
-  gap: 0.5rem;
-}
-
 .range-block {
   display: grid;
   gap: 0.5rem;
 }
 
-.range-block--vertical {
-  gap: 0.75rem;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
-.vertical-range {
+.canvas-hint {
+  margin: 0.75rem 0 0;
+  min-height: 1.2em;
+  color: var(--soft-copy);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.dropzone {
+  position: relative;
   display: grid;
-  grid-template-rows: 1fr;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.dropzone__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dropzone__label {
+  display: grid;
   justify-items: center;
-  align-items: center;
-  min-height: 180px;
-  padding: 0.25rem 0;
+  gap: 0.3rem;
+  padding: 1rem 0.9rem;
+  border: 1px dashed var(--pico-muted-border-color);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  cursor: pointer;
+  text-align: center;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease;
 }
 
-.vertical-range__track {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 160px;
+.dropzone__label:hover,
+.dropzone.is-dragover .dropzone__label {
+  border-color: var(--pico-primary);
+  background: rgba(214, 40, 57, 0.08);
 }
 
-.vertical-range__track input[type="range"] {
-  width: 180px;
-  transform: rotate(-90deg);
-  transform-origin: center;
+.dropzone__input:focus-visible + .dropzone__label {
+  outline: 2px solid var(--pico-primary);
+  outline-offset: 3px;
+}
+
+.dropzone__icon {
+  display: inline-flex;
+  color: var(--pico-secondary);
+}
+
+.dropzone__icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.dropzone__title {
+  color: #f5f7fa;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.dropzone__formats {
+  color: var(--soft-copy);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.dropzone__file {
+  margin: 0;
+  overflow: hidden;
+  color: var(--soft-copy);
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tuning-grid {
@@ -254,6 +318,16 @@ small {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012)),
     #1a1f28;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.canvas-frame.is-dropping {
+  border-color: var(--pico-primary);
+  background:
+    linear-gradient(180deg, rgba(214, 40, 57, 0.12), rgba(214, 40, 57, 0.04)),
+    #1a1f28;
 }
 
 canvas {
@@ -261,6 +335,17 @@ canvas {
   height: auto;
   aspect-ratio: 1;
   border-radius: 1.5rem;
+  cursor: grab;
+  touch-action: none;
+}
+
+canvas.is-grabbing {
+  cursor: grabbing;
+}
+
+canvas:focus-visible {
+  outline: 2px solid var(--pico-primary);
+  outline-offset: 4px;
 }
 
 [data-lucide] {
@@ -312,13 +397,5 @@ canvas {
 
   .section-heading button {
     align-self: flex-end;
-  }
-
-  .vertical-range {
-    min-height: 180px;
-  }
-
-  .vertical-range__track input[type="range"] {
-    width: 160px;
   }
 }
