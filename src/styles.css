@@ -207,33 +207,20 @@ small {
   font-size: 0.82rem;
 }
 
-.field-group {
+.input-block {
   display: grid;
-  gap: 0.5rem;
+  gap: 5px;
 }
 
-.field-eyebrow {
-  margin: 0;
-  color: var(--soft-copy);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.field-label-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.field-label-row label {
-  color: #f5f7fa;
-  font-size: 0.85rem;
+.input-block input {
+  margin-bottom: 0;
 }
 
 .char-counter {
+  justify-self: end;
   color: var(--soft-copy);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
+  opacity: 0.7;
 }
 
 .role-chips {
@@ -425,6 +412,10 @@ small {
   min-height: 1.35rem;
 }
 
+.dropzone__status:not(:has(> :not([hidden]))) {
+  display: none;
+}
+
 .dropzone__file {
   flex: 1;
   min-width: 0;
@@ -571,12 +562,6 @@ small {
   color: var(--pico-primary-hover);
 }
 
-.tuning-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.1rem;
-}
-
 .tuning-column {
   display: grid;
   gap: 0.6rem;
@@ -642,10 +627,6 @@ canvas:focus-visible {
 
   .canvas-frame {
     min-height: 0;
-  }
-
-  .tuning-grid {
-    grid-template-columns: 1fr;
   }
 }
 

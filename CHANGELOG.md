@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.0] - 2026-08-21
+
+### Changed
+- The downloaded PNG is now a 700x700 square instead of the 640x640 the preview canvas works at. The export scales the drawing context rather than rebuilding the composition at the larger size, so text and icons are redrawn at the new resolution instead of being resampled — `getCompositionMetrics` carries a fixed `borderWidth`, so metrics built for 700 would not be a pure scale of the 640 ones.
+- The sidebar is now three cards instead of two: `Template and name`, `Portrait image`, and `Background image`. The single `Images` card held both dropzones with their own controls stacked underneath, which made it the longest card by far and left the portrait — the layer most people adjust — buried under the background. Each layer now owns a card, and the portrait comes first.
+- The `No file selected` line under each dropzone is gone while the layer is empty; the row only appears once it has something to say (a file name or an unsupported-type error), and it collapses again when the layer is cleared. The `Runs in your browser, the first run downloads the model` note under the `Remove background` switch is hidden too — the status line now shows up only while the removal is running or when it fails.
+- JPEGs that a browser reports as `image/jpg` or `image/pjpeg` instead of `image/jpeg` are accepted on both layers, and a file that arrives with no mime type at all — which happens when dragging from some sources — now falls back to matching its extension. `image/jpeg` was always on the accepted list, but a JPEG could still be rejected before reaching it. A declared mime type still wins, so renaming a PDF to `.jpg` gets no free pass.
+- The `Community` eyebrow above the role chips is dropped; the chips carry their own names, and the group keeps the word as an `aria-label` on a `radiogroup` so it is still announced.
+- The `Role / Position` label above the name field is dropped, along with its placeholder, and the character counter moves under the input, right-aligned and quieter, 5px below it. The field keeps the label as an `aria-label` so it still has an accessible name.
+- The name field starts empty instead of pre-filled with `Tech Lead iOS`, which had to be selected and deleted before typing anything else. While it is empty the avatar falls back to the community label, which `getFittedTitle` already did for a blank title.
+- The name field takes focus on page load, so the title can be typed without clicking first. Arrow-key panning is bound to the canvas rather than the window, so typing in the field never moves a layer.
+- Framing is no longer bound to the rule that the image must cover the whole circle. Both the zoom floor and the pan bounds existed to guarantee no transparent gap inside the clip; that guarantee is dropped, since the composition already renders transparency for cut-out portraits. Zoom and panning are now free enough to place a small image anywhere in the frame instead of only cropping into it.
+- Both zoom sliders now go down to `0.25` instead of stopping at `1`. `1` meant "the image covers the circle exactly", so the old floor made it impossible to place an image smaller than the clip; the gap it leaves is transparent, which the composition already supports since the cut-out portrait shipped.
+- Panning no longer stops at the point where the image would stop covering the circle, which left a square photo at the default zoom with about 22px of travel per axis and a landscape one with no vertical travel at all. The bounds now only require the image to keep a quarter of its side overlapping the clip, so it can be dragged until it hangs half outside the circle and still cannot be lost off-canvas.
+- The `Zoom in to unlock panning` hint is gone: with the new bounds every loaded layer can be dragged, so the message could never be reached.
+- Clearing a layer resets its zoom to the load default (`1.1`) instead of the lowest supported scale, which with the new floor would have left the slider pinned at `0.25`.
+- A non-positive scale reaching the wheel handler now recovers on the load default instead of the lowest supported scale.
+
 ## [1.9] - 2026-08-21
 
 ### Changed

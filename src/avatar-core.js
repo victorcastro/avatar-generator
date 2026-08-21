@@ -63,7 +63,13 @@
     bullseye: "\uf140"
   };
 
-  const SCALE_LIMITS = { min: 1, max: 1.8, step: 0.01 };
+  const CANVAS_SIZE = 640;
+
+  const EXPORT_SIZE = 700;
+
+  const SCALE_LIMITS = { min: 0.25, max: 1.8, step: 0.01 };
+
+  const PAN_MIN_OVERLAP = 0.25;
 
   const AUTO_ZOOM_ON_LOAD = 1.1;
 
@@ -77,6 +83,18 @@
   const ACCEPTED_IMAGE_TYPES = {
     background: ["image/png", "image/jpeg", "image/webp"],
     portrait: ["image/png", "image/jpeg", "image/webp"]
+  };
+
+  const IMAGE_MIME_ALIASES = {
+    "image/jpg": "image/jpeg",
+    "image/pjpeg": "image/jpeg",
+    "image/x-png": "image/png"
+  };
+
+  const IMAGE_EXTENSIONS = {
+    "image/png": [".png"],
+    "image/jpeg": [".jpg", ".jpeg", ".jpe"],
+    "image/webp": [".webp"]
   };
 
   const BACKGROUND_REMOVAL = {
@@ -96,6 +114,10 @@
 
   function ptToPx(points) {
     return points * (96 / 72);
+  }
+
+  function getExportScale() {
+    return EXPORT_SIZE / CANVAS_SIZE;
   }
 
   function getCompositionMetrics(canvasSize) {
@@ -168,6 +190,10 @@
     return Math.min(Math.max(value, minValue), maxValue);
   }
 
+  function getPanAxisBound(size, diameter) {
+    return (size + diameter) / 2 - PAN_MIN_OVERLAP * Math.min(size, diameter);
+  }
+
   function getPanBounds(image, scaleMultiplier, metrics) {
     if (!image) {
       return { maxOffsetX: 0, maxOffsetY: 0 };
@@ -177,8 +203,8 @@
     const diameter = metrics.clipRadius * 2;
 
     return {
-      maxOffsetX: Math.max(0, (bounds.width - diameter) / 2),
-      maxOffsetY: Math.max(0, (bounds.height - diameter) / 2)
+      maxOffsetX: getPanAxisBound(bounds.width, diameter),
+      maxOffsetY: getPanAxisBound(bounds.height, diameter)
     };
   }
 
@@ -238,7 +264,7 @@
     const current = Number(scaleMultiplier);
 
     if (!(current > 0)) {
-      return SCALE_LIMITS.min;
+      return AUTO_ZOOM_ON_LOAD;
     }
 
     return clampScaleMultiplier(current * Math.exp(-normalized * WHEEL_ZOOM_SENSITIVITY));
@@ -305,7 +331,7 @@
   }
 
   function getLayerHint(options) {
-    const { layer, hasPortrait, hasBackground, canPan } = options;
+    const { layer, hasPortrait, hasBackground } = options;
 
     if (!hasPortrait && !hasBackground) {
       return "Add a portrait or a background to start composing";
@@ -313,10 +339,6 @@
 
     if (!layer) {
       return "Add a background image to move it with Alt";
-    }
-
-    if (canPan === false) {
-      return `Zoom in to unlock panning on the ${layer}`;
     }
 
     if (layer === "background") {
@@ -338,14 +360,34 @@
     return { offsetX: defaults.offsetX, offsetY: defaults.offsetY, scale: defaults.scale };
   }
 
-  function isAcceptedImageType(layer, mimeType) {
+  function normalizeImageMimeType(mimeType) {
+    const normalized = String(mimeType || "").trim().toLowerCase();
+
+    return IMAGE_MIME_ALIASES[normalized] || normalized;
+  }
+
+  function isAcceptedImageType(layer, mimeType, fileName) {
     const accepted = ACCEPTED_IMAGE_TYPES[layer];
 
-    if (!accepted || !mimeType) {
+    if (!accepted) {
       return false;
     }
 
-    return accepted.includes(mimeType);
+    const normalized = normalizeImageMimeType(mimeType);
+
+    if (normalized) {
+      return accepted.includes(normalized);
+    }
+
+    const name = String(fileName || "").trim().toLowerCase();
+
+    if (!name) {
+      return false;
+    }
+
+    return accepted.some((type) =>
+      (IMAGE_EXTENSIONS[type] || []).some((extension) => name.endsWith(extension))
+    );
   }
 
   function hasAlphaChannel(pixels) {
@@ -395,14 +437,18 @@
   const api = {
     ROLE_CONFIG,
     FONT_AWESOME_GLYPHS,
+    CANVAS_SIZE,
+    EXPORT_SIZE,
     SCALE_LIMITS,
     AUTO_ZOOM_ON_LOAD,
+    PAN_MIN_OVERLAP,
     LAYER_DEFAULTS,
     KEYBOARD_PAN_STEP,
     ACCEPTED_IMAGE_TYPES,
     BACKGROUND_REMOVAL,
     CUTOUT_PHASE_LABELS,
     ptToPx,
+    getExportScale,
     getCompositionMetrics,
     getFittedTitle,
     getImageDrawBounds,

@@ -5,7 +5,6 @@ const {
   getFittedTitle: getCoreFittedTitle,
   getImageDrawBounds,
   getDownloadFilename,
-  getPanBounds,
   clampLayerOffsets,
   clampScaleMultiplier,
   getZoomAtPoint,
@@ -21,8 +20,10 @@ const {
   hasAlphaChannel,
   getAlphaSampleSize,
   getCutoutProgressMessage,
+  getExportScale,
   BACKGROUND_REMOVAL,
-  SCALE_LIMITS
+  CANVAS_SIZE,
+  EXPORT_SIZE
 } = window.AvatarCore;
 
 const canvas = document.getElementById("avatarCanvas");
@@ -31,7 +32,7 @@ const lucideLibrary = window.lucide;
 
 const state = {
   role: "ios",
-  titleText: "Tech Lead iOS",
+  titleText: "",
   backgroundScale: 1,
   backgroundOffsetX: 0,
   backgroundOffsetY: 0,
@@ -72,8 +73,6 @@ const controls = {
   portraitClear: document.getElementById("portraitClear"),
   titleTextCounter: document.getElementById("titleTextCounter")
 };
-
-const EMPTY_FILE_NAME = "No file selected";
 
 const LAYER_KEYS = {
   background: {
@@ -183,7 +182,7 @@ function drawFontAwesomeIcon(iconName, iconStyle, centerX, centerY, size, color)
 }
 
 function getCompositionMetrics() {
-  return getCoreCompositionMetrics(canvas.width);
+  return getCoreCompositionMetrics(CANVAS_SIZE);
 }
 
 function getFittedTitle(text, maxWidth) {
@@ -320,7 +319,7 @@ function drawLayerBlur(metrics) {
 
   withCircularClip(metrics, () => {
     context.fillStyle = "rgba(51, 51, 51, 0.35)";
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
   });
 }
 
@@ -409,7 +408,7 @@ function drawLayerPlaceholder(metrics) {
 
   withCircularClip(metrics, () => {
     context.fillStyle = getCheckerPattern();
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
     if (!isEmpty) {
       return;
@@ -429,7 +428,7 @@ function drawAvatar(options) {
   const metrics = getCompositionMetrics();
   const showPlaceholder = !options || options.showPlaceholder !== false;
 
-  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
   if (showPlaceholder) {
     drawLayerPlaceholder(metrics);
@@ -486,19 +485,10 @@ function resolveActiveLayer(altKey) {
 
 function refreshHint(altKey) {
   const layer = resolveActiveLayer(altKey);
-  let canPan = true;
-
-  if (layer) {
-    const keys = LAYER_KEYS[layer];
-    const bounds = getPanBounds(state[keys.image], state[keys.scale], getCompositionMetrics());
-    canPan = bounds.maxOffsetX > 0 || bounds.maxOffsetY > 0;
-  }
-
   const hint = getLayerHint({
     layer,
     hasPortrait: hasLayerImage("portrait"),
-    hasBackground: hasLayerImage("background"),
-    canPan
+    hasBackground: hasLayerImage("background")
   });
 
   if (controls.canvasHint.textContent !== hint) {
@@ -556,14 +546,13 @@ function panLayer(layer, dx, dy) {
   });
 }
 
-const CUTOUT_IDLE_MESSAGE = "Runs in your browser, the first run downloads the model";
-
 function setCutoutStatus(message) {
   controls.portraitCutoutStatus.textContent = message;
+  controls.portraitCutoutStatus.hidden = !message;
 }
 
 function setCutoutError(message) {
-  controls.portraitCutoutStatus.textContent = `${message} `;
+  setCutoutStatus(`${message} `);
 
   const retryButton = document.createElement("button");
   retryButton.type = "button";
@@ -662,7 +651,7 @@ function resetPortraitSource(file, image) {
   portraitSource.requestId += 1;
 
   setCutoutBusy(false);
-  setCutoutStatus(CUTOUT_IDLE_MESSAGE);
+  setCutoutStatus("");
 
   if (state.removePortraitBackground) {
     runBackgroundRemoval();
@@ -673,17 +662,19 @@ function setLayerFileName(layer, message) {
   const keys = LAYER_KEYS[layer];
 
   controls[keys.fileName].textContent = message;
+  controls[keys.fileName].hidden = !message;
   controls[keys.clearButton].hidden = !state[keys.image];
 }
 
 function clearLayer(layer) {
   const keys = LAYER_KEYS[layer];
+  const defaults = getDefaultLayerTransform(layer);
 
   state[keys.image] = null;
-  state[keys.scale] = SCALE_LIMITS.min;
-  state[keys.offsetX] = 0;
-  state[keys.offsetY] = 0;
-  controls[keys.scaleControl].value = String(SCALE_LIMITS.min);
+  state[keys.scale] = defaults.scale;
+  state[keys.offsetX] = defaults.offsetX;
+  state[keys.offsetY] = defaults.offsetY;
+  controls[keys.scaleControl].value = String(defaults.scale);
 
   if (layer === "portrait") {
     portraitSource.file = null;
@@ -691,10 +682,10 @@ function clearLayer(layer) {
     portraitSource.cutoutImage = null;
     portraitSource.requestId += 1;
     setCutoutBusy(false);
-    setCutoutStatus(CUTOUT_IDLE_MESSAGE);
+    setCutoutStatus("");
   }
 
-  setLayerFileName(layer, EMPTY_FILE_NAME);
+  setLayerFileName(layer, "");
   setStatus(`The ${layer} image was removed`);
   requestRender();
   refreshHint(false);
@@ -707,7 +698,7 @@ async function handleImageInput(file, layer) {
 
   const keys = LAYER_KEYS[layer];
 
-  if (!isAcceptedImageType(layer, file.type)) {
+  if (!isAcceptedImageType(layer, file.type, file.name)) {
     const message = `That file type is not supported for the ${layer}`;
     setLayerFileName(layer, message);
     setStatus(message);
@@ -779,7 +770,7 @@ controls.portraitCutout.addEventListener("change", (event) => {
   state.removePortraitBackground = event.target.checked;
 
   if (!portraitSource.file) {
-    setCutoutStatus(CUTOUT_IDLE_MESSAGE);
+    setCutoutStatus("");
     return;
   }
 
@@ -815,7 +806,7 @@ canvas.addEventListener("pointerdown", (event) => {
   gesture.layer = layer;
   gesture.lastClientX = event.clientX;
   gesture.lastClientY = event.clientY;
-  gesture.pointerScale = getCanvasPointerScale(rect, canvas.width);
+  gesture.pointerScale = getCanvasPointerScale(rect, CANVAS_SIZE);
   gesture.travelled = 0;
 
   canvas.setPointerCapture(event.pointerId);
@@ -872,7 +863,7 @@ canvas.addEventListener(
     event.preventDefault();
 
     const rect = canvas.getBoundingClientRect();
-    const point = getCanvasPoint(event.clientX, event.clientY, rect, canvas.width);
+    const point = getCanvasPoint(event.clientX, event.clientY, rect, CANVAS_SIZE);
     const nextScale = getWheelScaleMultiplier(
       state[LAYER_KEYS[layer].scale],
       event.deltaY,
@@ -985,13 +976,28 @@ document.addEventListener("drop", (event) => {
   event.preventDefault();
 });
 
+function getExportDataUrl() {
+  const exportScale = getExportScale();
+
+  canvas.width = EXPORT_SIZE;
+  canvas.height = EXPORT_SIZE;
+  context.scale(exportScale, exportScale);
+  drawAvatar({ showPlaceholder: false });
+
+  const dataUrl = canvas.toDataURL("image/png");
+
+  canvas.width = CANVAS_SIZE;
+  canvas.height = CANVAS_SIZE;
+  renderNow();
+
+  return dataUrl;
+}
+
 controls.downloadButton.addEventListener("click", () => {
-  renderNow({ showPlaceholder: false });
   const link = document.createElement("a");
-  link.href = canvas.toDataURL("image/png");
+  link.href = getExportDataUrl();
   link.download = getDownloadFilename(state.titleText, ROLE_CONFIG[state.role].label);
   link.click();
-  renderNow();
 });
 
 lucideLibrary.createIcons({
