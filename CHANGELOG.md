@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.7] - 2026-08-21
+
+### Added
+- Direct manipulation on the preview: drag the portrait to reposition it, hold `Alt` to drag the background instead. The hint under the canvas rewrites itself as `Alt` is pressed and released so the shortcut is discoverable. When no portrait is loaded, dragging moves the background so the gesture is never dead.
+- Wheel zoom anchored at the cursor, so the point under the pointer stays pinned while scaling. The zoom slider reuses the same math anchored at the canvas center.
+- Drag-and-drop upload zones for both layers, plus dropping a file straight onto the canvas (`Alt` targets the background). Rejected file types now report inline instead of opening a blocking `alert`.
+- Keyboard panning on the focused canvas: arrows move 1px, `Shift`+arrow moves 10px, `Alt`+arrow moves the background. Double-click recenters the active layer.
+- A transparency checkerboard and dashed outline inside the circle while no image is loaded, so the avatar area reads as a distinct drop target instead of blending into the frame. It is a preview affordance only and is skipped when rendering for export. The frame itself now carries a faint grid to read as a canvas.
+
+### Changed
+- Images now load at 1.1 zoom. Cover is exact at zoom 1, which leaves a square image with zero panning slack; loading slightly zoomed guarantees there is always something to drag.
+- Offsets are clamped so a layer can never expose a transparent gap inside the circle, and are re-clamped when the zoom is reduced.
+- Rendering is coalesced through `requestAnimationFrame` instead of redrawing synchronously on every input event. The download button still renders synchronously so the exported PNG is never a stale frame.
+- The minimum zoom is now 1 (was 0.5). Any value below 1 was guaranteed to expose a gap.
+- Pinned the root font size to 16px. Pico scales it up to 131.25% (21px) past the 1536px breakpoint, which oversized the whole rem-based layout on wide screens.
+- Flattened the workspace: the settings and preview panels no longer render as bordered cards, the `Settings` heading is gone, and the download button and the hint now float over the canvas instead of sitting in their own rows.
+- UI messages no longer end in a period, and the two-sentence hints use an em dash instead.
+- The iOS and Android roles now draw their real brand logos from `src/icons/`, keeping Swift's orange-to-red gradient and Android's green, instead of the flat single-colour Font Awesome glyphs. Roles can now declare `iconProvider: "svg"` with an `iconSrc`; if the file fails to load, the Font Awesome glyph is still drawn as a fallback.
+
+### Fixed
+- The two vertical axes moved in opposite directions: the background used the raw slider value while the portrait inverted it. Both axes now follow the cursor.
+
+### Removed
+- The four position sliders, including the vertical one that was a horizontal `input[type=range]` rotated `-90deg`.
+- The dark ring stroked around the avatar, both in the preview and in the exported PNG.
+
+### Notes
+- On some Linux window managers `Alt`+drag is captured by the desktop and never reaches the browser. The zoom slider and double-click reset remain available there.
+
 ## [1.6] - 2026-08-21
 
 ### Changed

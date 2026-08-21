@@ -4,22 +4,46 @@ const assert = require("node:assert/strict");
 const {
   ROLE_CONFIG,
   FONT_AWESOME_GLYPHS,
+  SCALE_LIMITS,
   getCompositionMetrics,
   getFittedTitle,
   getImageDrawBounds,
-  getPortraitOffsetYFromSlider,
-  getDownloadFilename
+  getDownloadFilename,
+  getPanBounds,
+  clampLayerOffsets,
+  clampScaleMultiplier,
+  getZoomAtPoint,
+  getWheelScaleMultiplier,
+  getCanvasPoint,
+  getKeyboardPanStep,
+  getActiveLayer,
+  getDropTargetLayer,
+  getLayerHint,
+  getDefaultLayerTransform,
+  isAcceptedImageType
 } = require("../src/avatar-core.js");
 
-test("role config keeps every supported selector option mapped to a Font Awesome icon", () => {
+test("role config keeps every supported selector option mapped to a drawable icon", () => {
   const expectedRoles = ["ios", "android", "react", "qa", "adm", "pm", "po"];
 
   assert.deepEqual(Object.keys(ROLE_CONFIG), expectedRoles);
 
   for (const [roleKey, role] of Object.entries(ROLE_CONFIG)) {
-    assert.equal(role.iconProvider, "fontawesome");
+    assert.ok(["fontawesome", "svg"].includes(role.iconProvider), `Unknown provider for ${roleKey}`);
     assert.ok(role.iconName);
     assert.ok(FONT_AWESOME_GLYPHS[role.iconName], `Missing glyph for ${roleKey}`);
+  }
+});
+
+test("svg roles carry a source path and keep a Font Awesome glyph as fallback", () => {
+  assert.equal(ROLE_CONFIG.ios.iconProvider, "svg");
+  assert.equal(ROLE_CONFIG.ios.iconSrc, "icons/swift.svg");
+  assert.ok(FONT_AWESOME_GLYPHS[ROLE_CONFIG.ios.iconName]);
+
+  for (const role of Object.values(ROLE_CONFIG)) {
+    if (role.iconProvider === "svg") {
+      assert.ok(role.iconSrc, "an svg role needs a source path");
+    }
   }
 });
 
@@ -59,9 +83,218 @@ test("image draw bounds cover the full circular clip area before offsets", () =>
   assert.equal(bounds.top, metrics.centerY - bounds.height / 2);
 });
 
-test("portrait vertical slider maps upward movement to a negative canvas offset", () => {
-  assert.equal(getPortraitOffsetYFromSlider(40), -40);
-  assert.equal(getPortraitOffsetYFromSlider(-12), 12);
+test("a square image at scale 1 has no panning slack because cover is exact", () => {
+  const metrics = getCompositionMetrics(640);
+  const bounds = getPanBounds({ width: 1000, height: 1000 }, 1, metrics);
+
+  assert.equal(bounds.maxOffsetX, 0);
+  assert.equal(bounds.maxOffsetY, 0);
+});
+
+test("zooming a square image unlocks symmetric panning slack on both axes", () => {
+  const metrics = getCompositionMetrics(640);
+  const bounds = getPanBounds({ width: 1000, height: 1000 }, 1.5, metrics);
+
+  assert.ok(bounds.maxOffsetX > 0);
+  assert.equal(bounds.maxOffsetX, bounds.maxOffsetY);
+});
+
+test("a wide image at scale 1 pans horizontally but is locked vertically", () => {
+  const metrics = getCompositionMetrics(640);
+  const bounds = getPanBounds({ width: 400, height: 200 }, 1, metrics);
+
+  assert.ok(bounds.maxOffsetX > 0);
+  assert.equal(bounds.maxOffsetY, 0);
+});
+
+test("pan bounds collapse to zero when no image is loaded", () => {
+  const metrics = getCompositionMetrics(640);
+
+  assert.deepEqual(getPanBounds(null, 1.5, metrics), { maxOffsetX: 0, maxOffsetY: 0 });
+});
+
+test("offsets are clamped to the pan bounds in both directions", () => {
+  const metrics = getCompositionMetrics(640);
+  const image = { width: 1000, height: 1000 };
+  const { maxOffsetX, maxOffsetY } = getPanBounds(image, 1.5, metrics);
+
+  assert.deepEqual(clampLayerOffsets(image, 1.5, 500, 500, metrics), {
+    offsetX: maxOffsetX,
+    offsetY: maxOffsetY
+  });
+  assert.deepEqual(clampLayerOffsets(image, 1.5, -500, -500, metrics), {
+    offsetX: -maxOffsetX,
+    offsetY: -maxOffsetY
+  });
+  assert.deepEqual(clampLayerOffsets(image, 1.5, 5, -5, metrics), { offsetX: 5, offsetY: -5 });
+});
+
+test("offsets valid at high zoom are pulled back in when the zoom is reduced", () => {
+  const metrics = getCompositionMetrics(640);
+  const image = { width: 1000, height: 1000 };
+  const wide = getPanBounds(image, 1.8, metrics);
+  const reclamped = clampLayerOffsets(image, 1, wide.maxOffsetX, wide.maxOffsetY, metrics);
+
+  assert.ok(wide.maxOffsetX > 0);
+  assert.equal(reclamped.offsetX, 0);
+  assert.equal(reclamped.offsetY, 0);
+});
+
+test("scale multiplier is clamped to the supported range", () => {
+  assert.equal(clampScaleMultiplier(0.2), SCALE_LIMITS.min);
+  assert.equal(clampScaleMultiplier(5), SCALE_LIMITS.max);
+  assert.equal(clampScaleMultiplier(1.4), 1.4);
+});
+
+test("zooming at a pointer keeps the image point under the cursor pinned", () => {
+  const metrics = getCompositionMetrics(640);
+  const image = { width: 2000, height: 2000 };
+  const pointerX = 360;
+  const pointerY = 300;
+  const before = getImageDrawBounds(image, 1.2, 10, -5, metrics);
+  const zoomed = getZoomAtPoint({
+    image,
+    metrics,
+    scaleMultiplier: 1.2,
+    offsetX: 10,
+    offsetY: -5,
+    nextScaleMultiplier: 1.5,
+    pointerX,
+    pointerY
+  });
+  const after = getImageDrawBounds(image, zoomed.scaleMultiplier, zoomed.offsetX, zoomed.offsetY, metrics);
+
+  const beforeRatioX = (pointerX - before.left) / before.width;
+  const afterRatioX = (pointerX - after.left) / after.width;
+  const beforeRatioY = (pointerY - before.top) / before.height;
+  const afterRatioY = (pointerY - after.top) / after.height;
+
+  assert.ok(Math.abs(beforeRatioX - afterRatioX) < 0.000001);
+  assert.ok(Math.abs(beforeRatioY - afterRatioY) < 0.000001);
+});
+
+test("the pan clamp overrides the anchor when zooming would expose a gap", () => {
+  const metrics = getCompositionMetrics(640);
+  const image = { width: 1000, height: 1000 };
+  const zoomed = getZoomAtPoint({
+    image,
+    metrics,
+    scaleMultiplier: 1.8,
+    offsetX: 80,
+    offsetY: 80,
+    nextScaleMultiplier: 1,
+    pointerX: 600,
+    pointerY: 600
+  });
+
+  assert.equal(zoomed.scaleMultiplier, 1);
+  assert.equal(zoomed.offsetX, 0);
+  assert.equal(zoomed.offsetY, 0);
+});
+
+test("zooming anchored at the canvas center scales the offsets proportionally", () => {
+  const metrics = getCompositionMetrics(640);
+  const image = { width: 2000, height: 2000 };
+  const zoomed = getZoomAtPoint({
+    image,
+    metrics,
+    scaleMultiplier: 1.2,
+    offsetX: 30,
+    offsetY: -20,
+    nextScaleMultiplier: 1.5,
+    pointerX: metrics.centerX,
+    pointerY: metrics.centerY
+  });
+  const ratio = 1.5 / 1.2;
+
+  assert.ok(Math.abs(zoomed.offsetX - 30 * ratio) < 0.000001);
+  assert.ok(Math.abs(zoomed.offsetY - -20 * ratio) < 0.000001);
+});
+
+test("wheel zoom follows the scroll direction and is reversible", () => {
+  const zoomedIn = getWheelScaleMultiplier(1.2, -100, 0);
+  const zoomedOut = getWheelScaleMultiplier(1.2, 100, 0);
+
+  assert.ok(zoomedIn > 1.2);
+  assert.ok(zoomedOut < 1.2);
+  assert.ok(Math.abs(getWheelScaleMultiplier(zoomedIn, 100, 0) - 1.2) < 0.000001);
+});
+
+test("wheel zoom normalizes line and page delta modes and stays within limits", () => {
+  assert.ok(getWheelScaleMultiplier(1.2, -10, 1) > getWheelScaleMultiplier(1.2, -10, 0));
+  assert.equal(getWheelScaleMultiplier(1.2, -10000, 0), SCALE_LIMITS.max);
+  assert.equal(getWheelScaleMultiplier(1.2, 10000, 0), SCALE_LIMITS.min);
+});
+
+test("pointer coordinates are rescaled from CSS pixels to canvas pixels", () => {
+  const rect = { left: 0, top: 0, width: 560, height: 560 };
+
+  assert.deepEqual(getCanvasPoint(280, 280, rect, 640), { x: 320, y: 320 });
+
+  const offsetRect = { left: 100, top: 40, width: 560, height: 560 };
+  const point = getCanvasPoint(380, 320, offsetRect, 640);
+
+  assert.equal(point.x, 320);
+  assert.ok(Math.abs(point.y - 320) < 0.000001);
+});
+
+test("the active layer follows Alt and falls back so dragging is never dead", () => {
+  const layerFor = (altKey, hasPortrait, hasBackground) =>
+    getActiveLayer({ altKey, hasPortrait, hasBackground });
+
+  assert.equal(layerFor(false, true, true), "portrait");
+  assert.equal(layerFor(false, true, false), "portrait");
+  assert.equal(layerFor(false, false, true), "background");
+  assert.equal(layerFor(false, false, false), null);
+  assert.equal(layerFor(true, true, true), "background");
+  assert.equal(layerFor(true, false, true), "background");
+  assert.equal(layerFor(true, true, false), null);
+  assert.equal(layerFor(true, false, false), null);
+});
+
+test("a drop targets the layer chosen by Alt regardless of what is loaded", () => {
+  assert.equal(getDropTargetLayer(true), "background");
+  assert.equal(getDropTargetLayer(false), "portrait");
+});
+
+test("arrow keys pan by one pixel and by ten while shift is held", () => {
+  assert.deepEqual(getKeyboardPanStep("ArrowLeft", false), { dx: -1, dy: 0 });
+  assert.deepEqual(getKeyboardPanStep("ArrowRight", false), { dx: 1, dy: 0 });
+  assert.deepEqual(getKeyboardPanStep("ArrowUp", false), { dx: 0, dy: -1 });
+  assert.deepEqual(getKeyboardPanStep("ArrowDown", false), { dx: 0, dy: 1 });
+  assert.deepEqual(getKeyboardPanStep("ArrowDown", true), { dx: 0, dy: 10 });
+  assert.equal(getKeyboardPanStep("Enter", false), null);
+});
+
+test("the portrait layer only accepts PNG while the background also takes JPEG and WEBP", () => {
+  assert.equal(isAcceptedImageType("portrait", "image/png"), true);
+  assert.equal(isAcceptedImageType("portrait", "image/jpeg"), false);
+  assert.equal(isAcceptedImageType("background", "image/jpeg"), true);
+  assert.equal(isAcceptedImageType("background", "image/webp"), true);
+  assert.equal(isAcceptedImageType("background", ""), false);
+  assert.equal(isAcceptedImageType("portrait", "application/pdf"), false);
+});
+
+test("the hint names the Alt shortcut only when a background is available", () => {
+  const withBoth = getLayerHint({ layer: "portrait", hasPortrait: true, hasBackground: true, canPan: true });
+  const portraitOnly = getLayerHint({ layer: "portrait", hasPortrait: true, hasBackground: false, canPan: true });
+  const empty = getLayerHint({ layer: null, hasPortrait: false, hasBackground: false, canPan: false });
+  const locked = getLayerHint({ layer: "portrait", hasPortrait: true, hasBackground: false, canPan: false });
+
+  assert.match(withBoth, /Alt/);
+  assert.doesNotMatch(portraitOnly, /Alt/);
+  assert.match(empty, /Add a portrait/);
+  assert.match(locked, /Zoom in/);
+});
+
+test("layer defaults preserve the portrait nudge and load images already zoomed", () => {
+  const portrait = getDefaultLayerTransform("portrait");
+  const background = getDefaultLayerTransform("background");
+
+  assert.equal(portrait.offsetY, 12);
+  assert.equal(portrait.scale, 1.1);
+  assert.equal(background.offsetY, 0);
+  assert.equal(background.scale, 1.1);
 });
 
 test("download filename sanitizes the title and falls back to the role label", () => {
