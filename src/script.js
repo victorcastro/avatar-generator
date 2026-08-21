@@ -71,8 +71,6 @@ const controls = {
   titleTextCounter: document.getElementById("titleTextCounter")
 };
 
-const EMPTY_FILE_NAME = "No file selected";
-
 const LAYER_KEYS = {
   background: {
     image: "backgroundImage",
@@ -545,14 +543,13 @@ function panLayer(layer, dx, dy) {
   });
 }
 
-const CUTOUT_IDLE_MESSAGE = "Runs in your browser, the first run downloads the model";
-
 function setCutoutStatus(message) {
   controls.portraitCutoutStatus.textContent = message;
+  controls.portraitCutoutStatus.hidden = !message;
 }
 
 function setCutoutError(message) {
-  controls.portraitCutoutStatus.textContent = `${message} `;
+  setCutoutStatus(`${message} `);
 
   const retryButton = document.createElement("button");
   retryButton.type = "button";
@@ -651,7 +648,7 @@ function resetPortraitSource(file, image) {
   portraitSource.requestId += 1;
 
   setCutoutBusy(false);
-  setCutoutStatus(CUTOUT_IDLE_MESSAGE);
+  setCutoutStatus("");
 
   if (state.removePortraitBackground) {
     runBackgroundRemoval();
@@ -662,6 +659,7 @@ function setLayerFileName(layer, message) {
   const keys = LAYER_KEYS[layer];
 
   controls[keys.fileName].textContent = message;
+  controls[keys.fileName].hidden = !message;
   controls[keys.clearButton].hidden = !state[keys.image];
 }
 
@@ -681,10 +679,10 @@ function clearLayer(layer) {
     portraitSource.cutoutImage = null;
     portraitSource.requestId += 1;
     setCutoutBusy(false);
-    setCutoutStatus(CUTOUT_IDLE_MESSAGE);
+    setCutoutStatus("");
   }
 
-  setLayerFileName(layer, EMPTY_FILE_NAME);
+  setLayerFileName(layer, "");
   setStatus(`The ${layer} image was removed`);
   requestRender();
   refreshHint(false);
@@ -769,7 +767,7 @@ controls.portraitCutout.addEventListener("change", (event) => {
   state.removePortraitBackground = event.target.checked;
 
   if (!portraitSource.file) {
-    setCutoutStatus(CUTOUT_IDLE_MESSAGE);
+    setCutoutStatus("");
     return;
   }
 

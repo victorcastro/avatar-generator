@@ -425,6 +425,10 @@ small {
   min-height: 1.35rem;
 }
 
+.dropzone__status:not(:has(> :not([hidden]))) {
+  display: none;
+}
+
 .dropzone__file {
   flex: 1;
   min-width: 0;
