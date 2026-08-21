@@ -17,6 +17,21 @@ const ogImageSource = path.join(sourceDir, "og-image.png");
 const iconsSource = path.join(sourceDir, "icons");
 const picoSource = path.join(rootDir, "node_modules", "@picocss", "pico", "css", "pico.red.min.css");
 const lucideSource = path.join(rootDir, "node_modules", "lucide", "dist", "umd", "lucide.min.js");
+const backgroundRemovalSource = path.join(
+  rootDir,
+  "node_modules",
+  "@imgly",
+  "background-removal",
+  "dist",
+  "index.mjs"
+);
+const onnxRuntimeSource = path.join(
+  rootDir,
+  "node_modules",
+  "onnxruntime-web",
+  "dist",
+  "ort.wasm.bundle.min.mjs"
+);
 const fontAwesomeCssSource = path.join(
   rootDir,
   "node_modules",
@@ -108,6 +123,8 @@ async function build() {
 
   copyFile(picoSource, path.join(vendorDir, "pico.red.min.css"));
   copyFile(lucideSource, path.join(vendorDir, "lucide.min.js"));
+  copyFile(backgroundRemovalSource, path.join(vendorDir, "background-removal.mjs"));
+  copyFile(onnxRuntimeSource, path.join(vendorDir, "onnxruntime-web.mjs"));
   copyFile(fontAwesomeCssSource, path.join(vendorDir, "fontawesome", "css", "all.min.css"));
   copyDirectory(fontAwesomeWebfontsSource, path.join(vendorDir, "fontawesome", "webfonts"));
   copyFile(ogImageSource, path.join(distDir, "og-image.png"));
@@ -145,7 +162,15 @@ async function build() {
       renderIndexTemplate()
         .replace("/node_modules/@picocss/pico/css/pico.red.min.css", "./vendor/pico.red.min.css")
         .replace("/node_modules/@fortawesome/fontawesome-free/css/all.min.css", "./vendor/fontawesome/css/all.min.css")
-        .replace("/node_modules/lucide/dist/umd/lucide.min.js", "./vendor/lucide.min.js"),
+        .replace("/node_modules/lucide/dist/umd/lucide.min.js", "./vendor/lucide.min.js")
+        .replace(
+          "/node_modules/@imgly/background-removal/dist/index.mjs",
+          "./vendor/background-removal.mjs"
+        )
+        .replace(
+          "/node_modules/onnxruntime-web/dist/ort.wasm.bundle.min.mjs",
+          "./vendor/onnxruntime-web.mjs"
+        ),
       {
         collapseWhitespace: true,
         conservativeCollapse: true,

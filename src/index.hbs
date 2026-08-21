@@ -100,7 +100,12 @@
                   <span class="dropzone__title">Drop an image or click to browse</span>
                   <span class="dropzone__formats">PNG, JPG or WEBP</span>
                 </label>
-                <p class="dropzone__file" id="backgroundFileName">No file selected</p>
+                <div class="dropzone__status">
+                  <p class="dropzone__file" id="backgroundFileName">No file selected</p>
+                  <button class="dropzone__clear" id="backgroundClear" type="button" hidden aria-label="Remove the background image" title="Remove image">
+                    <span data-lucide="x" aria-hidden="true"></span>
+                  </button>
+                </div>
               </div>
 
               <div class="range-block">
@@ -113,13 +118,26 @@
               <h3>Portrait</h3>
 
               <div class="dropzone" id="portraitDropzone" data-layer="portrait">
-                <input id="portraitUpload" name="portraitUpload" class="dropzone__input" type="file" accept="image/png">
+                <input id="portraitUpload" name="portraitUpload" class="dropzone__input" type="file" accept="image/png,image/jpeg,image/webp">
                 <label class="dropzone__label" for="portraitUpload">
                   <span class="dropzone__icon" data-lucide="image-plus" aria-hidden="true"></span>
                   <span class="dropzone__title">Drop an image or click to browse</span>
-                  <span class="dropzone__formats">PNG only</span>
+                  <span class="dropzone__formats">PNG, JPG or WEBP</span>
                 </label>
-                <p class="dropzone__file" id="portraitFileName">No file selected</p>
+                <div class="dropzone__status">
+                  <p class="dropzone__file" id="portraitFileName">No file selected</p>
+                  <button class="dropzone__clear" id="portraitClear" type="button" hidden aria-label="Remove the portrait image" title="Remove image">
+                    <span data-lucide="x" aria-hidden="true"></span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="cutout-block">
+                <label class="cutout-block__toggle" for="portraitCutout">
+                  <input id="portraitCutout" name="portraitCutout" type="checkbox" checked aria-describedby="portraitCutoutStatus">
+                  <span>Remove background</span>
+                </label>
+                <p class="cutout-block__status" id="portraitCutoutStatus">Runs in your browser, the first run downloads the model</p>
               </div>
 
               <div class="range-block">
@@ -132,6 +150,14 @@
       </div>
     </main>
 
+    <script type="importmap">
+      {
+        "imports": {
+          "onnxruntime-web": "/node_modules/onnxruntime-web/dist/ort.wasm.bundle.min.mjs"
+        }
+      }
+    </script>
+    <script>window.AVATAR_BACKGROUND_REMOVAL_URL = "/node_modules/@imgly/background-removal/dist/index.mjs";</script>
     <script src="/node_modules/lucide/dist/umd/lucide.min.js"></script>
     <script src="avatar-core.js"></script>
     <script src="script.js"></script>
