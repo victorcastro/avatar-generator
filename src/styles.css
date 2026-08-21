@@ -207,19 +207,6 @@ small {
   font-size: 0.82rem;
 }
 
-.field-group {
-  display: grid;
-  gap: 0.5rem;
-}
-
-.field-eyebrow {
-  margin: 0;
-  color: var(--soft-copy);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .input-block {
   display: grid;
   gap: 5px;
