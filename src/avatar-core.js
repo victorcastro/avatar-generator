@@ -63,6 +63,10 @@
     bullseye: "\uf140"
   };
 
+  const CANVAS_SIZE = 640;
+
+  const EXPORT_SIZE = 700;
+
   const SCALE_LIMITS = { min: 0.25, max: 1.8, step: 0.01 };
 
   const PAN_MIN_OVERLAP = 0.25;
@@ -110,6 +114,10 @@
 
   function ptToPx(points) {
     return points * (96 / 72);
+  }
+
+  function getExportScale() {
+    return EXPORT_SIZE / CANVAS_SIZE;
   }
 
   function getCompositionMetrics(canvasSize) {
@@ -429,6 +437,8 @@
   const api = {
     ROLE_CONFIG,
     FONT_AWESOME_GLYPHS,
+    CANVAS_SIZE,
+    EXPORT_SIZE,
     SCALE_LIMITS,
     AUTO_ZOOM_ON_LOAD,
     PAN_MIN_OVERLAP,
@@ -438,6 +448,7 @@
     BACKGROUND_REMOVAL,
     CUTOUT_PHASE_LABELS,
     ptToPx,
+    getExportScale,
     getCompositionMetrics,
     getFittedTitle,
     getImageDrawBounds,

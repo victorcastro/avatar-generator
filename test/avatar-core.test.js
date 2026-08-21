@@ -4,10 +4,13 @@ const assert = require("node:assert/strict");
 const {
   ROLE_CONFIG,
   FONT_AWESOME_GLYPHS,
+  CANVAS_SIZE,
+  EXPORT_SIZE,
   SCALE_LIMITS,
   AUTO_ZOOM_ON_LOAD,
   PAN_MIN_OVERLAP,
   getCompositionMetrics,
+  getExportScale,
   getFittedTitle,
   getImageDrawBounds,
   getDownloadFilename,
@@ -62,6 +65,22 @@ test("composition metrics keep the footer inside the circular avatar", () => {
   assert.ok(metrics.footerTop > metrics.centerY);
   assert.ok(metrics.footerTop < metrics.centerY + metrics.clipRadius);
   assert.ok(metrics.footerHeight > 0);
+});
+
+test("the download is exported as a 700px square scaled from the working canvas", () => {
+  assert.equal(EXPORT_SIZE, 700);
+  assert.equal(CANVAS_SIZE, 640);
+  assert.equal(getExportScale(), EXPORT_SIZE / CANVAS_SIZE);
+});
+
+test("metrics built for a bigger canvas are not a pure scale of the working ones", () => {
+  const working = getCompositionMetrics(CANVAS_SIZE);
+  const resized = getCompositionMetrics(EXPORT_SIZE);
+  const scale = getExportScale();
+
+  assert.ok(Math.abs(resized.centerX - working.centerX * scale) < 0.000001);
+  assert.notEqual(resized.clipRadius, working.clipRadius * scale);
+  assert.equal(resized.borderWidth, working.borderWidth);
 });
 
 test("title fitting falls back to the role label and never shrinks below the minimum size", () => {

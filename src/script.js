@@ -20,7 +20,10 @@ const {
   hasAlphaChannel,
   getAlphaSampleSize,
   getCutoutProgressMessage,
-  BACKGROUND_REMOVAL
+  getExportScale,
+  BACKGROUND_REMOVAL,
+  CANVAS_SIZE,
+  EXPORT_SIZE
 } = window.AvatarCore;
 
 const canvas = document.getElementById("avatarCanvas");
@@ -179,7 +182,7 @@ function drawFontAwesomeIcon(iconName, iconStyle, centerX, centerY, size, color)
 }
 
 function getCompositionMetrics() {
-  return getCoreCompositionMetrics(canvas.width);
+  return getCoreCompositionMetrics(CANVAS_SIZE);
 }
 
 function getFittedTitle(text, maxWidth) {
@@ -316,7 +319,7 @@ function drawLayerBlur(metrics) {
 
   withCircularClip(metrics, () => {
     context.fillStyle = "rgba(51, 51, 51, 0.35)";
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
   });
 }
 
@@ -405,7 +408,7 @@ function drawLayerPlaceholder(metrics) {
 
   withCircularClip(metrics, () => {
     context.fillStyle = getCheckerPattern();
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
     if (!isEmpty) {
       return;
@@ -425,7 +428,7 @@ function drawAvatar(options) {
   const metrics = getCompositionMetrics();
   const showPlaceholder = !options || options.showPlaceholder !== false;
 
-  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
   if (showPlaceholder) {
     drawLayerPlaceholder(metrics);
@@ -803,7 +806,7 @@ canvas.addEventListener("pointerdown", (event) => {
   gesture.layer = layer;
   gesture.lastClientX = event.clientX;
   gesture.lastClientY = event.clientY;
-  gesture.pointerScale = getCanvasPointerScale(rect, canvas.width);
+  gesture.pointerScale = getCanvasPointerScale(rect, CANVAS_SIZE);
   gesture.travelled = 0;
 
   canvas.setPointerCapture(event.pointerId);
@@ -860,7 +863,7 @@ canvas.addEventListener(
     event.preventDefault();
 
     const rect = canvas.getBoundingClientRect();
-    const point = getCanvasPoint(event.clientX, event.clientY, rect, canvas.width);
+    const point = getCanvasPoint(event.clientX, event.clientY, rect, CANVAS_SIZE);
     const nextScale = getWheelScaleMultiplier(
       state[LAYER_KEYS[layer].scale],
       event.deltaY,
@@ -973,13 +976,28 @@ document.addEventListener("drop", (event) => {
   event.preventDefault();
 });
 
+function getExportDataUrl() {
+  const exportScale = getExportScale();
+
+  canvas.width = EXPORT_SIZE;
+  canvas.height = EXPORT_SIZE;
+  context.scale(exportScale, exportScale);
+  drawAvatar({ showPlaceholder: false });
+
+  const dataUrl = canvas.toDataURL("image/png");
+
+  canvas.width = CANVAS_SIZE;
+  canvas.height = CANVAS_SIZE;
+  renderNow();
+
+  return dataUrl;
+}
+
 controls.downloadButton.addEventListener("click", () => {
-  renderNow({ showPlaceholder: false });
   const link = document.createElement("a");
-  link.href = canvas.toDataURL("image/png");
+  link.href = getExportDataUrl();
   link.download = getDownloadFilename(state.titleText, ROLE_CONFIG[state.role].label);
   link.click();
-  renderNow();
 });
 
 lucideLibrary.createIcons({
