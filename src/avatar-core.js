@@ -2,7 +2,8 @@
   const ROLE_CONFIG = {
     ios: {
       label: "iOS",
-      iconProvider: "fontawesome",
+      iconProvider: "svg",
+      iconSrc: "icons/swift.svg",
       iconStyle: "brands",
       iconName: "swift",
       iconLabel: "Swift"

@@ -166,8 +166,38 @@ function drawLucideNode(tagName, attrs) {
   }
 }
 
+const svgIcons = new Map();
+
+function getSvgIcon(source) {
+  if (svgIcons.has(source)) {
+    return svgIcons.get(source);
+  }
+
+  const image = new Image();
+  svgIcons.set(source, image);
+  image.addEventListener("load", () => requestRender());
+  image.src = source;
+
+  return image;
+}
+
+function drawSvgIcon(source, centerX, centerY, size) {
+  const icon = getSvgIcon(source);
+
+  if (!icon.complete || icon.naturalWidth === 0) {
+    return false;
+  }
+
+  context.drawImage(icon, centerX - size / 2, centerY - size / 2, size, size);
+  return true;
+}
+
 function drawRoleIcon(role, centerX, centerY, size, color) {
-  if (role.iconProvider === "fontawesome") {
+  if (role.iconSrc && drawSvgIcon(role.iconSrc, centerX, centerY, size)) {
+    return;
+  }
+
+  if (role.iconProvider === "fontawesome" || FONT_AWESOME_GLYPHS[role.iconName]) {
     drawFontAwesomeIcon(role.iconName, role.iconStyle, centerX, centerY, size, color);
     return;
   }
@@ -732,6 +762,12 @@ controls.downloadButton.addEventListener("click", () => {
 lucideLibrary.createIcons({
   attrs: {
     "stroke-width": 2.1
+  }
+});
+
+Object.values(ROLE_CONFIG).forEach((role) => {
+  if (role.iconSrc) {
+    getSvgIcon(role.iconSrc);
   }
 });
 

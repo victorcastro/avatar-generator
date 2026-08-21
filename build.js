@@ -14,6 +14,7 @@ const stylesSource = path.join(sourceDir, "styles.css");
 const avatarCoreSource = path.join(sourceDir, "avatar-core.js");
 const scriptSource = path.join(sourceDir, "script.js");
 const ogImageSource = path.join(sourceDir, "og-image.png");
+const iconsSource = path.join(sourceDir, "icons");
 const picoSource = path.join(rootDir, "node_modules", "@picocss", "pico", "css", "pico.red.min.css");
 const lucideSource = path.join(rootDir, "node_modules", "lucide", "dist", "umd", "lucide.min.js");
 const fontAwesomeCssSource = path.join(
@@ -110,6 +111,7 @@ async function build() {
   copyFile(fontAwesomeCssSource, path.join(vendorDir, "fontawesome", "css", "all.min.css"));
   copyDirectory(fontAwesomeWebfontsSource, path.join(vendorDir, "fontawesome", "webfonts"));
   copyFile(ogImageSource, path.join(distDir, "og-image.png"));
+  copyDirectory(iconsSource, path.join(distDir, "icons"));
   await writeMinifiedTextFile(stylesSource, path.join(distDir, "styles.css"), async (css) =>
     minifyCss(css)
   );

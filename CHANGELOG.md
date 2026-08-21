@@ -17,6 +17,7 @@
 - Pinned the root font size to 16px. Pico scales it up to 131.25% (21px) past the 1536px breakpoint, which oversized the whole rem-based layout on wide screens.
 - Flattened the workspace: the settings and preview panels no longer render as bordered cards, the `Settings` heading is gone, and the download button and the hint now float over the canvas instead of sitting in their own rows.
 - UI messages no longer end in a period, and the two-sentence hints use an em dash instead.
+- The iOS role now draws the official Swift logo from `src/icons/swift.svg`, keeping its orange-to-red gradient, instead of the flat single-colour Font Awesome glyph. Roles can now declare `iconProvider: "svg"` with an `iconSrc`; if the file fails to load, the Font Awesome glyph is still drawn as a fallback.
 
 ### Fixed
 - The two vertical axes moved in opposite directions: the background used the raw slider value while the portrait inverted it. Both axes now follow the cursor.

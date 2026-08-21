@@ -23,15 +23,27 @@ const {
   isAcceptedImageType
 } = require("../src/avatar-core.js");
 
-test("role config keeps every supported selector option mapped to a Font Awesome icon", () => {
+test("role config keeps every supported selector option mapped to a drawable icon", () => {
   const expectedRoles = ["ios", "android", "react", "qa", "adm", "pm", "po"];
 
   assert.deepEqual(Object.keys(ROLE_CONFIG), expectedRoles);
 
   for (const [roleKey, role] of Object.entries(ROLE_CONFIG)) {
-    assert.equal(role.iconProvider, "fontawesome");
+    assert.ok(["fontawesome", "svg"].includes(role.iconProvider), `Unknown provider for ${roleKey}`);
     assert.ok(role.iconName);
     assert.ok(FONT_AWESOME_GLYPHS[role.iconName], `Missing glyph for ${roleKey}`);
+  }
+});
+
+test("svg roles carry a source path and keep a Font Awesome glyph as fallback", () => {
+  assert.equal(ROLE_CONFIG.ios.iconProvider, "svg");
+  assert.equal(ROLE_CONFIG.ios.iconSrc, "icons/swift.svg");
+  assert.ok(FONT_AWESOME_GLYPHS[ROLE_CONFIG.ios.iconName]);
+
+  for (const role of Object.values(ROLE_CONFIG)) {
+    if (role.iconProvider === "svg") {
+      assert.ok(role.iconSrc, "an svg role needs a source path");
+    }
   }
 });
 
