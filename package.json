@@ -1,6 +1,6 @@
 {
   "name": "avatar-generator",
-  "version": "1.5",
+  "version": "1.6",
   "private": true,
   "packageManager": "yarn@1.22.22",
   "description": "Avatar generator for community teams",
