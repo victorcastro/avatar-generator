@@ -3,9 +3,8 @@
 ## [1.6] - 2026-08-21
 
 ### Changed
-- Replaced `ci.yml` and `tag-release.yml` with `pr.yml` (pull requests: quality checks, build, and a version/changelog gate) and `release.yml` (pushes to `main`: quality checks and release tagging).
-- Pull requests now gate on a version bump (`package.json`) and matching `CHANGELOG.md` entry versus `main` before merge.
-- `deploy-pages.yml` now triggers via `workflow_run` after `release.yml` succeeds, instead of running its own duplicate lint/test pass on every push to `main`.
+- Replaced `ci.yml`, `tag-release.yml`, and `deploy-pages.yml` with `pull-request.yml` (pull requests: version/changelog gate, quality checks, build) and `merge.yml` (pushes to `main`: quality checks, release tagging, GitHub Pages build and deploy).
+- Pull requests now gate on a version bump (`package.json`) and matching `CHANGELOG.md` entry versus `main` before merge; the check runs first and blocks the rest of the pipeline on failure.
 
 ## [1.5] - 2026-05-21
 
