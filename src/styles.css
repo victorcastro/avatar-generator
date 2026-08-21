@@ -220,20 +220,20 @@ small {
   text-transform: uppercase;
 }
 
-.field-label-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.input-block {
+  display: grid;
+  gap: 5px;
 }
 
-.field-label-row label {
-  color: #f5f7fa;
-  font-size: 0.85rem;
+.input-block input {
+  margin-bottom: 0;
 }
 
 .char-counter {
+  justify-self: end;
   color: var(--soft-copy);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
+  opacity: 0.7;
 }
 
 .role-chips {
