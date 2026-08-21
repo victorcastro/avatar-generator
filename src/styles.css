@@ -571,12 +571,6 @@ small {
   color: var(--pico-primary-hover);
 }
 
-.tuning-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.1rem;
-}
-
 .tuning-column {
   display: grid;
   gap: 0.6rem;
@@ -642,10 +636,6 @@ canvas:focus-visible {
 
   .canvas-frame {
     min-height: 0;
-  }
-
-  .tuning-grid {
-    grid-template-columns: 1fr;
   }
 }
 

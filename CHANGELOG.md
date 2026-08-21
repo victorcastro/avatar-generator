@@ -3,6 +3,7 @@
 ## [2.0] - 2026-08-21
 
 ### Changed
+- The sidebar is now three cards instead of two: `Template and name`, `Portrait image`, and `Background image`. The single `Images` card held both dropzones with their own controls stacked underneath, which made it the longest card by far and left the portrait — the layer most people adjust — buried under the background. Each layer now owns a card, and the portrait comes first.
 - Framing is no longer bound to the rule that the image must cover the whole circle. Both the zoom floor and the pan bounds existed to guarantee no transparent gap inside the clip; that guarantee is dropped, since the composition already renders transparency for cut-out portraits. Zoom and panning are now free enough to place a small image anywhere in the frame instead of only cropping into it.
 - Both zoom sliders now go down to `0.25` instead of stopping at `1`. `1` meant "the image covers the circle exactly", so the old floor made it impossible to place an image smaller than the clip; the gap it leaves is transparent, which the composition already supports since the cut-out portrait shipped.
 - Panning no longer stops at the point where the image would stop covering the circle, which left a square photo at the default zoom with about 22px of travel per axis and a landscape one with no vertical travel at all. The bounds now only require the image to keep a quarter of its side overlapping the clip, so it can be dragged until it hangs half outside the circle and still cannot be lost off-canvas.

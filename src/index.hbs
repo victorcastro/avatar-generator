@@ -109,71 +109,79 @@
             <header class="setup-card__header">
               <span class="step-badge">2</span>
               <div class="setup-card__heading">
-                <h2>Images</h2>
-                <p class="setup-card__subtitle">With either one you can already export.</p>
+                <h2>Portrait image</h2>
+                <p class="setup-card__subtitle">Either image on its own is enough to export.</p>
               </div>
             </header>
 
-            <div class="tuning-grid">
-              <div class="tuning-column">
-                <div class="dropzone" id="backgroundDropzone" data-layer="background">
-                  <input id="backgroundUpload" name="backgroundUpload" class="dropzone__input" type="file" accept="image/png,image/jpeg,image/webp">
-                  <label class="dropzone__label" for="backgroundUpload">
-                    <span class="dropzone__icon" data-lucide="image" aria-hidden="true"></span>
-                    <span class="dropzone__text">
-                      <span class="dropzone__title">Background</span>
-                      <span class="dropzone__formats">PNG · JPG · WEBP</span>
-                    </span>
-                    <span class="dropzone__upload-btn">Upload</span>
-                  </label>
-                  <div class="dropzone__status">
-                    <p class="dropzone__file" id="backgroundFileName">No file selected</p>
-                    <button class="dropzone__clear" id="backgroundClear" type="button" hidden aria-label="Remove the background image" title="Remove image">
-                      <span data-lucide="x" aria-hidden="true"></span>
-                    </button>
-                  </div>
-                </div>
-
-                <div class="range-block">
-                  <label for="backgroundScale">Zoom</label>
-                  <input id="backgroundScale" name="backgroundScale" type="range" min="0.25" max="1.8" step="0.01" value="1">
+            <div class="tuning-column">
+              <div class="dropzone" id="portraitDropzone" data-layer="portrait">
+                <input id="portraitUpload" name="portraitUpload" class="dropzone__input" type="file" accept="image/png,image/jpeg,image/webp">
+                <label class="dropzone__label" for="portraitUpload">
+                  <span class="dropzone__icon" data-lucide="image" aria-hidden="true"></span>
+                  <span class="dropzone__text">
+                    <span class="dropzone__title">Portrait</span>
+                    <span class="dropzone__formats">PNG · JPG · WEBP</span>
+                  </span>
+                  <span class="dropzone__upload-btn">Upload</span>
+                </label>
+                <div class="dropzone__status">
+                  <p class="dropzone__file" id="portraitFileName">No file selected</p>
+                  <button class="dropzone__clear" id="portraitClear" type="button" hidden aria-label="Remove the portrait image" title="Remove image">
+                    <span data-lucide="x" aria-hidden="true"></span>
+                  </button>
                 </div>
               </div>
 
-              <div class="tuning-column">
-                <div class="dropzone" id="portraitDropzone" data-layer="portrait">
-                  <input id="portraitUpload" name="portraitUpload" class="dropzone__input" type="file" accept="image/png,image/jpeg,image/webp">
-                  <label class="dropzone__label" for="portraitUpload">
-                    <span class="dropzone__icon" data-lucide="image" aria-hidden="true"></span>
-                    <span class="dropzone__text">
-                      <span class="dropzone__title">Portrait</span>
-                      <span class="dropzone__formats">PNG, JPG or WEBP</span>
-                    </span>
-                    <span class="dropzone__upload-btn">Upload</span>
-                  </label>
-                  <div class="dropzone__status">
-                    <p class="dropzone__file" id="portraitFileName">No file selected</p>
-                    <button class="dropzone__clear" id="portraitClear" type="button" hidden aria-label="Remove the portrait image" title="Remove image">
-                      <span data-lucide="x" aria-hidden="true"></span>
-                    </button>
-                  </div>
-                </div>
+              <div class="cutout-block">
+                <label class="cutout-block__toggle" for="portraitCutout">
+                  <span class="switch">
+                    <input id="portraitCutout" name="portraitCutout" type="checkbox" checked aria-describedby="portraitCutoutStatus">
+                    <span class="switch__track"></span>
+                  </span>
+                  <span>Remove background</span>
+                </label>
+                <p class="cutout-block__status" id="portraitCutoutStatus">Runs in your browser, the first run downloads the model</p>
+              </div>
 
-                <div class="cutout-block">
-                  <label class="cutout-block__toggle" for="portraitCutout">
-                    <span class="switch">
-                      <input id="portraitCutout" name="portraitCutout" type="checkbox" checked aria-describedby="portraitCutoutStatus">
-                      <span class="switch__track"></span>
-                    </span>
-                    <span>Remove background</span>
-                  </label>
-                  <p class="cutout-block__status" id="portraitCutoutStatus">Runs in your browser, the first run downloads the model</p>
-                </div>
+              <div class="range-block">
+                <label for="portraitScale">Zoom</label>
+                <input id="portraitScale" name="portraitScale" type="range" min="0.25" max="1.8" step="0.01" value="1">
+              </div>
+            </div>
+          </section>
 
-                <div class="range-block">
-                  <label for="portraitScale">Zoom</label>
-                  <input id="portraitScale" name="portraitScale" type="range" min="0.25" max="1.8" step="0.01" value="1">
+          <section class="setup-card">
+            <header class="setup-card__header">
+              <span class="step-badge">3</span>
+              <div class="setup-card__heading">
+                <h2>Background image</h2>
+                <p class="setup-card__subtitle">Hold Alt while dragging to move it on the canvas.</p>
+              </div>
+            </header>
+
+            <div class="tuning-column">
+              <div class="dropzone" id="backgroundDropzone" data-layer="background">
+                <input id="backgroundUpload" name="backgroundUpload" class="dropzone__input" type="file" accept="image/png,image/jpeg,image/webp">
+                <label class="dropzone__label" for="backgroundUpload">
+                  <span class="dropzone__icon" data-lucide="image" aria-hidden="true"></span>
+                  <span class="dropzone__text">
+                    <span class="dropzone__title">Background</span>
+                    <span class="dropzone__formats">PNG · JPG · WEBP</span>
+                  </span>
+                  <span class="dropzone__upload-btn">Upload</span>
+                </label>
+                <div class="dropzone__status">
+                  <p class="dropzone__file" id="backgroundFileName">No file selected</p>
+                  <button class="dropzone__clear" id="backgroundClear" type="button" hidden aria-label="Remove the background image" title="Remove image">
+                    <span data-lucide="x" aria-hidden="true"></span>
+                  </button>
                 </div>
+              </div>
+
+              <div class="range-block">
+                <label for="backgroundScale">Zoom</label>
+                <input id="backgroundScale" name="backgroundScale" type="range" min="0.25" max="1.8" step="0.01" value="1">
               </div>
             </div>
           </section>
