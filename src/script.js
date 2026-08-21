@@ -562,6 +562,20 @@ function setCutoutStatus(message) {
   controls.portraitCutoutStatus.textContent = message;
 }
 
+function setCutoutError(message) {
+  controls.portraitCutoutStatus.textContent = `${message} `;
+
+  const retryButton = document.createElement("button");
+  retryButton.type = "button";
+  retryButton.className = "cutout-block__retry";
+  retryButton.textContent = "Retry";
+  retryButton.addEventListener("click", () => {
+    runBackgroundRemoval();
+  });
+
+  controls.portraitCutoutStatus.appendChild(retryButton);
+}
+
 function setCutoutBusy(busy) {
   portraitSource.busy = busy;
   controls.portraitCutout.disabled = busy;
@@ -578,7 +592,7 @@ function setPortraitImage(image) {
 }
 
 async function runBackgroundRemoval() {
-  if (!portraitSource.file) {
+  if (!portraitSource.file || portraitSource.busy) {
     return;
   }
 
@@ -632,7 +646,7 @@ async function runBackgroundRemoval() {
       return;
     }
 
-    setCutoutStatus("Background removal failed, keeping the original image");
+    setCutoutError("Background removal failed, keeping the original image.");
     setStatus(`Background removal failed: ${error.message}`);
   } finally {
     if (requestId === portraitSource.requestId) {

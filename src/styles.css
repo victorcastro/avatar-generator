@@ -489,8 +489,59 @@ small {
   cursor: pointer;
 }
 
-.cutout-block__toggle input {
+.switch {
+  position: relative;
+  display: inline-flex;
+  width: 2.25rem;
+  height: 1.25rem;
+  flex: none;
+}
+
+.switch input {
+  position: absolute;
+  inset: 0;
   margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.switch__track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  transition: background 160ms ease;
+}
+
+.switch__track::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  transition: transform 160ms ease;
+}
+
+.switch input:checked ~ .switch__track {
+  background: var(--pico-primary);
+}
+
+.switch input:checked ~ .switch__track::before {
+  transform: translateX(1rem);
+}
+
+.switch input:focus-visible ~ .switch__track {
+  outline: 2px solid var(--pico-primary);
+  outline-offset: 2px;
+}
+
+.switch input:disabled ~ .switch__track {
+  opacity: 0.6;
 }
 
 .cutout-block__toggle:has(input:disabled) {
@@ -500,11 +551,24 @@ small {
 
 .cutout-block__status {
   margin: 0;
-  overflow: hidden;
   color: var(--soft-copy);
   font-size: 0.72rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+.cutout-block__retry {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--pico-primary);
+  font-size: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.cutout-block__retry:hover,
+.cutout-block__retry:focus-visible {
+  color: var(--pico-primary-hover);
 }
 
 .tuning-grid {

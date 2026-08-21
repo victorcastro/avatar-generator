@@ -161,7 +161,10 @@
 
                 <div class="cutout-block">
                   <label class="cutout-block__toggle" for="portraitCutout">
-                    <input id="portraitCutout" name="portraitCutout" type="checkbox" checked aria-describedby="portraitCutoutStatus">
+                    <span class="switch">
+                      <input id="portraitCutout" name="portraitCutout" type="checkbox" checked aria-describedby="portraitCutoutStatus">
+                      <span class="switch__track"></span>
+                    </span>
                     <span>Remove background</span>
                   </label>
                   <p class="cutout-block__status" id="portraitCutoutStatus">Runs in your browser, the first run downloads the model</p>
