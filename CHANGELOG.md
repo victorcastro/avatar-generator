@@ -3,8 +3,9 @@
 ## [1.6] - 2026-08-21
 
 ### Changed
-- Replaced the three GitHub Actions workflows (`ci.yml`, `tag-release.yml`, `deploy-pages.yml`) with two: `pr.yml` (pull requests) and `main.yml` (pushes to `main`).
+- Replaced `ci.yml` and `tag-release.yml` with `pr.yml` (pull requests: quality checks, build, and a version/changelog gate) and `release.yml` (pushes to `main`: quality checks and release tagging).
 - Pull requests now gate on a version bump (`package.json`) and matching `CHANGELOG.md` entry versus `main` before merge.
+- `deploy-pages.yml` now triggers via `workflow_run` after `release.yml` succeeds, instead of running its own duplicate lint/test pass on every push to `main`.
 
 ## [1.5] - 2026-05-21
 
