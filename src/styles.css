@@ -572,7 +572,7 @@ small {
   display: grid;
   place-items: center;
   min-height: 640px;
-  padding: 1.25rem;
+  padding: 1.25rem 1.25rem 3.5rem;
   border-radius: 1.25rem;
   border: 0;
   background-color: #10141a;

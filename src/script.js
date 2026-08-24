@@ -275,7 +275,7 @@ function drawRoleIcon(role, centerX, centerY, size, color) {
 function withCircularClip(metrics, drawFn) {
   context.save();
   context.beginPath();
-  context.arc(metrics.centerX, metrics.centerY, metrics.clipRadius, 0, Math.PI * 2);
+  context.arc(metrics.centerX, metrics.centerY, metrics.radius, 0, Math.PI * 2);
   context.closePath();
   context.clip();
   drawFn();
@@ -319,7 +319,7 @@ function drawLayerBlur(metrics) {
 
   withCircularClip(metrics, () => {
     context.fillStyle = "rgba(51, 51, 51, 0.35)";
-    context.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    context.fillRect(0, 0, metrics.size, metrics.size);
   });
 }
 
@@ -342,9 +342,9 @@ function drawLayerUser(metrics) {
 
 // layer-footer
 function drawLayerFooter(metrics) {
-  const footerPadding = metrics.clipRadius * 0.06;
-  const footerWidth = metrics.clipRadius * 2 - footerPadding * 2;
-  const titlePaddingX = metrics.clipRadius * 0.14;
+  const footerPadding = metrics.radius * 0.06;
+  const footerWidth = metrics.radius * 2 - footerPadding * 2;
+  const titlePaddingX = metrics.radius * 0.14;
   const titleMetrics = getFittedTitle(state.titleText, footerWidth - titlePaddingX * 4);
   const role = ROLE_CONFIG[state.role];
 
@@ -354,7 +354,7 @@ function drawLayerFooter(metrics) {
       metrics.centerX - footerWidth / 2,
       metrics.footerTop,
       footerWidth,
-      metrics.footerHeight + 26
+      metrics.size - metrics.footerTop
     );
 
     context.fillStyle = "#c8102e";
@@ -375,7 +375,7 @@ function drawLayerFooter(metrics) {
       role,
       metrics.centerX,
       metrics.footerTop + metrics.footerHeight * 0.74,
-      metrics.clipRadius * 0.18,
+      metrics.radius * 0.18,
       "#c8102e"
     );
   });
@@ -408,7 +408,7 @@ function drawLayerPlaceholder(metrics) {
 
   withCircularClip(metrics, () => {
     context.fillStyle = getCheckerPattern();
-    context.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    context.fillRect(0, 0, metrics.size, metrics.size);
 
     if (!isEmpty) {
       return;
@@ -418,7 +418,7 @@ function drawLayerPlaceholder(metrics) {
     context.lineWidth = 2;
     context.setLineDash([10, 8]);
     context.beginPath();
-    context.arc(metrics.centerX, metrics.centerY, metrics.clipRadius - 1, 0, Math.PI * 2);
+    context.arc(metrics.centerX, metrics.centerY, metrics.radius - 1, 0, Math.PI * 2);
     context.stroke();
     context.setLineDash([]);
   });
@@ -428,7 +428,7 @@ function drawAvatar(options) {
   const metrics = getCompositionMetrics();
   const showPlaceholder = !options || options.showPlaceholder !== false;
 
-  context.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  context.clearRect(0, 0, metrics.size, metrics.size);
 
   if (showPlaceholder) {
     drawLayerPlaceholder(metrics);
