@@ -67,6 +67,8 @@
 
   const EXPORT_SIZE = 700;
 
+  const FOOTER_HEIGHT_RATIO = 0.56;
+
   const SCALE_LIMITS = { min: 0.25, max: 1.8, step: 0.01 };
 
   const PAN_MIN_OVERLAP = 0.25;
@@ -121,22 +123,18 @@
   }
 
   function getCompositionMetrics(canvasSize) {
-    const size = canvasSize;
+    const size = Number(canvasSize) > 0 ? Number(canvasSize) : CANVAS_SIZE;
     const centerX = size / 2;
     const centerY = size / 2;
-    const borderWidth = 4;
-    const radius = size * 0.36;
-    const clipRadius = radius - borderWidth / 2;
-    const footerHeight = radius * 0.56;
-    const footerTop = centerY + clipRadius - footerHeight;
+    const radius = size / 2;
+    const footerHeight = radius * FOOTER_HEIGHT_RATIO;
+    const footerTop = centerY + radius - footerHeight;
 
     return {
       size,
       centerX,
       centerY,
       radius,
-      clipRadius,
-      borderWidth,
       footerHeight,
       footerTop
     };
@@ -164,8 +162,8 @@
 
   function getImageDrawBounds(image, scaleMultiplier, offsetX, offsetY, metrics) {
     const baseScale = Math.max(
-      (metrics.clipRadius * 2) / image.width,
-      (metrics.clipRadius * 2) / image.height
+      (metrics.radius * 2) / image.width,
+      (metrics.radius * 2) / image.height
     );
     const scale = baseScale * scaleMultiplier;
     const width = image.width * scale;
@@ -200,7 +198,7 @@
     }
 
     const bounds = getImageDrawBounds(image, scaleMultiplier, 0, 0, metrics);
-    const diameter = metrics.clipRadius * 2;
+    const diameter = metrics.radius * 2;
 
     return {
       maxOffsetX: getPanAxisBound(bounds.width, diameter),
@@ -428,10 +426,18 @@
     return `${label} ${percent}%`;
   }
 
+  function toFilenameSlug(value) {
+    return String(value || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
   function getDownloadFilename(titleText, roleLabel) {
-    const safeRole = roleLabel.toLowerCase();
-    const safeTitle = (titleText.trim() || safeRole).toLowerCase().replace(/[^a-z0-9]+/g, "-");
-    return `avatar-${safeTitle || safeRole}.png`;
+    const safeTitle = toFilenameSlug(titleText);
+    const safeRole = toFilenameSlug(roleLabel);
+
+    return `avatar-${safeTitle || safeRole || "avatar"}.png`;
   }
 
   const api = {

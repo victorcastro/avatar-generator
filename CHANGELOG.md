@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.1] - 2026-08-25
+
+### Changed
+- The avatar circle now fills the whole square instead of covering 72% of it. `getCompositionMetrics` built the radius as `size * 0.36`, so every export carried a transparent margin of roughly 14% of the side on each edge — a 700x700 PNG whose artwork was only 460px wide. The radius is now half the canvas, and the circle touches all four edges.
+- The 4px border reserve is gone. Nothing ever stroked it: `borderWidth` only existed to inset the clip radius by 2px, which showed up as a transparent ring around the composition. `borderWidth` and `clipRadius` are dropped from the metrics and the single remaining `radius` is what the clip, the framing math, and the footer all use.
+- The composition metrics are now a pure linear function of the canvas size, so the 700x700 export is an exact scale of the 640x640 preview. The fixed 4px border used to survive unscaled into the export, which made the two compositions subtly different — the reason the previous release documented export metrics as deliberately not a pure scale.
+- `getCompositionMetrics` falls back to the working canvas size when it is handed a non-positive or non-numeric size, instead of returning metrics collapsed to zero.
+- The footer band is drawn down to the bottom edge of the canvas rather than to `footerHeight + 26`, a constant that did not scale with the canvas, and the layers that filled the whole frame now read the size off the metrics they are already given instead of the module-level `CANVAS_SIZE`.
+- The hint under the canvas gets its own room: with the circle reaching the bottom edge of the canvas, the frame's uniform padding left the pill sitting on the artwork. The frame keeps its 1.25rem on three sides and takes 3.5rem at the bottom.
+
+### Fixed
+- A name made only of separators, such as `///`, produced `avatar--.png`. The title was slugified but never trimmed, so a string of dashes counted as a real title and the fallback to the community label never ran. Slugs now drop leading and trailing dashes, and an empty one falls back to the role.
+
 ## [2.0] - 2026-08-21
 
 ### Changed

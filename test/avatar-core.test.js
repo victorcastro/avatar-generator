@@ -9,16 +9,19 @@ const {
   SCALE_LIMITS,
   AUTO_ZOOM_ON_LOAD,
   PAN_MIN_OVERLAP,
+  ptToPx,
   getCompositionMetrics,
   getExportScale,
   getFittedTitle,
   getImageDrawBounds,
   getDownloadFilename,
+  clampNumber,
   getPanBounds,
   clampLayerOffsets,
   clampScaleMultiplier,
   getZoomAtPoint,
   getWheelScaleMultiplier,
+  getCanvasPointerScale,
   getCanvasPoint,
   getKeyboardPanStep,
   getActiveLayer,
@@ -58,13 +61,35 @@ test("svg roles carry a source path and keep a Font Awesome glyph as fallback", 
 test("composition metrics keep the footer inside the circular avatar", () => {
   const metrics = getCompositionMetrics(640);
 
+  assert.equal(metrics.size, 640);
   assert.equal(metrics.centerX, 320);
   assert.equal(metrics.centerY, 320);
-  assert.equal(metrics.borderWidth, 4);
-  assert.ok(metrics.clipRadius < metrics.radius);
   assert.ok(metrics.footerTop > metrics.centerY);
-  assert.ok(metrics.footerTop < metrics.centerY + metrics.clipRadius);
+  assert.ok(metrics.footerTop < metrics.centerY + metrics.radius);
   assert.ok(metrics.footerHeight > 0);
+});
+
+test("the circle fills the whole square, leaving no transparent margin or border", () => {
+  for (const size of [CANVAS_SIZE, EXPORT_SIZE, 1024]) {
+    const metrics = getCompositionMetrics(size);
+
+    assert.equal(metrics.radius * 2, size);
+    assert.equal(metrics.centerX - metrics.radius, 0);
+    assert.equal(metrics.centerY + metrics.radius, size);
+    assert.equal(metrics.borderWidth, undefined);
+  }
+});
+
+test("the footer band ends exactly on the bottom edge of the circle", () => {
+  const metrics = getCompositionMetrics(CANVAS_SIZE);
+
+  assert.equal(metrics.footerTop + metrics.footerHeight, metrics.centerY + metrics.radius);
+});
+
+test("an invalid canvas size falls back to the working canvas instead of collapsing", () => {
+  assert.deepEqual(getCompositionMetrics(undefined), getCompositionMetrics(CANVAS_SIZE));
+  assert.deepEqual(getCompositionMetrics(0), getCompositionMetrics(CANVAS_SIZE));
+  assert.deepEqual(getCompositionMetrics(Number.NaN), getCompositionMetrics(CANVAS_SIZE));
 });
 
 test("the download is exported as a 700px square scaled from the working canvas", () => {
@@ -73,21 +98,31 @@ test("the download is exported as a 700px square scaled from the working canvas"
   assert.equal(getExportScale(), EXPORT_SIZE / CANVAS_SIZE);
 });
 
-test("metrics built for a bigger canvas are not a pure scale of the working ones", () => {
+test("the exported metrics are an exact scale of the working ones so the preview matches", () => {
   const working = getCompositionMetrics(CANVAS_SIZE);
   const resized = getCompositionMetrics(EXPORT_SIZE);
   const scale = getExportScale();
 
-  assert.ok(Math.abs(resized.centerX - working.centerX * scale) < 0.000001);
-  assert.notEqual(resized.clipRadius, working.clipRadius * scale);
-  assert.equal(resized.borderWidth, working.borderWidth);
+  for (const key of Object.keys(working)) {
+    assert.ok(
+      Math.abs(resized[key] - working[key] * scale) < 0.000001,
+      `${key} does not scale from the working canvas to the export`
+    );
+  }
+});
+
+test("the export keeps the circle edge to edge on the 700px square", () => {
+  const exported = getCompositionMetrics(EXPORT_SIZE);
+
+  assert.equal(exported.size, 700);
+  assert.equal(exported.radius * 2, 700);
 });
 
 test("title fitting falls back to the role label and never shrinks below the minimum size", () => {
   const fitted = getFittedTitle("   ", 20, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize);
 
   assert.equal(fitted.text, "iOS");
-  assert.ok(Math.abs(fitted.fontSize - 13.333333333333334) < 0.000001);
+  assert.ok(Math.abs(fitted.fontSize - ptToPx(10)) < 0.000001);
 });
 
 test("title fitting reduces font size when the available width is smaller", () => {
@@ -101,15 +136,15 @@ test("image draw bounds cover the full circular clip area before offsets", () =>
   const metrics = getCompositionMetrics(640);
   const bounds = getImageDrawBounds({ width: 400, height: 200 }, 1, 0, 0, metrics);
 
-  assert.ok(bounds.width >= metrics.clipRadius * 2);
-  assert.ok(bounds.height >= metrics.clipRadius * 2);
+  assert.ok(bounds.width >= metrics.radius * 2);
+  assert.ok(bounds.height >= metrics.radius * 2);
   assert.equal(bounds.left, metrics.centerX - bounds.width / 2);
   assert.equal(bounds.top, metrics.centerY - bounds.height / 2);
 });
 
 test("a square image at scale 1 pans far past the exact cover instead of locking", () => {
   const metrics = getCompositionMetrics(640);
-  const diameter = metrics.clipRadius * 2;
+  const diameter = metrics.radius * 2;
   const bounds = getPanBounds({ width: 1000, height: 1000 }, 1, metrics);
   const expected = diameter - PAN_MIN_OVERLAP * diameter;
 
@@ -137,14 +172,14 @@ test("a square image below scale 1 shrinks to a fraction of the clip diameter", 
   const metrics = getCompositionMetrics(640);
   const bounds = getImageDrawBounds({ width: 1000, height: 1000 }, 0.5, 0, 0, metrics);
 
-  assert.ok(Math.abs(bounds.width - metrics.clipRadius) < 0.000001);
-  assert.ok(Math.abs(bounds.height - metrics.clipRadius) < 0.000001);
+  assert.ok(Math.abs(bounds.width - metrics.radius) < 0.000001);
+  assert.ok(Math.abs(bounds.height - metrics.radius) < 0.000001);
 });
 
 test("a square image below scale 1 pans past the circle edge instead of locking", () => {
   const metrics = getCompositionMetrics(640);
   const bounds = getPanBounds({ width: 1000, height: 1000 }, 0.5, metrics);
-  const expected = metrics.clipRadius * 1.25;
+  const expected = metrics.radius * 1.25;
 
   assert.ok(Math.abs(bounds.maxOffsetX - expected) < 0.000001);
   assert.equal(bounds.maxOffsetX, bounds.maxOffsetY);
@@ -156,7 +191,7 @@ test("a fully panned image keeps the minimum overlap with the circular clip", ()
   const { maxOffsetX, maxOffsetY } = getPanBounds(image, 0.5, metrics);
   const clamped = clampLayerOffsets(image, 0.5, 500, -500, metrics);
   const bounds = getImageDrawBounds(image, 0.5, clamped.offsetX, clamped.offsetY, metrics);
-  const overlap = metrics.centerX + metrics.clipRadius - bounds.left;
+  const overlap = metrics.centerX + metrics.radius - bounds.left;
 
   assert.deepEqual(clamped, { offsetX: maxOffsetX, offsetY: -maxOffsetY });
   assert.ok(Math.abs(overlap - PAN_MIN_OVERLAP * bounds.width) < 0.000001);
@@ -185,11 +220,14 @@ test("offsets are clamped to the pan bounds in both directions", () => {
   const image = { width: 1000, height: 1000 };
   const { maxOffsetX, maxOffsetY } = getPanBounds(image, 1.5, metrics);
 
-  assert.deepEqual(clampLayerOffsets(image, 1.5, 500, 500, metrics), {
+  const beyondX = maxOffsetX + 100;
+  const beyondY = maxOffsetY + 100;
+
+  assert.deepEqual(clampLayerOffsets(image, 1.5, beyondX, beyondY, metrics), {
     offsetX: maxOffsetX,
     offsetY: maxOffsetY
   });
-  assert.deepEqual(clampLayerOffsets(image, 1.5, -500, -500, metrics), {
+  assert.deepEqual(clampLayerOffsets(image, 1.5, -beyondX, -beyondY, metrics), {
     offsetX: -maxOffsetX,
     offsetY: -maxOffsetY
   });
@@ -431,4 +469,70 @@ test("download filename sanitizes the title and falls back to the role label", (
   assert.equal(getDownloadFilename("Tech Lead iOS", ROLE_CONFIG.ios.label), "avatar-tech-lead-ios.png");
   assert.equal(getDownloadFilename("   ", ROLE_CONFIG.pm.label), "avatar-pm.png");
   assert.equal(getDownloadFilename("QA / Mobile + Web", ROLE_CONFIG.qa.label), "avatar-qa-mobile-web.png");
+});
+
+test("the framing geometry is identical on the preview and on the exported square", () => {
+  const working = getCompositionMetrics(CANVAS_SIZE);
+  const exported = getCompositionMetrics(EXPORT_SIZE);
+  const scale = getExportScale();
+  const image = { width: 1400, height: 900 };
+
+  const workingBounds = getImageDrawBounds(image, 1.3, 20, -10, working);
+  const exportedBounds = getImageDrawBounds(image, 1.3, 20 * scale, -10 * scale, exported);
+
+  for (const key of ["left", "top", "width", "height"]) {
+    assert.ok(
+      Math.abs(exportedBounds[key] - workingBounds[key] * scale) < 0.000001,
+      `${key} drifts between the preview and the export`
+    );
+  }
+
+  const workingPan = getPanBounds(image, 1.3, working);
+  const exportedPan = getPanBounds(image, 1.3, exported);
+
+  assert.ok(Math.abs(exportedPan.maxOffsetX - workingPan.maxOffsetX * scale) < 0.000001);
+  assert.ok(Math.abs(exportedPan.maxOffsetY - workingPan.maxOffsetY * scale) < 0.000001);
+});
+
+test("a title that already fits keeps the largest supported font size", () => {
+  const fitted = getFittedTitle("iOS", 10000, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize);
+
+  assert.ok(Math.abs(fitted.fontSize - ptToPx(26)) < 0.000001);
+});
+
+test("zooming with a corrupted current scale recenters instead of drifting", () => {
+  const metrics = getCompositionMetrics(CANVAS_SIZE);
+  const image = { width: 1000, height: 1000 };
+
+  for (const broken of [0, Number.NaN, -1]) {
+    const zoomed = getZoomAtPoint({
+      image,
+      metrics,
+      scaleMultiplier: broken,
+      offsetX: 120,
+      offsetY: -80,
+      nextScaleMultiplier: 1.4,
+      pointerX: 500,
+      pointerY: 500
+    });
+
+    assert.deepEqual(zoomed, { scaleMultiplier: 1.4, offsetX: 0, offsetY: 0 });
+  }
+});
+
+test("clamping a non finite value falls back to the lower bound", () => {
+  assert.equal(clampNumber(Number.NaN, -10, 10), -10);
+  assert.equal(clampNumber(Number.POSITIVE_INFINITY, -10, 10), -10);
+  assert.equal(clampNumber(undefined, -10, 10), -10);
+  assert.equal(clampNumber(3, -10, 10), 3);
+});
+
+test("a canvas with no measured size keeps the pointer scale neutral", () => {
+  assert.deepEqual(getCanvasPointerScale({ width: 0, height: 0 }, CANVAS_SIZE), { x: 1, y: 1 });
+  assert.deepEqual(getCanvasPointerScale({ width: 320, height: 640 }, CANVAS_SIZE), { x: 2, y: 1 });
+});
+
+test("a title made only of separators still produces a usable filename", () => {
+  assert.equal(getDownloadFilename("///", ROLE_CONFIG.qa.label), "avatar-qa.png");
+  assert.equal(getDownloadFilename("  ---  ", ROLE_CONFIG.po.label), "avatar-po.png");
 });
