@@ -1,6 +1,6 @@
 {
   "name": "avatar-generator",
-  "version": "2.2",
+  "version": "2.3",
   "private": true,
   "type": "module",
   "packageManager": "yarn@1.22.22",

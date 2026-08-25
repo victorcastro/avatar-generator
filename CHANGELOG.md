@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.3] - 2026-08-25
+
+### Fixed
+- `merge.yml`'s syntax-check step still ran `node --check src/script.js`, a path removed by the v2.0 `src/` reorganization; the same step in `pull-request.yml` was updated to `find src/scripts -name '*.js' -exec node --check {} +` at the time, but `merge.yml` was not, so a PR could pass its checks and still fail `MODULE_NOT_FOUND` on merge to `main`. `merge.yml` now runs the same syntax check as `pull-request.yml`.
+
 ## [2.2] - 2026-08-25
 
 ### Added
