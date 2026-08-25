@@ -1,4 +1,5 @@
 import { ROLE_CONFIG } from "../core/roles.js";
+import { getReadableTextColor } from "../core/colors.js";
 import {
   CANVAS_SIZE,
   getCompositionMetrics as getCoreCompositionMetrics,
@@ -139,7 +140,7 @@ function drawLayerFooter(metrics) {
   const role = ROLE_CONFIG[state.role];
 
   withCircularClip(metrics, () => {
-    context.fillStyle = "#090909";
+    context.fillStyle = state.labelBackground;
     context.fillRect(
       metrics.centerX - footerWidth / 2,
       metrics.footerTop,
@@ -147,7 +148,7 @@ function drawLayerFooter(metrics) {
       metrics.size - metrics.footerTop
     );
 
-    context.fillStyle = "#c8102e";
+    context.fillStyle = state.dividerColor;
     context.fillRect(
       metrics.centerX - footerWidth / 2,
       metrics.footerTop,
@@ -155,14 +156,14 @@ function drawLayerFooter(metrics) {
       4
     );
 
-    context.fillStyle = "#d4d4d4";
+    context.fillStyle = getReadableTextColor(state.labelBackground);
     context.font = `700 ${titleMetrics.fontSize}px "Segoe UI", Arial, sans-serif`;
     context.textAlign = "center";
     context.textBaseline = "middle";
     context.fillText(titleMetrics.text, metrics.centerX, metrics.titleCenterY);
 
     if (metrics.showIcon) {
-      drawRoleIcon(role, metrics.centerX, metrics.iconCenterY, metrics.iconSize, "#c8102e");
+      drawRoleIcon(role, metrics.centerX, metrics.iconCenterY, metrics.iconSize, state.dividerColor);
     }
   });
 }

@@ -5,6 +5,7 @@ import { preloadSvgIcon, setIconLoadHandler } from "./ui/icons.js";
 import { drawAvatar, requestRender } from "./ui/render.js";
 import { refreshHint } from "./ui/transform.js";
 import { bindControls } from "./ui/controls.js";
+import { bindColorPickers } from "./ui/colors.js";
 import { bindGestures } from "./ui/gestures.js";
 import { bindDropzones } from "./ui/dropzone.js";
 import { bindExport } from "./ui/export.js";
@@ -24,6 +25,7 @@ Object.values(ROLE_CONFIG).forEach((role) => {
 });
 
 bindControls();
+bindColorPickers();
 bindGestures();
 bindDropzones();
 bindExport();

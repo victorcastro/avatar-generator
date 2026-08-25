@@ -5,6 +5,10 @@ export const context = canvas.getContext("2d");
 export const controls = {
   role: document.getElementById("role"),
   hideIcon: document.getElementById("hideIcon"),
+  dividerSwatches: document.getElementById("dividerSwatches"),
+  dividerHex: document.getElementById("dividerHex"),
+  labelBackgroundSwatches: document.getElementById("labelBackgroundSwatches"),
+  labelBackgroundHex: document.getElementById("labelBackgroundHex"),
   titleText: document.getElementById("titleText"),
   backgroundUpload: document.getElementById("backgroundUpload"),
   backgroundScale: document.getElementById("backgroundScale"),

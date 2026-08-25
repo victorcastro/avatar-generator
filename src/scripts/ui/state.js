@@ -1,9 +1,12 @@
+import { DEFAULT_DIVIDER_COLOR, DEFAULT_LABEL_BACKGROUND } from "../core/colors.js";
 import { controls } from "./dom.js";
 
 export const state = {
   role: "ios",
   titleText: "",
   showIcon: true,
+  dividerColor: DEFAULT_DIVIDER_COLOR,
+  labelBackground: DEFAULT_LABEL_BACKGROUND,
   backgroundScale: 1,
   backgroundOffsetX: 0,
   backgroundOffsetY: 0,

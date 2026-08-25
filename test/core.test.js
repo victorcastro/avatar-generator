@@ -36,6 +36,14 @@ import {
   getAlphaSampleSize,
   getCutoutProgressMessage
 } from "../src/scripts/core/images.js";
+import {
+  DIVIDER_SWATCHES,
+  LABEL_SWATCHES,
+  DEFAULT_DIVIDER_COLOR,
+  DEFAULT_LABEL_BACKGROUND,
+  normalizeHexColor,
+  getReadableTextColor
+} from "../src/scripts/core/colors.js";
 import { clampNumber } from "../src/scripts/core/math.js";
 import { getDownloadFilename } from "../src/scripts/core/download.js";
 
@@ -615,4 +623,47 @@ test("a canvas with no measured size keeps the pointer scale neutral", () => {
 test("a title made only of separators still produces a usable filename", () => {
   assert.equal(getDownloadFilename("///", ROLE_CONFIG.qa.label), "avatar-qa.png");
   assert.equal(getDownloadFilename("  ---  ", ROLE_CONFIG.react.label), "avatar-react.png");
+});
+
+test("every suggested swatch is a normalized six digit hex colour", () => {
+  for (const color of [...DIVIDER_SWATCHES, ...LABEL_SWATCHES]) {
+    assert.equal(normalizeHexColor(color), color);
+    assert.match(color, /^#[0-9a-f]{6}$/);
+  }
+
+  assert.equal(DIVIDER_SWATCHES.length, 5);
+  assert.equal(LABEL_SWATCHES.length, 5);
+});
+
+test("the defaults keep the colours the composition shipped with", () => {
+  assert.equal(DEFAULT_DIVIDER_COLOR, "#c8102e");
+  assert.equal(DEFAULT_LABEL_BACKGROUND, "#090909");
+});
+
+test("hex input is accepted with or without the hash and in short form", () => {
+  assert.equal(normalizeHexColor("c8102e"), "#c8102e");
+  assert.equal(normalizeHexColor("#C8102E"), "#c8102e");
+  assert.equal(normalizeHexColor("  #abc  "), "#aabbcc");
+  assert.equal(normalizeHexColor("#ABC"), "#aabbcc");
+});
+
+test("hex input rejects anything that is not a colour instead of guessing one", () => {
+  for (const value of ["", "   ", "#", "#12", "#12345", "#1234567", "red", "#12345g", null, undefined]) {
+    assert.equal(normalizeHexColor(value), null);
+  }
+});
+
+test("the title colour flips so it stays readable on the chosen label background", () => {
+  const onBlack = getReadableTextColor("#090909");
+  const onWhite = getReadableTextColor("#f2f2f2");
+
+  assert.notEqual(onBlack, onWhite);
+
+  for (const dark of LABEL_SWATCHES.filter((color) => color !== "#f2f2f2")) {
+    assert.equal(getReadableTextColor(dark), onBlack);
+  }
+});
+
+test("an unreadable background falls back to the light title instead of throwing", () => {
+  assert.equal(getReadableTextColor("nope"), getReadableTextColor("#090909"));
 });

@@ -3,6 +3,8 @@
 ## [2.2] - 2026-08-25
 
 ### Added
+- `Divider color` and `Label background` sections in the first card. Each offers five suggested swatches plus a free hexadecimal field that takes `#rrggbb`, `#rgb` or the same without the leading `#`, and marks itself invalid without touching the composition when the value is not a colour yet. The divider and the label band were the literals `#c8102e` and `#090909` inlined in the footer renderer.
+- The title colour now follows the label background instead of staying `#d4d4d4`: the background's relative luminance picks a light or a dark title, so the light swatch does not render a nearly invisible name. The Font Awesome badge follows the divider colour for the same reason — it was the same red literal, and leaving it fixed while the divider moved read as a bug rather than a choice. Community badges drawn from an SVG file keep their own colours.
 - A `No icon` switch under the community chips. With it on, the badge is dropped from the composition and the title is centred in the band it now has to itself, at 45% of the footer height rather than the 38% that left room for the icon. The band is a circular segment, so its area centroid sits at 41% and its rectangular midpoint at 50%; 45% splits the two and reads as centred against the taper. The setting carries into the PNG export, which shares the render path.
 
 ### Changed
