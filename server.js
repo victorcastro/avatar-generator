@@ -1,11 +1,11 @@
-const http = require("http");
-const fs = require("fs");
-const path = require("path");
-const Handlebars = require("handlebars");
+import fs from "node:fs";
+import http from "node:http";
+import path from "node:path";
+import Handlebars from "handlebars";
 
 const PORT = process.env.PORT || 3000;
 const HOST = "127.0.0.1";
-const ROOT = __dirname;
+const ROOT = import.meta.dirname;
 const SOURCE_DIR = path.join(ROOT, "src");
 const TEMPLATE_PATH = path.join(SOURCE_DIR, "index.hbs");
 

@@ -6,23 +6,27 @@
       <meta name="description" content="Generate standardized community avatars with a circular template, role badges, and instant PNG export.">
       <title>Community Avatar Generator</title>
       <link rel="canonical" href="https://victorcastro.github.io/avatar-generator/">
+      <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+      <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+      <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+      <meta name="theme-color" content="#c8102e">
       <meta property="og:locale" content="en_US">
       <meta property="og:type" content="website">
       <meta property="og:site_name" content="Community Avatar Generator">
       <meta property="og:title" content="Community Avatar Generator">
       <meta property="og:description" content="Generate standardized community avatars with a circular template, role badges, and instant PNG export.">
       <meta property="og:url" content="https://victorcastro.github.io/avatar-generator/">
-      <meta property="og:image" content="https://victorcastro.github.io/avatar-generator/og-image.png">
+      <meta property="og:image" content="https://victorcastro.github.io/avatar-generator/assets/og-image.png">
       <meta property="og:image:type" content="image/png">
       <meta property="og:image:width" content="1200">
       <meta property="og:image:height" content="630">
       <meta name="twitter:card" content="summary_large_image">
       <meta name="twitter:title" content="Community Avatar Generator">
       <meta name="twitter:description" content="Generate standardized community avatars with a circular template, role badges, and instant PNG export.">
-      <meta name="twitter:image" content="https://victorcastro.github.io/avatar-generator/og-image.png">
+      <meta name="twitter:image" content="https://victorcastro.github.io/avatar-generator/assets/og-image.png">
       <link rel="stylesheet" href="/node_modules/@picocss/pico/css/pico.red.min.css">
       <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-      <link rel="stylesheet" href="styles.css">
+      <link rel="stylesheet" href="styles/styles.css">
     </head>
   <body>
     <main class="shell container-fluid">
@@ -61,40 +65,71 @@
             </header>
 
             <div class="controls-stack">
-              <div class="role-chips" id="role" role="radiogroup" aria-label="Community">
-                <label class="role-chip">
-                  <input type="radio" name="role" value="ios" checked>
-                  <span><i class="role-chip__dot" aria-hidden="true"></i>iOS</span>
-                </label>
-                <label class="role-chip">
-                  <input type="radio" name="role" value="android">
-                  <span><i class="role-chip__dot" aria-hidden="true"></i>Android</span>
-                </label>
-                <label class="role-chip">
-                  <input type="radio" name="role" value="react">
-                  <span><i class="role-chip__dot" aria-hidden="true"></i>React</span>
-                </label>
-                <label class="role-chip">
-                  <input type="radio" name="role" value="qa">
-                  <span><i class="role-chip__dot" aria-hidden="true"></i>QA</span>
-                </label>
-                <label class="role-chip">
-                  <input type="radio" name="role" value="adm">
-                  <span><i class="role-chip__dot" aria-hidden="true"></i>ADM</span>
-                </label>
-                <label class="role-chip">
-                  <input type="radio" name="role" value="pm">
-                  <span><i class="role-chip__dot" aria-hidden="true"></i>PM</span>
-                </label>
-                <label class="role-chip">
-                  <input type="radio" name="role" value="po">
-                  <span><i class="role-chip__dot" aria-hidden="true"></i>PO</span>
+              <div class="field-group">
+                <h3 class="field-group__title" id="labelFieldTitle">Label</h3>
+                <div class="input-block">
+                  <input id="titleText" name="titleText" type="text" maxlength="64" aria-labelledby="labelFieldTitle" autofocus>
+                  <span class="char-counter" id="titleTextCounter">0/64</span>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <h3 class="field-group__title" id="iconFieldTitle">Icon</h3>
+                <div class="role-chips" id="role" role="radiogroup" aria-labelledby="iconFieldTitle">
+                  <label class="role-chip">
+                    <input type="radio" name="role" value="ios" checked>
+                    <span><i class="role-chip__dot" aria-hidden="true"></i>iOS</span>
+                  </label>
+                  <label class="role-chip">
+                    <input type="radio" name="role" value="android">
+                    <span><i class="role-chip__dot" aria-hidden="true"></i>Android</span>
+                  </label>
+                  <label class="role-chip">
+                    <input type="radio" name="role" value="react">
+                    <span><i class="role-chip__dot" aria-hidden="true"></i>React</span>
+                  </label>
+                  <label class="role-chip">
+                    <input type="radio" name="role" value="qa">
+                    <span><i class="role-chip__dot" aria-hidden="true"></i>QA</span>
+                  </label>
+                </div>
+                <label class="field-group__toggle" for="hideIcon">
+                  <span class="switch">
+                    <input id="hideIcon" name="hideIcon" type="checkbox">
+                    <span class="switch__track"></span>
+                  </span>
+                  <span>No icon</span>
                 </label>
               </div>
 
-              <div class="input-block">
-                <input id="titleText" name="titleText" type="text" maxlength="64" aria-label="Role / Position" autofocus>
-                <span class="char-counter" id="titleTextCounter">0/64</span>
+              <div class="field-group">
+                <h3 class="field-group__title" id="dividerFieldTitle">Divider color</h3>
+                <div class="swatches" id="dividerSwatches" role="radiogroup" aria-labelledby="dividerFieldTitle"></div>
+                <input
+                  class="hex-input"
+                  id="dividerHex"
+                  name="dividerHex"
+                  type="text"
+                  maxlength="7"
+                  spellcheck="false"
+                  autocomplete="off"
+                  aria-label="Divider color as hexadecimal"
+                >
+              </div>
+
+              <div class="field-group">
+                <h3 class="field-group__title" id="labelBackgroundFieldTitle">Label background</h3>
+                <div class="swatches" id="labelBackgroundSwatches" role="radiogroup" aria-labelledby="labelBackgroundFieldTitle"></div>
+                <input
+                  class="hex-input"
+                  id="labelBackgroundHex"
+                  name="labelBackgroundHex"
+                  type="text"
+                  maxlength="7"
+                  spellcheck="false"
+                  autocomplete="off"
+                  aria-label="Label background as hexadecimal"
+                >
               </div>
             </div>
           </section>
@@ -215,7 +250,6 @@
     </script>
     <script>window.AVATAR_BACKGROUND_REMOVAL_URL = "/node_modules/@imgly/background-removal/dist/index.mjs";</script>
     <script src="/node_modules/lucide/dist/umd/lucide.min.js"></script>
-    <script src="avatar-core.js"></script>
-    <script src="script.js"></script>
+    <script type="module" src="scripts/main.js"></script>
   </body>
 </html>

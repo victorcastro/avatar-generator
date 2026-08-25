@@ -162,7 +162,7 @@ small {
 
 .controls-stack {
   display: grid;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .setup-card {
@@ -205,6 +205,89 @@ small {
   margin: 0.2rem 0 0;
   color: var(--soft-copy);
   font-size: 0.82rem;
+}
+
+.field-group {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.field-group__title {
+  margin: 0;
+  color: var(--soft-copy);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.field-group__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: #f5f7fa;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.swatch {
+  position: relative;
+  display: inline-flex;
+  margin: 0;
+}
+
+.swatch input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.swatch span {
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 0.55rem;
+  background: var(--swatch);
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.swatch span:hover {
+  transform: translateY(-1px);
+}
+
+.swatch input:checked + span {
+  border-color: #f5f7fa;
+  box-shadow: 0 0 0 2px rgba(245, 247, 250, 0.25);
+}
+
+.swatch input:focus-visible + span {
+  outline: 2px solid var(--pico-primary);
+  outline-offset: 2px;
+}
+
+.hex-input {
+  margin-bottom: 0;
+  font-family: var(--pico-font-family-monospace, monospace);
+  font-size: 0.82rem;
+  text-transform: lowercase;
+}
+
+.hex-input.is-invalid {
+  border-color: var(--pico-primary);
 }
 
 .input-block {
