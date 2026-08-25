@@ -104,6 +104,11 @@ test("the exported metrics are an exact scale of the working ones so the preview
   const scale = getExportScale();
 
   for (const key of Object.keys(working)) {
+    if (typeof working[key] !== "number") {
+      assert.equal(resized[key], working[key], `${key} differs between the two canvases`);
+      continue;
+    }
+
     assert.ok(
       Math.abs(resized[key] - working[key] * scale) < 0.000001,
       `${key} does not scale from the working canvas to the export`
@@ -151,6 +156,42 @@ test("the fitted title always stays inside the circular clip", () => {
     const halfWidth = measure(fitted.text, fitted.fontSize) / 2;
     const bottomY = metrics.titleCenterY + fitted.fontSize * 0.36;
     const distanceY = bottomY - metrics.centerY;
+
+    assert.ok(halfWidth * halfWidth + distanceY * distanceY < metrics.radius * metrics.radius);
+  });
+});
+
+test("hiding the icon centres the title in the footer band", () => {
+  const withIcon = getCompositionMetrics(CANVAS_SIZE);
+  const withoutIcon = getCompositionMetrics(CANVAS_SIZE, false);
+
+  assert.equal(withIcon.showIcon, true);
+  assert.equal(withoutIcon.showIcon, false);
+  assert.ok(withoutIcon.titleCenterY > withIcon.titleCenterY);
+
+  const halfChord = Math.sqrt(
+    withoutIcon.radius * withoutIcon.radius -
+      (withoutIcon.footerTop - withoutIcon.centerY) ** 2
+  );
+  const segmentArea =
+    withoutIcon.radius * withoutIcon.radius *
+      Math.acos((withoutIcon.footerTop - withoutIcon.centerY) / withoutIcon.radius) -
+    (withoutIcon.footerTop - withoutIcon.centerY) * halfChord;
+  const areaCentroidY = withoutIcon.centerY + (2 / 3) * halfChord ** 3 / segmentArea;
+  const bandMidpointY = withoutIcon.footerTop + withoutIcon.footerHeight / 2;
+
+  assert.ok(withoutIcon.titleCenterY > areaCentroidY);
+  assert.ok(withoutIcon.titleCenterY < bandMidpointY);
+});
+
+test("a title centred without the icon still stays inside the circular clip", () => {
+  const metrics = getCompositionMetrics(CANVAS_SIZE, false);
+  const measure = (text, fontSize) => text.length * fontSize * 0.45;
+
+  ["QA", "Staff iOS Engineer", "Principal iOS Platform Engineer"].forEach((title) => {
+    const fitted = getFittedTitle(title, metrics, ROLE_CONFIG.ios.label, measure);
+    const halfWidth = measure(fitted.text, fitted.fontSize) / 2;
+    const distanceY = metrics.titleCenterY + fitted.fontSize * 0.36 - metrics.centerY;
 
     assert.ok(halfWidth * halfWidth + distanceY * distanceY < metrics.radius * metrics.radius);
   });

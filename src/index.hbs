@@ -61,28 +61,41 @@
             </header>
 
             <div class="controls-stack">
-              <div class="role-chips" id="role" role="radiogroup" aria-label="Community">
-                <label class="role-chip">
-                  <input type="radio" name="role" value="ios" checked>
-                  <span><i class="role-chip__dot" aria-hidden="true"></i>iOS</span>
-                </label>
-                <label class="role-chip">
-                  <input type="radio" name="role" value="android">
-                  <span><i class="role-chip__dot" aria-hidden="true"></i>Android</span>
-                </label>
-                <label class="role-chip">
-                  <input type="radio" name="role" value="react">
-                  <span><i class="role-chip__dot" aria-hidden="true"></i>React</span>
-                </label>
-                <label class="role-chip">
-                  <input type="radio" name="role" value="qa">
-                  <span><i class="role-chip__dot" aria-hidden="true"></i>QA</span>
-                </label>
+              <div class="field-group">
+                <h3 class="field-group__title" id="labelFieldTitle">Label</h3>
+                <div class="input-block">
+                  <input id="titleText" name="titleText" type="text" maxlength="64" aria-labelledby="labelFieldTitle" autofocus>
+                  <span class="char-counter" id="titleTextCounter">0/64</span>
+                </div>
               </div>
 
-              <div class="input-block">
-                <input id="titleText" name="titleText" type="text" maxlength="64" aria-label="Role / Position" autofocus>
-                <span class="char-counter" id="titleTextCounter">0/64</span>
+              <div class="field-group">
+                <h3 class="field-group__title" id="iconFieldTitle">Icon</h3>
+                <div class="role-chips" id="role" role="radiogroup" aria-labelledby="iconFieldTitle">
+                  <label class="role-chip">
+                    <input type="radio" name="role" value="ios" checked>
+                    <span><i class="role-chip__dot" aria-hidden="true"></i>iOS</span>
+                  </label>
+                  <label class="role-chip">
+                    <input type="radio" name="role" value="android">
+                    <span><i class="role-chip__dot" aria-hidden="true"></i>Android</span>
+                  </label>
+                  <label class="role-chip">
+                    <input type="radio" name="role" value="react">
+                    <span><i class="role-chip__dot" aria-hidden="true"></i>React</span>
+                  </label>
+                  <label class="role-chip">
+                    <input type="radio" name="role" value="qa">
+                    <span><i class="role-chip__dot" aria-hidden="true"></i>QA</span>
+                  </label>
+                </div>
+                <label class="field-group__toggle" for="hideIcon">
+                  <span class="switch">
+                    <input id="hideIcon" name="hideIcon" type="checkbox">
+                    <span class="switch__track"></span>
+                  </span>
+                  <span>No icon</span>
+                </label>
               </div>
             </div>
           </section>

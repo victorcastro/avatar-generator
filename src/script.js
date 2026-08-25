@@ -33,6 +33,7 @@ const lucideLibrary = window.lucide;
 const state = {
   role: "ios",
   titleText: "",
+  showIcon: true,
   backgroundScale: 1,
   backgroundOffsetX: 0,
   backgroundOffsetY: 0,
@@ -54,6 +55,7 @@ const portraitSource = {
 
 const controls = {
   role: document.getElementById("role"),
+  hideIcon: document.getElementById("hideIcon"),
   titleText: document.getElementById("titleText"),
   backgroundUpload: document.getElementById("backgroundUpload"),
   backgroundScale: document.getElementById("backgroundScale"),
@@ -174,7 +176,7 @@ function drawFontAwesomeIcon(iconName, iconStyle, centerX, centerY, size, color)
 }
 
 function getCompositionMetrics() {
-  return getCoreCompositionMetrics(CANVAS_SIZE);
+  return getCoreCompositionMetrics(CANVAS_SIZE, state.showIcon);
 }
 
 function getFittedTitle(text, metrics) {
@@ -315,7 +317,9 @@ function drawLayerFooter(metrics) {
     context.textBaseline = "middle";
     context.fillText(titleMetrics.text, metrics.centerX, metrics.titleCenterY);
 
-    drawRoleIcon(role, metrics.centerX, metrics.iconCenterY, metrics.iconSize, "#c8102e");
+    if (metrics.showIcon) {
+      drawRoleIcon(role, metrics.centerX, metrics.iconCenterY, metrics.iconSize, "#c8102e");
+    }
   });
 }
 
@@ -662,6 +666,10 @@ controls.role.addEventListener("change", (event) => {
   updateState("role", event.target.value);
 });
 
+controls.hideIcon.addEventListener("change", (event) => {
+  updateState("showIcon", !event.target.checked);
+});
+
 function updateTitleTextCounter() {
   controls.titleTextCounter.textContent = `${controls.titleText.value.length}/${controls.titleText.maxLength}`;
 }
@@ -951,6 +959,7 @@ Object.values(ROLE_CONFIG).forEach((role) => {
 });
 
 state.removePortraitBackground = controls.portraitCutout.checked;
+state.showIcon = !controls.hideIcon.checked;
 
 refreshHint(false);
 drawAvatar();

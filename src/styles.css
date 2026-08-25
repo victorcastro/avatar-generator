@@ -162,7 +162,7 @@ small {
 
 .controls-stack {
   display: grid;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .setup-card {
@@ -205,6 +205,31 @@ small {
   margin: 0.2rem 0 0;
   color: var(--soft-copy);
   font-size: 0.82rem;
+}
+
+.field-group {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.field-group__title {
+  margin: 0;
+  color: var(--soft-copy);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.field-group__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: #f5f7fa;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
 }
 
 .input-block {

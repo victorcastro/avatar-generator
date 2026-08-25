@@ -46,6 +46,7 @@
   const FOOTER_LAYOUT = {
     heightRatio: 0.56,
     titleCenterRatio: 0.38,
+    titleAloneCenterRatio: 0.45,
     titleMaxFontRatio: 0.36,
     titleDescentRatio: 0.36,
     titlePaddingRatio: 0.04,
@@ -108,13 +109,17 @@
     return EXPORT_SIZE / CANVAS_SIZE;
   }
 
-  function getCompositionMetrics(canvasSize) {
+  function getCompositionMetrics(canvasSize, showIcon) {
     const size = Number(canvasSize) > 0 ? Number(canvasSize) : CANVAS_SIZE;
     const centerX = size / 2;
     const centerY = size / 2;
     const radius = size / 2;
     const footerHeight = radius * FOOTER_LAYOUT.heightRatio;
     const footerTop = centerY + radius - footerHeight;
+    const withIcon = showIcon !== false;
+    const titleRatio = withIcon
+      ? FOOTER_LAYOUT.titleCenterRatio
+      : FOOTER_LAYOUT.titleAloneCenterRatio;
 
     return {
       size,
@@ -123,8 +128,9 @@
       radius,
       footerHeight,
       footerTop,
+      showIcon: withIcon,
       footerPadding: radius * FOOTER_LAYOUT.sidePaddingRatio,
-      titleCenterY: footerTop + footerHeight * FOOTER_LAYOUT.titleCenterRatio,
+      titleCenterY: footerTop + footerHeight * titleRatio,
       iconCenterY: footerTop + footerHeight * FOOTER_LAYOUT.iconCenterRatio,
       iconSize: radius * FOOTER_LAYOUT.iconSizeRatio
     };

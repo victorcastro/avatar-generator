@@ -2,7 +2,11 @@
 
 ## [2.2] - 2026-08-25
 
+### Added
+- A `No icon` switch under the community chips. With it on, the badge is dropped from the composition and the title is centred in the band it now has to itself, at 45% of the footer height rather than the 38% that left room for the icon. The band is a circular segment, so its area centroid sits at 41% and its rectangular midpoint at 50%; 45% splits the two and reads as centred against the taper. The setting carries into the PNG export, which shares the render path.
+
 ### Changed
+- The `Template and name` card is split into a `Label` section and an `Icon` section, in that order. The name field now comes first — it is what most avatars need changed — and the community chips move under the `Icon` heading next to the switch that turns the badge off. The chips stay enabled with the badge hidden, since the community still names the file and still fills in for an empty title.
 - The title now grows to fill the footer instead of only shrinking to fit it. `getFittedTitle` started at a fixed `ptToPx(26)` cap and stepped down until the text fit, so any title shorter than that cap kept the same size and left the band half empty — `Staff iOS Engineer` measured about 325px inside 422px of room. The ceiling is now derived from the footer height (`footerHeight * 0.36`), so short titles scale up to the point where they would reach the role icon: the same `Staff iOS Engineer` renders at ~48px, and a two-letter one at ~64px.
 - The available width for the title is the chord of the circle at the text's own baseline rather than the footer rectangle minus `titlePaddingX * 4`, a padding multiplier that matched no geometry. The chord is recomputed for each candidate font size while fitting, so a smaller title correctly gets the extra width that sitting higher in the circle gives it.
 - The footer geometry lives in a single `FOOTER_LAYOUT` object in `avatar-core.js` instead of being split between a lone `FOOTER_HEIGHT_RATIO` constant and the literals `0.06`, `0.38`, `0.74` and `0.18` inlined in `drawLayerFooter`. `getCompositionMetrics` now returns `footerPadding`, `titleCenterY`, `iconCenterY` and `iconSize`, so the renderer positions the title and the icon from the metrics it is already given.
