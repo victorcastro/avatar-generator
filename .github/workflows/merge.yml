@@ -31,8 +31,9 @@ jobs:
 
       - name: Check syntax
         run: |
+          node --check build.js
           node --check server.js
-          node --check src/script.js
+          find src/scripts -name '*.js' -exec node --check {} +
 
       - name: Run linter
         run: yarn lint
