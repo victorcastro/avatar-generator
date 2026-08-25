@@ -1,16 +1,16 @@
-const js = require("@eslint/js");
-const globals = require("globals");
+import js from "@eslint/js";
+import globals from "globals";
 
-module.exports = [
+export default [
   {
     ignores: ["dist/**", "node_modules/**"]
   },
   {
     ...js.configs.recommended,
-    files: ["build.js", "server.js", "test/**/*.js"],
+    files: ["build.js", "server.js", "eslint.config.js", "test/**/*.js"],
     languageOptions: {
-      ecmaVersion: 2022,
-      sourceType: "commonjs",
+      ecmaVersion: 2023,
+      sourceType: "module",
       globals: {
         ...globals.node
       }
@@ -18,13 +18,12 @@ module.exports = [
   },
   {
     ...js.configs.recommended,
-    files: ["src/script.js", "src/avatar-core.js"],
+    files: ["src/scripts/**/*.js"],
     languageOptions: {
-      ecmaVersion: 2022,
-      sourceType: "script",
+      ecmaVersion: 2023,
+      sourceType: "module",
       globals: {
-        ...globals.browser,
-        ...globals.node
+        ...globals.browser
       }
     }
   }

@@ -1,20 +1,18 @@
-const fs = require("fs");
-const path = require("path");
-const Handlebars = require("handlebars");
-const CleanCSS = require("clean-css");
-const { minify: minifyHtml } = require("html-minifier-terser");
-const terser = require("terser");
+import fs from "node:fs";
+import path from "node:path";
+import Handlebars from "handlebars";
+import CleanCSS from "clean-css";
+import { minify as minifyHtml } from "html-minifier-terser";
+import * as terser from "terser";
 
-const rootDir = __dirname;
+const rootDir = import.meta.dirname;
 const distDir = path.join(rootDir, "dist");
 const vendorDir = path.join(distDir, "vendor");
 const sourceDir = path.join(rootDir, "src");
 const templateSource = path.join(sourceDir, "index.hbs");
-const stylesSource = path.join(sourceDir, "styles.css");
-const avatarCoreSource = path.join(sourceDir, "avatar-core.js");
-const scriptSource = path.join(sourceDir, "script.js");
-const ogImageSource = path.join(sourceDir, "og-image.png");
-const iconsSource = path.join(sourceDir, "icons");
+const stylesSource = path.join(sourceDir, "styles", "styles.css");
+const scriptsSource = path.join(sourceDir, "scripts");
+const assetsSource = path.join(sourceDir, "assets");
 const picoSource = path.join(rootDir, "node_modules", "@picocss", "pico", "css", "pico.red.min.css");
 const lucideSource = path.join(rootDir, "node_modules", "lucide", "dist", "umd", "lucide.min.js");
 const backgroundRemovalSource = path.join(
@@ -87,6 +85,34 @@ async function writeMinifiedTextFile(source, destination, minify) {
   fs.writeFileSync(destination, output);
 }
 
+async function minifyModule(source) {
+  const result = await terser.minify(source, {
+    compress: true,
+    mangle: true,
+    module: true
+  });
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  return result.code || "";
+}
+
+async function minifyModuleTree(source, destination) {
+  for (const entry of fs.readdirSync(source, { withFileTypes: true })) {
+    const sourcePath = path.join(source, entry.name);
+    const destinationPath = path.join(destination, entry.name);
+
+    if (entry.isDirectory()) {
+      await minifyModuleTree(sourcePath, destinationPath);
+      continue;
+    }
+
+    await writeMinifiedTextFile(sourcePath, destinationPath, minifyModule);
+  }
+}
+
 function minifyCss(source) {
   const output = new CleanCSS({
     level: 2
@@ -127,35 +153,11 @@ async function build() {
   copyFile(onnxRuntimeSource, path.join(vendorDir, "onnxruntime-web.mjs"));
   copyFile(fontAwesomeCssSource, path.join(vendorDir, "fontawesome", "css", "all.min.css"));
   copyDirectory(fontAwesomeWebfontsSource, path.join(vendorDir, "fontawesome", "webfonts"));
-  copyFile(ogImageSource, path.join(distDir, "og-image.png"));
-  copyDirectory(iconsSource, path.join(distDir, "icons"));
-  await writeMinifiedTextFile(stylesSource, path.join(distDir, "styles.css"), async (css) =>
+  copyDirectory(assetsSource, path.join(distDir, "assets"));
+  await writeMinifiedTextFile(stylesSource, path.join(distDir, "styles", "styles.css"), async (css) =>
     minifyCss(css)
   );
-  await writeMinifiedTextFile(avatarCoreSource, path.join(distDir, "avatar-core.js"), (js) =>
-    terser.minify(js, {
-      compress: true,
-      mangle: true
-    }).then((result) => {
-      if (result.error) {
-        throw result.error;
-      }
-
-      return result.code || "";
-    })
-  );
-  await writeMinifiedTextFile(scriptSource, path.join(distDir, "script.js"), (js) =>
-    terser.minify(js, {
-      compress: true,
-      mangle: true
-    }).then((result) => {
-      if (result.error) {
-        throw result.error;
-      }
-
-      return result.code || "";
-    })
-  );
+  await minifyModuleTree(scriptsSource, path.join(distDir, "scripts"));
 
   await writeMinifiedTextFile(templateSource, path.join(distDir, "index.html"), () =>
     minifyHtml(

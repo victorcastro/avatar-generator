@@ -1,21 +1,20 @@
-const test = require("node:test");
-const assert = require("node:assert/strict");
+import test from "node:test";
+import assert from "node:assert/strict";
 
-const {
-  ROLE_CONFIG,
-  FONT_AWESOME_GLYPHS,
+import { ROLE_CONFIG, FONT_AWESOME_GLYPHS } from "../src/scripts/core/roles.js";
+import {
   CANVAS_SIZE,
   EXPORT_SIZE,
-  SCALE_LIMITS,
-  AUTO_ZOOM_ON_LOAD,
-  PAN_MIN_OVERLAP,
   ptToPx,
   getCompositionMetrics,
   getExportScale,
   getFittedTitle,
-  getImageDrawBounds,
-  getDownloadFilename,
-  clampNumber,
+  getImageDrawBounds
+} from "../src/scripts/core/composition.js";
+import {
+  SCALE_LIMITS,
+  PAN_MIN_OVERLAP,
+  AUTO_ZOOM_ON_LOAD,
   getPanBounds,
   clampLayerOffsets,
   clampScaleMultiplier,
@@ -23,16 +22,22 @@ const {
   getWheelScaleMultiplier,
   getCanvasPointerScale,
   getCanvasPoint,
-  getKeyboardPanStep,
+  getKeyboardPanStep
+} from "../src/scripts/core/framing.js";
+import {
   getActiveLayer,
   getDropTargetLayer,
   getLayerHint,
-  getDefaultLayerTransform,
+  getDefaultLayerTransform
+} from "../src/scripts/core/layers.js";
+import {
   isAcceptedImageType,
   hasAlphaChannel,
   getAlphaSampleSize,
   getCutoutProgressMessage
-} = require("../src/avatar-core.js");
+} from "../src/scripts/core/images.js";
+import { clampNumber } from "../src/scripts/core/math.js";
+import { getDownloadFilename } from "../src/scripts/core/download.js";
 
 test("role config keeps every supported selector option mapped to a drawable icon", () => {
   const expectedRoles = ["ios", "android", "react", "qa"];
@@ -48,7 +53,7 @@ test("role config keeps every supported selector option mapped to a drawable ico
 
 test("svg roles carry a source path and keep a Font Awesome glyph as fallback", () => {
   assert.equal(ROLE_CONFIG.ios.iconProvider, "svg");
-  assert.equal(ROLE_CONFIG.ios.iconSrc, "icons/swift.svg");
+  assert.equal(ROLE_CONFIG.ios.iconSrc, "assets/icons/swift.svg");
   assert.ok(FONT_AWESOME_GLYPHS[ROLE_CONFIG.ios.iconName]);
 
   for (const role of Object.values(ROLE_CONFIG)) {
