@@ -155,14 +155,6 @@ function loadBackgroundRemoval() {
   return backgroundRemoval;
 }
 
-function getLucideData(name) {
-  if (!lucideLibrary || !lucideLibrary.icons) {
-    return null;
-  }
-
-  return lucideLibrary.icons[name] || null;
-}
-
 function drawFontAwesomeIcon(iconName, iconStyle, centerX, centerY, size, color) {
   const glyph = FONT_AWESOME_GLYPHS[iconName];
 
@@ -185,34 +177,11 @@ function getCompositionMetrics() {
   return getCoreCompositionMetrics(CANVAS_SIZE);
 }
 
-function getFittedTitle(text, maxWidth) {
-  return getCoreFittedTitle(text, maxWidth, ROLE_CONFIG[state.role].label, (content, fontSize) => {
+function getFittedTitle(text, metrics) {
+  return getCoreFittedTitle(text, metrics, ROLE_CONFIG[state.role].label, (content, fontSize) => {
     context.font = `700 ${fontSize}px "Segoe UI", Arial, sans-serif`;
     return context.measureText(content).width;
   });
-}
-
-function drawLucideNode(tagName, attrs) {
-  switch (tagName) {
-    case "path":
-      context.stroke(new Path2D(attrs.d));
-      break;
-    case "circle":
-      context.beginPath();
-      context.arc(Number(attrs.cx), Number(attrs.cy), Number(attrs.r), 0, Math.PI * 2);
-      context.stroke();
-      break;
-    case "rect":
-      context.strokeRect(
-        Number(attrs.x),
-        Number(attrs.y),
-        Number(attrs.width),
-        Number(attrs.height)
-      );
-      break;
-    default:
-      break;
-  }
 }
 
 const svgIcons = new Map();
@@ -246,30 +215,7 @@ function drawRoleIcon(role, centerX, centerY, size, color) {
     return;
   }
 
-  if (role.iconProvider === "fontawesome" || FONT_AWESOME_GLYPHS[role.iconName]) {
-    drawFontAwesomeIcon(role.iconName, role.iconStyle, centerX, centerY, size, color);
-    return;
-  }
-
-  const iconData = getLucideData(role.iconName);
-
-  if (!iconData) {
-    return;
-  }
-
-  context.save();
-  context.translate(centerX - size / 2, centerY - size / 2);
-  context.scale(size / 24, size / 24);
-  context.strokeStyle = color;
-  context.lineWidth = 1.9;
-  context.lineCap = "round";
-  context.lineJoin = "round";
-
-  iconData.forEach(([tagName, attrs]) => {
-    drawLucideNode(tagName, attrs);
-  });
-
-  context.restore();
+  drawFontAwesomeIcon(role.iconName, role.iconStyle, centerX, centerY, size, color);
 }
 
 function withCircularClip(metrics, drawFn) {
@@ -342,10 +288,8 @@ function drawLayerUser(metrics) {
 
 // layer-footer
 function drawLayerFooter(metrics) {
-  const footerPadding = metrics.radius * 0.06;
-  const footerWidth = metrics.radius * 2 - footerPadding * 2;
-  const titlePaddingX = metrics.radius * 0.14;
-  const titleMetrics = getFittedTitle(state.titleText, footerWidth - titlePaddingX * 4);
+  const footerWidth = metrics.radius * 2 - metrics.footerPadding * 2;
+  const titleMetrics = getFittedTitle(state.titleText, metrics);
   const role = ROLE_CONFIG[state.role];
 
   withCircularClip(metrics, () => {
@@ -369,15 +313,9 @@ function drawLayerFooter(metrics) {
     context.font = `700 ${titleMetrics.fontSize}px "Segoe UI", Arial, sans-serif`;
     context.textAlign = "center";
     context.textBaseline = "middle";
-    context.fillText(titleMetrics.text, metrics.centerX, metrics.footerTop + metrics.footerHeight * 0.38);
+    context.fillText(titleMetrics.text, metrics.centerX, metrics.titleCenterY);
 
-    drawRoleIcon(
-      role,
-      metrics.centerX,
-      metrics.footerTop + metrics.footerHeight * 0.74,
-      metrics.radius * 0.18,
-      "#c8102e"
-    );
+    drawRoleIcon(role, metrics.centerX, metrics.iconCenterY, metrics.iconSize, "#c8102e");
   });
 }
 

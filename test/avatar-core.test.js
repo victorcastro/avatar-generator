@@ -35,7 +35,7 @@ const {
 } = require("../src/avatar-core.js");
 
 test("role config keeps every supported selector option mapped to a drawable icon", () => {
-  const expectedRoles = ["ios", "android", "react", "qa", "adm", "pm", "po"];
+  const expectedRoles = ["ios", "android", "react", "qa"];
 
   assert.deepEqual(Object.keys(ROLE_CONFIG), expectedRoles);
 
@@ -119,17 +119,49 @@ test("the export keeps the circle edge to edge on the 700px square", () => {
 });
 
 test("title fitting falls back to the role label and never shrinks below the minimum size", () => {
-  const fitted = getFittedTitle("   ", 20, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize);
+  const metrics = getCompositionMetrics(CANVAS_SIZE);
+  const fitted = getFittedTitle("   ", metrics, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize * 40);
 
   assert.equal(fitted.text, "iOS");
   assert.ok(Math.abs(fitted.fontSize - ptToPx(10)) < 0.000001);
 });
 
-test("title fitting reduces font size when the available width is smaller", () => {
-  const roomy = getFittedTitle("Tech Lead iOS", 500, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize * 0.45);
-  const tight = getFittedTitle("Tech Lead iOS", 120, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize * 0.45);
+test("title fitting reduces font size when the text is longer", () => {
+  const metrics = getCompositionMetrics(CANVAS_SIZE);
+  const measure = (text, fontSize) => text.length * fontSize * 0.45;
+  const short = getFittedTitle("iOS", metrics, ROLE_CONFIG.ios.label, measure);
+  const long = getFittedTitle("Principal iOS Platform Engineer", metrics, ROLE_CONFIG.ios.label, measure);
 
-  assert.ok(tight.fontSize < roomy.fontSize);
+  assert.ok(long.fontSize < short.fontSize);
+});
+
+test("title fitting grows short text up to the footer height cap", () => {
+  const metrics = getCompositionMetrics(CANVAS_SIZE);
+  const fitted = getFittedTitle("QA", metrics, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize * 0.45);
+
+  assert.ok(Math.abs(fitted.fontSize - metrics.footerHeight * 0.36) < 0.000001);
+});
+
+test("the fitted title always stays inside the circular clip", () => {
+  const metrics = getCompositionMetrics(CANVAS_SIZE);
+  const measure = (text, fontSize) => text.length * fontSize * 0.45;
+
+  ["PM", "Staff iOS Engineer", "Principal iOS Platform Engineer"].forEach((title) => {
+    const fitted = getFittedTitle(title, metrics, ROLE_CONFIG.ios.label, measure);
+    const halfWidth = measure(fitted.text, fitted.fontSize) / 2;
+    const bottomY = metrics.titleCenterY + fitted.fontSize * 0.36;
+    const distanceY = bottomY - metrics.centerY;
+
+    assert.ok(halfWidth * halfWidth + distanceY * distanceY < metrics.radius * metrics.radius);
+  });
+});
+
+test("the fitted title never overlaps the role icon", () => {
+  const metrics = getCompositionMetrics(CANVAS_SIZE);
+  const fitted = getFittedTitle("QA", metrics, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize * 0.45);
+  const titleBottom = metrics.titleCenterY + fitted.fontSize * 0.36;
+
+  assert.ok(titleBottom < metrics.iconCenterY - metrics.iconSize / 2);
 });
 
 test("image draw bounds cover the full circular clip area before offsets", () => {
@@ -467,7 +499,7 @@ test("layer defaults preserve the portrait nudge and load images already zoomed"
 
 test("download filename sanitizes the title and falls back to the role label", () => {
   assert.equal(getDownloadFilename("Tech Lead iOS", ROLE_CONFIG.ios.label), "avatar-tech-lead-ios.png");
-  assert.equal(getDownloadFilename("   ", ROLE_CONFIG.pm.label), "avatar-pm.png");
+  assert.equal(getDownloadFilename("   ", ROLE_CONFIG.qa.label), "avatar-qa.png");
   assert.equal(getDownloadFilename("QA / Mobile + Web", ROLE_CONFIG.qa.label), "avatar-qa-mobile-web.png");
 });
 
@@ -494,10 +526,12 @@ test("the framing geometry is identical on the preview and on the exported squar
   assert.ok(Math.abs(exportedPan.maxOffsetY - workingPan.maxOffsetY * scale) < 0.000001);
 });
 
-test("a title that already fits keeps the largest supported font size", () => {
-  const fitted = getFittedTitle("iOS", 10000, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize);
+test("title fitting scales with the canvas so the export matches the preview", () => {
+  const measure = (text, fontSize) => text.length * fontSize * 0.45;
+  const working = getFittedTitle("Staff iOS Engineer", getCompositionMetrics(CANVAS_SIZE), ROLE_CONFIG.ios.label, measure);
+  const exported = getFittedTitle("Staff iOS Engineer", getCompositionMetrics(EXPORT_SIZE), ROLE_CONFIG.ios.label, measure);
 
-  assert.ok(Math.abs(fitted.fontSize - ptToPx(26)) < 0.000001);
+  assert.ok(exported.fontSize > working.fontSize);
 });
 
 test("zooming with a corrupted current scale recenters instead of drifting", () => {
@@ -534,5 +568,5 @@ test("a canvas with no measured size keeps the pointer scale neutral", () => {
 
 test("a title made only of separators still produces a usable filename", () => {
   assert.equal(getDownloadFilename("///", ROLE_CONFIG.qa.label), "avatar-qa.png");
-  assert.equal(getDownloadFilename("  ---  ", ROLE_CONFIG.po.label), "avatar-po.png");
+  assert.equal(getDownloadFilename("  ---  ", ROLE_CONFIG.react.label), "avatar-react.png");
 });

@@ -29,27 +29,6 @@
       iconStyle: "solid",
       iconName: "bug",
       iconLabel: "Bug"
-    },
-    adm: {
-      label: "ADM",
-      iconProvider: "fontawesome",
-      iconStyle: "solid",
-      iconName: "compass",
-      iconLabel: "Compass"
-    },
-    pm: {
-      label: "PM",
-      iconProvider: "fontawesome",
-      iconStyle: "solid",
-      iconName: "briefcase",
-      iconLabel: "Briefcase"
-    },
-    po: {
-      label: "PO",
-      iconProvider: "fontawesome",
-      iconStyle: "solid",
-      iconName: "bullseye",
-      iconLabel: "Bullseye"
     }
   };
 
@@ -57,17 +36,24 @@
     swift: "\uf8e1",
     android: "\uf17b",
     react: "\uf41b",
-    bug: "\uf188",
-    compass: "\uf14e",
-    briefcase: "\uf0b1",
-    bullseye: "\uf140"
+    bug: "\uf188"
   };
 
   const CANVAS_SIZE = 640;
 
   const EXPORT_SIZE = 700;
 
-  const FOOTER_HEIGHT_RATIO = 0.56;
+  const FOOTER_LAYOUT = {
+    heightRatio: 0.56,
+    titleCenterRatio: 0.38,
+    titleMaxFontRatio: 0.36,
+    titleDescentRatio: 0.36,
+    titlePaddingRatio: 0.04,
+    sidePaddingRatio: 0.06,
+    titleMinFontPoints: 10,
+    iconCenterRatio: 0.74,
+    iconSizeRatio: 0.18
+  };
 
   const SCALE_LIMITS = { min: 0.25, max: 1.8, step: 0.01 };
 
@@ -127,7 +113,7 @@
     const centerX = size / 2;
     const centerY = size / 2;
     const radius = size / 2;
-    const footerHeight = radius * FOOTER_HEIGHT_RATIO;
+    const footerHeight = radius * FOOTER_LAYOUT.heightRatio;
     const footerTop = centerY + radius - footerHeight;
 
     return {
@@ -136,21 +122,32 @@
       centerY,
       radius,
       footerHeight,
-      footerTop
+      footerTop,
+      footerPadding: radius * FOOTER_LAYOUT.sidePaddingRatio,
+      titleCenterY: footerTop + footerHeight * FOOTER_LAYOUT.titleCenterRatio,
+      iconCenterY: footerTop + footerHeight * FOOTER_LAYOUT.iconCenterRatio,
+      iconSize: radius * FOOTER_LAYOUT.iconSizeRatio
     };
   }
 
-  function getFittedTitle(text, maxWidth, roleLabel, measureTextWidth) {
+  function getTitleMaxWidth(metrics, fontSize) {
+    const bottomY = metrics.titleCenterY + fontSize * FOOTER_LAYOUT.titleDescentRatio;
+    const distanceY = Math.min(Math.abs(bottomY - metrics.centerY), metrics.radius);
+    const chord = 2 * Math.sqrt(metrics.radius * metrics.radius - distanceY * distanceY);
+    const padding = metrics.radius * FOOTER_LAYOUT.titlePaddingRatio;
+
+    return Math.max(chord - padding * 2, 0);
+  }
+
+  function getFittedTitle(text, metrics, roleLabel, measureTextWidth) {
     const content = text.trim() || roleLabel;
-    const maxFontSize = ptToPx(26);
-    const minFontSize = ptToPx(10);
-    let fontSize = maxFontSize;
+    const minFontSize = ptToPx(FOOTER_LAYOUT.titleMinFontPoints);
+    let fontSize = metrics.footerHeight * FOOTER_LAYOUT.titleMaxFontRatio;
 
-    while (fontSize >= minFontSize) {
-      if (measureTextWidth(content, fontSize) <= maxWidth) {
-        break;
-      }
-
+    while (
+      fontSize > minFontSize &&
+      measureTextWidth(content, fontSize) > getTitleMaxWidth(metrics, fontSize)
+    ) {
       fontSize -= 1;
     }
 
@@ -448,11 +445,7 @@
     SCALE_LIMITS,
     AUTO_ZOOM_ON_LOAD,
     PAN_MIN_OVERLAP,
-    LAYER_DEFAULTS,
-    KEYBOARD_PAN_STEP,
-    ACCEPTED_IMAGE_TYPES,
     BACKGROUND_REMOVAL,
-    CUTOUT_PHASE_LABELS,
     ptToPx,
     getExportScale,
     getCompositionMetrics,

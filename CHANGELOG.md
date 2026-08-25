@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.2] - 2026-08-25
+
+### Changed
+- The title now grows to fill the footer instead of only shrinking to fit it. `getFittedTitle` started at a fixed `ptToPx(26)` cap and stepped down until the text fit, so any title shorter than that cap kept the same size and left the band half empty — `Staff iOS Engineer` measured about 325px inside 422px of room. The ceiling is now derived from the footer height (`footerHeight * 0.36`), so short titles scale up to the point where they would reach the role icon: the same `Staff iOS Engineer` renders at ~48px, and a two-letter one at ~64px.
+- The available width for the title is the chord of the circle at the text's own baseline rather than the footer rectangle minus `titlePaddingX * 4`, a padding multiplier that matched no geometry. The chord is recomputed for each candidate font size while fitting, so a smaller title correctly gets the extra width that sitting higher in the circle gives it.
+- The footer geometry lives in a single `FOOTER_LAYOUT` object in `avatar-core.js` instead of being split between a lone `FOOTER_HEIGHT_RATIO` constant and the literals `0.06`, `0.38`, `0.74` and `0.18` inlined in `drawLayerFooter`. `getCompositionMetrics` now returns `footerPadding`, `titleCenterY`, `iconCenterY` and `iconSize`, so the renderer positions the title and the icon from the metrics it is already given.
+- `getFittedTitle` takes the composition metrics instead of a precomputed `maxWidth`, since the fit now depends on the geometry rather than on a single number.
+
+### Removed
+- The `ADM`, `PM` and `PO` communities, along with their Font Awesome glyphs (`compass`, `briefcase`, `bullseye`). The selector keeps the technical profiles: `iOS`, `Android`, `React` and `QA`.
+- The Lucide canvas renderer (`getLucideData`, `drawLucideNode` and the fallback branch in `drawRoleIcon`). Every community draws its badge from an SVG file or a Font Awesome glyph, so that branch was already unreachable before the removed roles left. Lucide still ships as the icon set for the interface chrome, which is rendered as DOM through `createIcons`.
+- `LAYER_DEFAULTS`, `KEYBOARD_PAN_STEP`, `ACCEPTED_IMAGE_TYPES`, `CUTOUT_PHASE_LABELS` and `getTitleMaxWidth` are no longer exposed on `AvatarCore`. They are read only through the accessors that already are (`getDefaultLayerTransform`, `getKeyboardPanStep`, `isAcceptedImageType`, `getCutoutProgressMessage` and `getFittedTitle`).
+
 ## [2.1] - 2026-08-25
 
 ### Changed
