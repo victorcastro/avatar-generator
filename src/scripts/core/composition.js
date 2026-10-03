@@ -8,7 +8,7 @@ const FOOTER_LAYOUT = {
   titleAloneCenterRatio: 0.45,
   titleMaxFontRatio: 0.36,
   titleDescentRatio: 0.36,
-  titlePaddingRatio: 0.04,
+  titlePaddingRatio: 0.12,
   sidePaddingRatio: 0.06,
   titleMinFontPoints: 10,
   iconCenterRatio: 0.74,

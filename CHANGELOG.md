@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.4] - 2026-10-03
+
+### Changed
+- The avatar title is drawn at regular weight (`400`) instead of bold (`700`), both when measuring the text to fit it and when drawing it.
+- The title keeps more room at the sides: `titlePaddingRatio` goes from 4% to 12% of the radius, so a long title starts shrinking earlier and no longer sits against the edge of the circle.
+
 ## [2.3] - 2026-08-25
 
 ### Fixed
