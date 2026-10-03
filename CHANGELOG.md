@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.5] - 2026-10-03
+
+### Added
+- A `Hide banner` switch at the top of the first card. With it on, the footer band (background, divider, title and icon) is not drawn and the avatar is just the circular image, on the preview and in the PNG export. The `Label`, `Icon`, `Divider color` and `Label background` fields are grouped in a `fieldset` that the switch disables, since none of them has an effect while the banner is hidden.
+
+### Changed
+- The downloaded file name always ends with a local timestamp, `avatar-<name>-YYYYMMDD-HHMMSS.png`, with or without banner, so a new export no longer overwrites an earlier one with the same name.
+
 ## [2.4] - 2026-10-03
 
 ### Changed

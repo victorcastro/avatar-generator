@@ -41,6 +41,11 @@ export function bindControls() {
     updateState("role", event.target.value);
   });
 
+  controls.hideBanner.addEventListener("change", (event) => {
+    controls.bannerFields.disabled = event.target.checked;
+    updateState("showBanner", !event.target.checked);
+  });
+
   controls.hideIcon.addEventListener("change", (event) => {
     updateState("showIcon", !event.target.checked);
   });
