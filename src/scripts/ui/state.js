@@ -4,6 +4,7 @@ import { controls } from "./dom.js";
 export const state = {
   role: "ios",
   titleText: "",
+  showBanner: true,
   showIcon: true,
   dividerColor: DEFAULT_DIVIDER_COLOR,
   labelBackground: DEFAULT_LABEL_BACKGROUND,

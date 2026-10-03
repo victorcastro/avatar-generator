@@ -31,6 +31,8 @@ bindDropzones();
 bindExport();
 
 state.removePortraitBackground = controls.portraitCutout.checked;
+state.showBanner = !controls.hideBanner.checked;
+controls.bannerFields.disabled = controls.hideBanner.checked;
 state.showIcon = !controls.hideIcon.checked;
 
 refreshHint(false);

@@ -181,7 +181,9 @@ export function drawAvatar(options) {
   drawLayerBackground(metrics);
   drawLayerBlur(metrics);
   drawLayerUser(metrics);
-  drawLayerFooter(metrics);
+  if (state.showBanner) {
+    drawLayerFooter(metrics);
+  }
 }
 
 let pendingFrame = 0;

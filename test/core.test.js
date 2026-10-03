@@ -551,10 +551,19 @@ test("layer defaults preserve the portrait nudge and load images already zoomed"
   assert.equal(background.scale, 1.1);
 });
 
-test("download filename sanitizes the title and falls back to the role label", () => {
-  assert.equal(getDownloadFilename("Tech Lead iOS", ROLE_CONFIG.ios.label), "avatar-tech-lead-ios.png");
-  assert.equal(getDownloadFilename("   ", ROLE_CONFIG.qa.label), "avatar-qa.png");
-  assert.equal(getDownloadFilename("QA / Mobile + Web", ROLE_CONFIG.qa.label), "avatar-qa-mobile-web.png");
+const FIXED_DATE = new Date(2026, 9, 3, 14, 5, 9);
+
+test("download filename sanitizes the title, falls back to the role label and ends with a timestamp", () => {
+  assert.equal(getDownloadFilename("Tech Lead iOS", ROLE_CONFIG.ios.label, FIXED_DATE), "avatar-tech-lead-ios-20261003-140509.png");
+  assert.equal(getDownloadFilename("   ", ROLE_CONFIG.qa.label, FIXED_DATE), "avatar-qa-20261003-140509.png");
+  assert.equal(getDownloadFilename("QA / Mobile + Web", ROLE_CONFIG.qa.label, FIXED_DATE), "avatar-qa-mobile-web-20261003-140509.png");
+});
+
+test("download filename differs between two exports made at different moments", () => {
+  const first = getDownloadFilename("QA", ROLE_CONFIG.qa.label, new Date(2026, 9, 3, 14, 5, 9));
+  const second = getDownloadFilename("QA", ROLE_CONFIG.qa.label, new Date(2026, 9, 3, 14, 5, 10));
+
+  assert.notEqual(first, second);
 });
 
 test("the framing geometry is identical on the preview and on the exported square", () => {
@@ -621,8 +630,8 @@ test("a canvas with no measured size keeps the pointer scale neutral", () => {
 });
 
 test("a title made only of separators still produces a usable filename", () => {
-  assert.equal(getDownloadFilename("///", ROLE_CONFIG.qa.label), "avatar-qa.png");
-  assert.equal(getDownloadFilename("  ---  ", ROLE_CONFIG.react.label), "avatar-react.png");
+  assert.equal(getDownloadFilename("///", ROLE_CONFIG.qa.label, FIXED_DATE), "avatar-qa-20261003-140509.png");
+  assert.equal(getDownloadFilename("  ---  ", ROLE_CONFIG.react.label, FIXED_DATE), "avatar-react-20261003-140509.png");
 });
 
 test("every suggested swatch is a normalized six digit hex colour", () => {
