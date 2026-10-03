@@ -21,7 +21,7 @@ export function getCompositionMetrics() {
 
 function getFittedTitle(text, metrics) {
   return getCoreFittedTitle(text, metrics, ROLE_CONFIG[state.role].label, (content, fontSize) => {
-    context.font = `700 ${fontSize}px "Segoe UI", Arial, sans-serif`;
+    context.font = `400 ${fontSize}px "Segoe UI", Arial, sans-serif`;
     return context.measureText(content).width;
   });
 }
@@ -157,7 +157,7 @@ function drawLayerFooter(metrics) {
     );
 
     context.fillStyle = getReadableTextColor(state.labelBackground);
-    context.font = `700 ${titleMetrics.fontSize}px "Segoe UI", Arial, sans-serif`;
+    context.font = `400 ${titleMetrics.fontSize}px "Segoe UI", Arial, sans-serif`;
     context.textAlign = "center";
     context.textBaseline = "middle";
     context.fillText(titleMetrics.text, metrics.centerX, metrics.titleCenterY);
