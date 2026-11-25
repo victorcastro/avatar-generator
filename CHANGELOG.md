@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.6] - 2026-11-25
+
+### Added
+- Merging to `main` now also creates a GitHub release for the version in `package.json`, right after the tag. Its notes are the matching `CHANGELOG.md` section; the job fails when there is no entry for that version, and skips when the release already exists.
+
 ## [2.5] - 2026-11-25
 
 ### Changed
