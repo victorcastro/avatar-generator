@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+- The footer band covers 24% of the image height instead of 28% (`heightRatio` from 0.56 to 0.48 of the radius).
+
 ### Added
 - A `Hide footer band` switch under `No icon`. With it on, the footer band (label background, divider, title and icon) is not drawn, so the image shows through to the bottom of the circle. The setting carries into the PNG export, which shares the render path.
 

@@ -3,7 +3,7 @@ export const CANVAS_SIZE = 640;
 export const EXPORT_SIZE = 700;
 
 const FOOTER_LAYOUT = {
-  heightRatio: 0.56,
+  heightRatio: 0.48,
   titleCenterRatio: 0.38,
   titleAloneCenterRatio: 0.45,
   titleMaxFontRatio: 0.36,
