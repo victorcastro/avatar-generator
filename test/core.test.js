@@ -709,3 +709,12 @@ test("a single long word is not split", () => {
 
   assert.equal(fitted.lines.length, 1);
 });
+
+test("footer paddings are fixed pixels that do not depend on the band height", () => {
+  const metrics = getCompositionMetrics(CANVAS_SIZE);
+
+  assert.equal(metrics.verticalPadding, 17);
+  assert.equal(metrics.dividerThickness, 4);
+  assert.equal(metrics.titleAreaTop - metrics.dividerBottom, 17);
+  assert.equal(metrics.size - (metrics.iconTop + metrics.iconSize), 17);
+});
