@@ -667,3 +667,32 @@ test("the title colour flips so it stays readable on the chosen label background
 test("an unreadable background falls back to the light title instead of throwing", () => {
   assert.equal(getReadableTextColor("nope"), getReadableTextColor("#090909"));
 });
+
+test("short titles stay on one line at the full size", () => {
+  const metrics = getCompositionMetrics(CANVAS_SIZE);
+  const fitted = getFittedTitle("Victor", metrics, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize * 0.45);
+
+  assert.deepEqual(fitted.lines, ["Victor"]);
+  assert.ok(Math.abs(fitted.fontSize - metrics.footerHeight * 0.36) < 0.000001);
+});
+
+test("a title that does not fit at the minimum size wraps into two balanced lines", () => {
+  const metrics = getCompositionMetrics(CANVAS_SIZE);
+  const measure = (text, fontSize) => text.length * fontSize * 0.45;
+  const title = "Victor Alejandro Castro Lopez Fernandez Garcia de la Torre Mendoza";
+  const fitted = getFittedTitle(title, metrics, ROLE_CONFIG.ios.label, measure);
+
+  assert.equal(fitted.lines.length, 2);
+  assert.equal(fitted.lines.join(" "), title);
+  assert.ok(fitted.fontSize >= ptToPx(10));
+
+  const blockBottom = metrics.titleCenterY + fitted.lineHeight / 2 + fitted.fontSize / 2;
+  assert.ok(blockBottom <= metrics.iconCenterY - metrics.iconSize / 2 + 0.000001);
+});
+
+test("a single long word is not split", () => {
+  const metrics = getCompositionMetrics(CANVAS_SIZE);
+  const fitted = getFittedTitle("Supercalifragilisticexpialidocious_Supercalifragilistic", metrics, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize * 0.45);
+
+  assert.equal(fitted.lines.length, 1);
+});

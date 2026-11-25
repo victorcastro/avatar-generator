@@ -164,7 +164,10 @@ function drawLayerFooter(metrics) {
     context.font = `400 ${titleMetrics.fontSize}px "Segoe UI", Arial, sans-serif`;
     context.textAlign = "center";
     context.textBaseline = "middle";
-    context.fillText(titleMetrics.text, metrics.centerX, metrics.titleCenterY);
+    titleMetrics.lines.forEach((line, index) => {
+      const offset = (index - (titleMetrics.lines.length - 1) / 2) * titleMetrics.lineHeight;
+      context.fillText(line, metrics.centerX, metrics.titleCenterY + offset);
+    });
 
     if (metrics.showIcon) {
       drawRoleIcon(role, metrics.centerX, metrics.iconCenterY, metrics.iconSize, state.dividerColor);
