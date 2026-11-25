@@ -135,6 +135,10 @@ function drawLayerUser(metrics) {
 }
 
 function drawLayerFooter(metrics) {
+  if (!state.showFooter) {
+    return;
+  }
+
   const footerWidth = metrics.radius * 2 - metrics.footerPadding * 2;
   const titleMetrics = getFittedTitle(state.titleText, metrics);
   const role = ROLE_CONFIG[state.role];

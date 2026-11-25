@@ -32,6 +32,7 @@ bindExport();
 
 state.removePortraitBackground = controls.portraitCutout.checked;
 state.showIcon = !controls.hideIcon.checked;
+state.showFooter = !controls.hideFooter.checked;
 
 refreshHint(false);
 drawAvatar();

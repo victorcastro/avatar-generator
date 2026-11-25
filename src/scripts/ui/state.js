@@ -5,6 +5,7 @@ export const state = {
   role: "ios",
   titleText: "",
   showIcon: true,
+  showFooter: true,
   dividerColor: DEFAULT_DIVIDER_COLOR,
   labelBackground: DEFAULT_LABEL_BACKGROUND,
   backgroundScale: 1,

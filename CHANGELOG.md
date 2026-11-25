@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- A `Hide footer band` switch under `No icon`. With it on, the footer band (label background, divider, title and icon) is not drawn, so the image shows through to the bottom of the circle. The setting carries into the PNG export, which shares the render path.
+
 ## [2.4] - 2026-10-03
 
 ### Changed
