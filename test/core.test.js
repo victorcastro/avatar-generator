@@ -202,7 +202,7 @@ test("the fitted title never overlaps the role icon", () => {
   const metrics = getCompositionMetrics(CANVAS_SIZE);
   const fitted = getFittedTitle("QA", metrics, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize * 0.45);
 
-  assert.ok(fitted.baselines[0] < metrics.iconTop);
+  assert.ok(fitted.baselines[0] < metrics.iconInkTop);
 });
 
 test("divider, title, icon and bottom edge are separated by the same padding", () => {
@@ -215,7 +215,7 @@ test("divider, title, icon and bottom edge are separated by the same padding", (
     const last = fitted.baselines[fitted.baselines.length - 1];
     const first = fitted.baselines[0] - fitted.fontSize * capRatio;
     const gapAbove = first - metrics.dividerBottom;
-    const gapBelow = metrics.iconTop - last;
+    const gapBelow = metrics.iconInkTop - last;
 
     assert.ok(Math.abs(gapAbove - gapBelow) < 0.000001, title);
   }
@@ -733,7 +733,21 @@ test("the footer spacing sits on an 8 px grid with a 4 px half step", () => {
     spacing.band
   );
   assert.equal(metrics.titleAreaTop - metrics.dividerBottom, spacing.padding);
-  assert.equal(metrics.iconTop - metrics.titleAreaBottom, spacing.padding);
+  assert.equal(metrics.iconInkTop - metrics.titleAreaBottom, spacing.padding);
   assert.equal(metrics.size - (metrics.iconTop + metrics.iconSize), spacing.padding);
   assert.equal(metrics.footerTop, 640 - 152);
+});
+
+test("the paddings are measured to the visible glyph using each role's icon inset", () => {
+  for (const role of Object.values(ROLE_CONFIG)) {
+    const metrics = getCompositionMetrics(CANVAS_SIZE, true, role.iconInset);
+    const inset = role.iconInset * metrics.iconSize;
+    const inkBottom = metrics.iconTop + metrics.iconSize - inset;
+
+    assert.equal(typeof role.iconInset, "number");
+    assert.ok(Math.abs(metrics.size - inkBottom - 16) < 0.000001, role.label);
+    assert.ok(Math.abs(metrics.iconInkTop - (metrics.iconTop + inset)) < 0.000001, role.label);
+    assert.ok(Math.abs(metrics.iconInkTop - metrics.titleAreaBottom - 16) < 0.000001, role.label);
+    assert.equal(metrics.titleAreaTop - metrics.dividerBottom, 16);
+  }
 });

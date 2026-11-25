@@ -16,7 +16,7 @@ const CHECKER_DARK = "#22262d";
 const PLACEHOLDER_RING = "rgba(255, 255, 255, 0.16)";
 
 export function getCompositionMetrics() {
-  return getCoreCompositionMetrics(CANVAS_SIZE, state.showIcon);
+  return getCoreCompositionMetrics(CANVAS_SIZE, state.showIcon, ROLE_CONFIG[state.role].iconInset);
 }
 
 function getFittedTitle(text, metrics) {

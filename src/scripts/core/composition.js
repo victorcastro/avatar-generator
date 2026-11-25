@@ -11,7 +11,8 @@ export const EXPORT_SIZE = 700;
 //   16  padding                       (2 units)
 //   44  title area                    (5.5 units; holds the title block, centred)
 //   16  padding
-//   56  icon                          (7 units)
+//   56  icon box                      (7 units; the paddings are measured to the visible glyph,
+//                                      which sits `iconInset` inside the box, set per role)
 //   16  padding down to the circle's bottom edge
 //  152  band height                   (19 units, 23.75% of the canvas)
 // Without the icon the title area grows down to the bottom padding.
@@ -39,7 +40,9 @@ export function getExportScale() {
   return EXPORT_SIZE / CANVAS_SIZE;
 }
 
-export function getCompositionMetrics(canvasSize, showIcon) {
+// `iconInset` is the empty margin a role's glyph leaves inside its square box, as a fraction of the
+// box on the top and on the bottom, so the paddings are measured to the visible glyph.
+export function getCompositionMetrics(canvasSize, showIcon, iconInset = 0) {
   const size = Number(canvasSize) > 0 ? Number(canvasSize) : CANVAS_SIZE;
   const centerX = size / 2;
   const centerY = size / 2;
@@ -53,7 +56,9 @@ export function getCompositionMetrics(canvasSize, showIcon) {
   const dividerThickness = FOOTER_LAYOUT.dividerThicknessPx * pixelScale;
   const dividerBottom = footerTop + dividerThickness;
   const iconSize = FOOTER_LAYOUT.iconSizePx * pixelScale;
-  const iconTop = bottom - verticalPadding - iconSize;
+  const inset = Math.min(Math.max(Number(iconInset) || 0, 0), 0.45) * iconSize;
+  const iconInkTop = bottom - verticalPadding - (iconSize - inset * 2);
+  const iconTop = iconInkTop - inset;
 
   return {
     size,
@@ -70,8 +75,9 @@ export function getCompositionMetrics(canvasSize, showIcon) {
     dividerThickness,
     dividerBottom,
     titleAreaTop: dividerBottom + verticalPadding,
-    titleAreaBottom: (withIcon ? iconTop : bottom) - verticalPadding,
+    titleAreaBottom: (withIcon ? iconInkTop : bottom) - verticalPadding,
     iconTop,
+    iconInkTop,
     iconCenterY: iconTop + iconSize / 2,
     iconSize
   };
