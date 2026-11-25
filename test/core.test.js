@@ -153,11 +153,11 @@ test("title fitting reduces font size when the text is longer", () => {
   assert.ok(long.fontSize < short.fontSize);
 });
 
-test("title fitting grows short text up to the footer height cap", () => {
+test("title fitting grows short text up to the maximum title size", () => {
   const metrics = getCompositionMetrics(CANVAS_SIZE);
   const fitted = getFittedTitle("QA", metrics, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize * 0.45);
 
-  assert.ok(Math.abs(fitted.fontSize - metrics.footerHeight * 0.36) < 0.000001);
+  assert.ok(Math.abs(fitted.fontSize - 56) < 0.000001);
 });
 
 test("the fitted title always stays inside the circular clip", () => {
@@ -686,7 +686,7 @@ test("short titles stay on one line at the full size", () => {
   const fitted = getFittedTitle("Victor", metrics, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize * 0.45);
 
   assert.deepEqual(fitted.lines, ["Victor"]);
-  assert.ok(Math.abs(fitted.fontSize - metrics.footerHeight * 0.36) < 0.000001);
+  assert.ok(Math.abs(fitted.fontSize - 56) < 0.000001);
 });
 
 test("a title that does not fit at the minimum size wraps into two balanced lines", () => {
@@ -710,19 +710,30 @@ test("a single long word is not split", () => {
   assert.equal(fitted.lines.length, 1);
 });
 
-test("footer paddings are fixed pixels that do not depend on the band height", () => {
+test("the footer spacing sits on an 8 px grid with a 4 px half step", () => {
   const metrics = getCompositionMetrics(CANVAS_SIZE);
+  const spacing = {
+    divider: metrics.dividerThickness,
+    padding: metrics.verticalPadding,
+    titleArea: metrics.titleAreaBottom - metrics.titleAreaTop,
+    icon: metrics.iconSize,
+    band: metrics.footerHeight,
+    side: metrics.footerPadding,
+    titleSide: metrics.titleSidePadding
+  };
 
-  assert.equal(metrics.verticalPadding, 17);
-  assert.equal(metrics.dividerThickness, 4);
-  assert.equal(metrics.titleAreaTop - metrics.dividerBottom, 17);
-  assert.equal(metrics.size - (metrics.iconTop + metrics.iconSize), 17);
-});
+  assert.deepEqual(spacing, { divider: 4, padding: 16, titleArea: 44, icon: 56, band: 152, side: 16, titleSide: 40 });
 
-test("band height and icon size are fixed pixels at the working size", () => {
-  const metrics = getCompositionMetrics(CANVAS_SIZE);
+  for (const value of Object.values(spacing)) {
+    assert.equal(value % 4, 0);
+  }
 
-  assert.equal(metrics.footerHeight, 154);
-  assert.equal(metrics.iconSize, 58);
-  assert.equal(metrics.footerTop, 640 - 154);
+  assert.equal(
+    spacing.divider + spacing.padding * 3 + spacing.titleArea + spacing.icon,
+    spacing.band
+  );
+  assert.equal(metrics.titleAreaTop - metrics.dividerBottom, spacing.padding);
+  assert.equal(metrics.iconTop - metrics.titleAreaBottom, spacing.padding);
+  assert.equal(metrics.size - (metrics.iconTop + metrics.iconSize), spacing.padding);
+  assert.equal(metrics.footerTop, 640 - 152);
 });

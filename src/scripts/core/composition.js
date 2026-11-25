@@ -2,24 +2,32 @@ export const CANVAS_SIZE = 640;
 
 export const EXPORT_SIZE = 700;
 
-// Vertical layout of the footer band, top to bottom:
-//   divider | padding | title block | padding | icon | padding | circle bottom edge
-// The band height (`heightPx`), every gap (`paddingPx`), the divider (`dividerThicknessPx`)
-// and the icon (`iconSizePx`) are fixed values of the working canvas (CANVAS_SIZE); they are scaled by size / CANVAS_SIZE
-// only so the export matches the preview. None of them is derived from another.
-// Without the icon the title block is centred between two of those paddings.
+// Spacing follows an 8 px grid with a 4 px half step (4, 8, 16, 24, 32, 40, 56...), in pixels of
+// the working canvas (CANVAS_SIZE). They are scaled by size / CANVAS_SIZE only so the export
+// matches the preview. None of them is derived from another or from a ratio.
+//
+// Vertical layout of the footer band, top to bottom (px at 640):
+//    4  divider                       (half step)
+//   16  padding                       (2 units)
+//   44  title area                    (5.5 units; holds the title block, centred)
+//   16  padding
+//   56  icon                          (7 units)
+//   16  padding down to the circle's bottom edge
+//  152  band height                   (19 units, 23.75% of the canvas)
+// Without the icon the title area grows down to the bottom padding.
+// Horizontally the band keeps 16 px from the circle and the title 40 px from the band's chord.
 const FOOTER_LAYOUT = {
-  heightPx: 154,
-  paddingPx: 17,
+  heightPx: 152,
   dividerThicknessPx: 4,
-  iconSizePx: 58,
-  titleMaxFontRatio: 0.36,
+  paddingPx: 16,
+  iconSizePx: 56,
+  sidePaddingPx: 16,
+  titleSidePaddingPx: 40,
+  titleMaxFontPx: 56,
+  twoLineMaxFontPx: 24,
   titleCapHeightRatio: 0.72,
   titleDescentRatio: 0.36,
-  titlePaddingRatio: 0.12,
-  sidePaddingRatio: 0.06,
   titleMinFontPoints: 10,
-  twoLineMaxFontRatio: 0.24,
   twoLineHeightRatio: 1.15
 };
 
@@ -55,7 +63,9 @@ export function getCompositionMetrics(canvasSize, showIcon) {
     footerHeight,
     footerTop,
     showIcon: withIcon,
-    footerPadding: radius * FOOTER_LAYOUT.sidePaddingRatio,
+    footerPadding: FOOTER_LAYOUT.sidePaddingPx * pixelScale,
+    titleSidePadding: FOOTER_LAYOUT.titleSidePaddingPx * pixelScale,
+    pixelScale,
     verticalPadding,
     dividerThickness,
     dividerBottom,
@@ -83,9 +93,7 @@ function layoutTitleLines(metrics, fontSize, lineCount) {
 function getChordWidth(metrics, bottomY) {
   const distanceY = Math.min(Math.abs(bottomY - metrics.centerY), metrics.radius);
   const chord = 2 * Math.sqrt(metrics.radius * metrics.radius - distanceY * distanceY);
-  const padding = metrics.radius * FOOTER_LAYOUT.titlePaddingRatio;
-
-  return Math.max(chord - padding * 2, 0);
+  return Math.max(chord - metrics.titleSidePadding * 2, 0);
 }
 
 function linesFit(metrics, lines, fontSize, measureTextWidth) {
@@ -117,7 +125,7 @@ function splitInTwoLines(content, fontSize, measureTextWidth) {
 function getTwoLineTitle(content, metrics, minFontSize, measureTextWidth) {
   const areaHeight = metrics.titleAreaBottom - metrics.titleAreaTop;
   const maxFontSize = Math.min(
-    metrics.footerHeight * FOOTER_LAYOUT.twoLineMaxFontRatio,
+    FOOTER_LAYOUT.twoLineMaxFontPx * metrics.pixelScale,
     areaHeight / (FOOTER_LAYOUT.titleCapHeightRatio + FOOTER_LAYOUT.twoLineHeightRatio)
   );
 
@@ -140,7 +148,7 @@ export function getFittedTitle(text, metrics, roleLabel, measureTextWidth) {
   const minFontSize = ptToPx(FOOTER_LAYOUT.titleMinFontPoints);
   const areaHeight = metrics.titleAreaBottom - metrics.titleAreaTop;
   let fontSize = Math.min(
-    metrics.footerHeight * FOOTER_LAYOUT.titleMaxFontRatio,
+    FOOTER_LAYOUT.titleMaxFontPx * metrics.pixelScale,
     areaHeight / FOOTER_LAYOUT.titleCapHeightRatio
   );
 
