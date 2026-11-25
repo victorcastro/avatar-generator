@@ -157,16 +157,15 @@ function drawLayerFooter(metrics) {
       metrics.centerX - footerWidth / 2,
       metrics.footerTop,
       footerWidth,
-      4
+      metrics.dividerThickness
     );
 
     context.fillStyle = getReadableTextColor(state.labelBackground);
     context.font = `400 ${titleMetrics.fontSize}px "Segoe UI", Arial, sans-serif`;
     context.textAlign = "center";
-    context.textBaseline = "middle";
+    context.textBaseline = "alphabetic";
     titleMetrics.lines.forEach((line, index) => {
-      const offset = (index - (titleMetrics.lines.length - 1) / 2) * titleMetrics.lineHeight;
-      context.fillText(line, metrics.centerX, metrics.titleCenterY + offset);
+      context.fillText(line, metrics.centerX, titleMetrics.baselines[index]);
     });
 
     if (metrics.showIcon) {

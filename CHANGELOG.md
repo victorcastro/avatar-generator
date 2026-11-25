@@ -7,6 +7,8 @@
 
 - A title that no longer fits on one line at the minimum size (10 pt) wraps into two balanced lines at a word boundary, with the font enlarged back up to 24% of the band height as far as the block still clears the divider, the icon and the circle. Short titles are unchanged: one line at the full size. A single word too long for the band is not split.
 
+- The footer band is laid out from one padding constant instead of per-element ratios. From the top: divider, `paddingRatio` (11% of the band height), title block, the same padding, icon, the same padding down to the bottom edge of the circle. The title block is centred in the space the icon leaves; without the icon it is centred between the divider and the bottom padding. `titleCenterRatio`, `titleAloneCenterRatio` and `iconCenterRatio` are gone; the title is drawn on an alphabetic baseline positioned from its cap height, and `getFittedTitle` returns `baselines` instead of relying on `titleCenterY`. The divider thickness is now a ratio of the radius (`dividerThicknessRatio`, 4 px at the working size) so it scales into the export.
+
 ### Added
 - A `Hide footer band` switch under `No icon`. With it on, the footer band (label background, divider, title and icon) is not drawn, so the image shows through to the bottom of the circle. The setting carries into the PNG export, which shares the render path.
 

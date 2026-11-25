@@ -2,20 +2,24 @@ export const CANVAS_SIZE = 640;
 
 export const EXPORT_SIZE = 700;
 
+// Vertical layout of the footer band, top to bottom:
+//   divider | padding | title block | padding | icon | padding | circle bottom edge
+// Every gap is the same `paddingRatio` of the band height, so the three spaces
+// around the title and the icon stay equal at any canvas size. Without the icon
+// the title block is centred between two of those paddings.
 const FOOTER_LAYOUT = {
   heightRatio: 0.48,
-  titleCenterRatio: 0.38,
-  titleAloneCenterRatio: 0.45,
+  paddingRatio: 0.11,
+  dividerThicknessRatio: 0.0125,
+  iconSizeRatio: 0.18,
   titleMaxFontRatio: 0.36,
+  titleCapHeightRatio: 0.72,
   titleDescentRatio: 0.36,
   titlePaddingRatio: 0.12,
   sidePaddingRatio: 0.06,
   titleMinFontPoints: 10,
-  iconCenterRatio: 0.74,
-  iconSizeRatio: 0.18,
   twoLineMaxFontRatio: 0.24,
-  twoLineHeightRatio: 1.15,
-  dividerThickness: 4
+  twoLineHeightRatio: 1.15
 };
 
 export function ptToPx(points) {
@@ -31,12 +35,15 @@ export function getCompositionMetrics(canvasSize, showIcon) {
   const centerX = size / 2;
   const centerY = size / 2;
   const radius = size / 2;
+  const bottom = centerY + radius;
   const footerHeight = radius * FOOTER_LAYOUT.heightRatio;
-  const footerTop = centerY + radius - footerHeight;
+  const footerTop = bottom - footerHeight;
   const withIcon = showIcon !== false;
-  const titleRatio = withIcon
-    ? FOOTER_LAYOUT.titleCenterRatio
-    : FOOTER_LAYOUT.titleAloneCenterRatio;
+  const verticalPadding = footerHeight * FOOTER_LAYOUT.paddingRatio;
+  const dividerThickness = radius * FOOTER_LAYOUT.dividerThicknessRatio;
+  const dividerBottom = footerTop + dividerThickness;
+  const iconSize = radius * FOOTER_LAYOUT.iconSizeRatio;
+  const iconTop = bottom - verticalPadding - iconSize;
 
   return {
     size,
@@ -47,9 +54,27 @@ export function getCompositionMetrics(canvasSize, showIcon) {
     footerTop,
     showIcon: withIcon,
     footerPadding: radius * FOOTER_LAYOUT.sidePaddingRatio,
-    titleCenterY: footerTop + footerHeight * titleRatio,
-    iconCenterY: footerTop + footerHeight * FOOTER_LAYOUT.iconCenterRatio,
-    iconSize: radius * FOOTER_LAYOUT.iconSizeRatio
+    verticalPadding,
+    dividerThickness,
+    dividerBottom,
+    titleAreaTop: dividerBottom + verticalPadding,
+    titleAreaBottom: (withIcon ? iconTop : bottom) - verticalPadding,
+    iconTop,
+    iconCenterY: iconTop + iconSize / 2,
+    iconSize
+  };
+}
+
+function layoutTitleLines(metrics, fontSize, lineCount) {
+  const capHeight = fontSize * FOOTER_LAYOUT.titleCapHeightRatio;
+  const lineHeight = lineCount > 1 ? fontSize * FOOTER_LAYOUT.twoLineHeightRatio : 0;
+  const blockHeight = capHeight + lineHeight * (lineCount - 1);
+  const areaHeight = metrics.titleAreaBottom - metrics.titleAreaTop;
+  const top = metrics.titleAreaTop + (areaHeight - blockHeight) / 2;
+
+  return {
+    lineHeight,
+    baselines: Array.from({ length: lineCount }, (_, index) => top + capHeight + lineHeight * index)
   };
 }
 
@@ -61,8 +86,14 @@ function getChordWidth(metrics, bottomY) {
   return Math.max(chord - padding * 2, 0);
 }
 
-function getTitleMaxWidth(metrics, fontSize) {
-  return getChordWidth(metrics, metrics.titleCenterY + fontSize * FOOTER_LAYOUT.titleDescentRatio);
+function linesFit(metrics, lines, fontSize, measureTextWidth) {
+  const { baselines } = layoutTitleLines(metrics, fontSize, lines.length);
+  const descent = fontSize * FOOTER_LAYOUT.titleDescentRatio;
+
+  return lines.every(
+    (line, index) =>
+      measureTextWidth(line, fontSize) <= getChordWidth(metrics, baselines[index] + descent)
+  );
 }
 
 function splitInTwoLines(content, fontSize, measureTextWidth) {
@@ -82,11 +113,11 @@ function splitInTwoLines(content, fontSize, measureTextWidth) {
 }
 
 function getTwoLineTitle(content, metrics, minFontSize, measureTextWidth) {
-  const maxFontSize = metrics.footerHeight * FOOTER_LAYOUT.twoLineMaxFontRatio;
-  const blockTop = metrics.footerTop + FOOTER_LAYOUT.dividerThickness;
-  const blockBottom = metrics.showIcon
-    ? metrics.iconCenterY - metrics.iconSize / 2
-    : metrics.size;
+  const areaHeight = metrics.titleAreaBottom - metrics.titleAreaTop;
+  const maxFontSize = Math.min(
+    metrics.footerHeight * FOOTER_LAYOUT.twoLineMaxFontRatio,
+    areaHeight / (FOOTER_LAYOUT.titleCapHeightRatio + FOOTER_LAYOUT.twoLineHeightRatio)
+  );
 
   for (let fontSize = Math.max(maxFontSize, minFontSize); ; fontSize -= 1) {
     const size = Math.max(fontSize, minFontSize);
@@ -96,18 +127,8 @@ function getTwoLineTitle(content, metrics, minFontSize, measureTextWidth) {
       return null;
     }
 
-    const lineHeight = size * FOOTER_LAYOUT.twoLineHeightRatio;
-    const firstY = metrics.titleCenterY - lineHeight / 2;
-    const secondY = metrics.titleCenterY + lineHeight / 2;
-    const descent = size * FOOTER_LAYOUT.titleDescentRatio;
-    const fits =
-      firstY - size / 2 >= blockTop &&
-      secondY + size / 2 <= blockBottom &&
-      measureTextWidth(split.lines[0], size) <= getChordWidth(metrics, firstY + descent) &&
-      measureTextWidth(split.lines[1], size) <= getChordWidth(metrics, secondY + descent);
-
-    if (fits || size <= minFontSize) {
-      return { text: content, lines: split.lines, lineHeight, fontSize: size };
+    if (size <= minFontSize || linesFit(metrics, split.lines, size, measureTextWidth)) {
+      return { text: content, lines: split.lines, fontSize: size, ...layoutTitleLines(metrics, size, 2) };
     }
   }
 }
@@ -115,18 +136,19 @@ function getTwoLineTitle(content, metrics, minFontSize, measureTextWidth) {
 export function getFittedTitle(text, metrics, roleLabel, measureTextWidth) {
   const content = text.trim() || roleLabel;
   const minFontSize = ptToPx(FOOTER_LAYOUT.titleMinFontPoints);
-  let fontSize = metrics.footerHeight * FOOTER_LAYOUT.titleMaxFontRatio;
+  const areaHeight = metrics.titleAreaBottom - metrics.titleAreaTop;
+  let fontSize = Math.min(
+    metrics.footerHeight * FOOTER_LAYOUT.titleMaxFontRatio,
+    areaHeight / FOOTER_LAYOUT.titleCapHeightRatio
+  );
 
-  while (
-    fontSize > minFontSize &&
-    measureTextWidth(content, fontSize) > getTitleMaxWidth(metrics, fontSize)
-  ) {
+  while (fontSize > minFontSize && !linesFit(metrics, [content], fontSize, measureTextWidth)) {
     fontSize -= 1;
   }
 
   fontSize = Math.max(fontSize, minFontSize);
 
-  if (measureTextWidth(content, fontSize) > getTitleMaxWidth(metrics, fontSize)) {
+  if (!linesFit(metrics, [content], fontSize, measureTextWidth)) {
     const twoLines = getTwoLineTitle(content, metrics, minFontSize, measureTextWidth);
 
     if (twoLines) {
@@ -134,7 +156,7 @@ export function getFittedTitle(text, metrics, roleLabel, measureTextWidth) {
     }
   }
 
-  return { text: content, lines: [content], lineHeight: 0, fontSize };
+  return { text: content, lines: [content], fontSize, ...layoutTitleLines(metrics, fontSize, 1) };
 }
 
 export function getImageDrawBounds(image, scaleMultiplier, offsetX, offsetY, metrics) {
