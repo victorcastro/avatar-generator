@@ -718,3 +718,11 @@ test("footer paddings are fixed pixels that do not depend on the band height", (
   assert.equal(metrics.titleAreaTop - metrics.dividerBottom, 17);
   assert.equal(metrics.size - (metrics.iconTop + metrics.iconSize), 17);
 });
+
+test("band height and icon size are fixed pixels at the working size", () => {
+  const metrics = getCompositionMetrics(CANVAS_SIZE);
+
+  assert.equal(metrics.footerHeight, 154);
+  assert.equal(metrics.iconSize, 58);
+  assert.equal(metrics.footerTop, 640 - 154);
+});

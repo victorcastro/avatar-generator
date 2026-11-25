@@ -3,11 +3,11 @@
 ## [Unreleased]
 
 ### Changed
-- The footer band covers 24% of the image height instead of 28% (`heightRatio` from 0.56 to 0.48 of the radius).
+- The footer band covers 24% of the image height instead of 28% (154 px of the 640 px canvas).
 
 - A title that no longer fits on one line at the minimum size (10 pt) wraps into two balanced lines at a word boundary, with the font enlarged back up to 24% of the band height as far as the block still clears the divider, the icon and the circle. Short titles are unchanged: one line at the full size. A single word too long for the band is not split.
 
-- The footer band is laid out from one padding constant instead of per-element ratios. From the top: divider, `paddingPx` (a fixed 17 px), title block, the same padding, icon, the same padding down to the bottom edge of the circle. The title block is centred in the space the icon leaves; without the icon it is centred between the divider and the bottom padding. `titleCenterRatio`, `titleAloneCenterRatio` and `iconCenterRatio` are gone; the title is drawn on an alphabetic baseline positioned from its cap height, and `getFittedTitle` returns `baselines` instead of relying on `titleCenterY`. The padding and the divider (`dividerThicknessPx`, 4 px) are fixed pixel values at the working size, independent of the band height, scaled by `size / CANVAS_SIZE` only so the export matches the preview.
+- The footer band is laid out from one padding constant instead of per-element ratios. From the top: divider, `paddingPx` (a fixed 17 px), title block, the same padding, icon, the same padding down to the bottom edge of the circle. The title block is centred in the space the icon leaves; without the icon it is centred between the divider and the bottom padding. `titleCenterRatio`, `titleAloneCenterRatio` and `iconCenterRatio` are gone; the title is drawn on an alphabetic baseline positioned from its cap height, and `getFittedTitle` returns `baselines` instead of relying on `titleCenterY`. The band height (`heightPx`, 154 px), the padding (`paddingPx`, 17 px), the divider (`dividerThicknessPx`, 4 px) and the icon (`iconSizePx`, 58 px) are fixed pixel values at the working size, none derived from another, scaled by `size / CANVAS_SIZE` only so the export matches the preview.
 
 ### Added
 - A `Hide footer band` switch under `No icon`. With it on, the footer band (label background, divider, title and icon) is not drawn, so the image shows through to the bottom of the circle. The setting carries into the PNG export, which shares the render path.

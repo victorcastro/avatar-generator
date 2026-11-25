@@ -4,15 +4,15 @@ export const EXPORT_SIZE = 700;
 
 // Vertical layout of the footer band, top to bottom:
 //   divider | padding | title block | padding | icon | padding | circle bottom edge
-// Every gap is the same fixed `paddingPx`, and the divider a fixed `dividerThicknessPx`,
-// both in pixels of the working canvas (CANVAS_SIZE); they are scaled by size / CANVAS_SIZE
-// only so the export matches the preview. They do not depend on the band height.
+// The band height (`heightPx`), every gap (`paddingPx`), the divider (`dividerThicknessPx`)
+// and the icon (`iconSizePx`) are fixed values of the working canvas (CANVAS_SIZE); they are scaled by size / CANVAS_SIZE
+// only so the export matches the preview. None of them is derived from another.
 // Without the icon the title block is centred between two of those paddings.
 const FOOTER_LAYOUT = {
-  heightRatio: 0.48,
+  heightPx: 154,
   paddingPx: 17,
   dividerThicknessPx: 4,
-  iconSizeRatio: 0.18,
+  iconSizePx: 58,
   titleMaxFontRatio: 0.36,
   titleCapHeightRatio: 0.72,
   titleDescentRatio: 0.36,
@@ -37,14 +37,14 @@ export function getCompositionMetrics(canvasSize, showIcon) {
   const centerY = size / 2;
   const radius = size / 2;
   const bottom = centerY + radius;
-  const footerHeight = radius * FOOTER_LAYOUT.heightRatio;
-  const footerTop = bottom - footerHeight;
   const withIcon = showIcon !== false;
   const pixelScale = size / CANVAS_SIZE;
+  const footerHeight = FOOTER_LAYOUT.heightPx * pixelScale;
+  const footerTop = bottom - footerHeight;
   const verticalPadding = FOOTER_LAYOUT.paddingPx * pixelScale;
   const dividerThickness = FOOTER_LAYOUT.dividerThicknessPx * pixelScale;
   const dividerBottom = footerTop + dividerThickness;
-  const iconSize = radius * FOOTER_LAYOUT.iconSizeRatio;
+  const iconSize = FOOTER_LAYOUT.iconSizePx * pixelScale;
   const iconTop = bottom - verticalPadding - iconSize;
 
   return {
