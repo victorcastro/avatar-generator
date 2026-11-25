@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.5] - 2026-11-25
+
+### Changed
+- The footer band covers about 24% of the image height instead of 28% (152 px of the 640 px canvas).
+- A title that no longer fits on one line at the minimum size (10 pt) wraps into two balanced lines at a word boundary, with the font enlarged back up to 24 px as far as the block fits the title area and the circle. Short titles are unchanged: one line at the full size. A single word too long for the band is not split.
+- The footer band spacing follows an 8 px grid with a 4 px half step, as fixed pixel values at the 640 px working canvas (scaled by `size / CANVAS_SIZE` only so the export matches the preview; none derived from a ratio or from another): divider 4, padding 16 (above the title, between title and icon, and below the icon), title area 44, icon 56, band 152 (23.75% of the canvas), band side inset 16, title side inset 40. The paddings are measured to the visible glyph, not to the icon's square box: each role in `ROLE_CONFIG` carries an `iconInset` (iOS 0.125, Android 0.3, React 0.05, QA 0) with the empty margin its glyph leaves inside the box, so the icon sits 16 px above the bottom edge and the title block is centred between the divider and the glyph. The title block is centred in the title area; without the icon the area grows down to the bottom padding. The title is drawn on an alphabetic baseline positioned from its cap height, and `getFittedTitle` returns `baselines`. `titleCenterRatio`, `titleAloneCenterRatio`, `iconCenterRatio`, `heightRatio`, `iconSizeRatio`, `sidePaddingRatio` and `titlePaddingRatio` are gone.
+
+### Added
+- A `Hide footer band` switch under `No icon`. With it on, the footer band (label background, divider, title and icon) is not drawn, so the image shows through to the bottom of the circle. The setting carries into the PNG export, which shares the render path.
+
 ## [2.4] - 2026-10-03
 
 ### Changed

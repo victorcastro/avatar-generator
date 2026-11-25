@@ -16,7 +16,7 @@ const CHECKER_DARK = "#22262d";
 const PLACEHOLDER_RING = "rgba(255, 255, 255, 0.16)";
 
 export function getCompositionMetrics() {
-  return getCoreCompositionMetrics(CANVAS_SIZE, state.showIcon);
+  return getCoreCompositionMetrics(CANVAS_SIZE, state.showIcon, ROLE_CONFIG[state.role].iconInset);
 }
 
 function getFittedTitle(text, metrics) {
@@ -135,6 +135,10 @@ function drawLayerUser(metrics) {
 }
 
 function drawLayerFooter(metrics) {
+  if (!state.showFooter) {
+    return;
+  }
+
   const footerWidth = metrics.radius * 2 - metrics.footerPadding * 2;
   const titleMetrics = getFittedTitle(state.titleText, metrics);
   const role = ROLE_CONFIG[state.role];
@@ -153,14 +157,16 @@ function drawLayerFooter(metrics) {
       metrics.centerX - footerWidth / 2,
       metrics.footerTop,
       footerWidth,
-      4
+      metrics.dividerThickness
     );
 
     context.fillStyle = getReadableTextColor(state.labelBackground);
     context.font = `400 ${titleMetrics.fontSize}px "Segoe UI", Arial, sans-serif`;
     context.textAlign = "center";
-    context.textBaseline = "middle";
-    context.fillText(titleMetrics.text, metrics.centerX, metrics.titleCenterY);
+    context.textBaseline = "alphabetic";
+    titleMetrics.lines.forEach((line, index) => {
+      context.fillText(line, metrics.centerX, titleMetrics.baselines[index]);
+    });
 
     if (metrics.showIcon) {
       drawRoleIcon(role, metrics.centerX, metrics.iconCenterY, metrics.iconSize, state.dividerColor);

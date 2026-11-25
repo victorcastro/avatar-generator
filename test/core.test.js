@@ -153,11 +153,11 @@ test("title fitting reduces font size when the text is longer", () => {
   assert.ok(long.fontSize < short.fontSize);
 });
 
-test("title fitting grows short text up to the footer height cap", () => {
+test("title fitting grows short text up to the maximum title size", () => {
   const metrics = getCompositionMetrics(CANVAS_SIZE);
   const fitted = getFittedTitle("QA", metrics, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize * 0.45);
 
-  assert.ok(Math.abs(fitted.fontSize - metrics.footerHeight * 0.36) < 0.000001);
+  assert.ok(Math.abs(fitted.fontSize - 56) < 0.000001);
 });
 
 test("the fitted title always stays inside the circular clip", () => {
@@ -167,34 +167,22 @@ test("the fitted title always stays inside the circular clip", () => {
   ["PM", "Staff iOS Engineer", "Principal iOS Platform Engineer"].forEach((title) => {
     const fitted = getFittedTitle(title, metrics, ROLE_CONFIG.ios.label, measure);
     const halfWidth = measure(fitted.text, fitted.fontSize) / 2;
-    const bottomY = metrics.titleCenterY + fitted.fontSize * 0.36;
+    const bottomY = fitted.baselines[0] + fitted.fontSize * 0.36;
     const distanceY = bottomY - metrics.centerY;
 
     assert.ok(halfWidth * halfWidth + distanceY * distanceY < metrics.radius * metrics.radius);
   });
 });
 
-test("hiding the icon centres the title in the footer band", () => {
+test("hiding the icon gives the title the whole band below the divider", () => {
   const withIcon = getCompositionMetrics(CANVAS_SIZE);
   const withoutIcon = getCompositionMetrics(CANVAS_SIZE, false);
 
   assert.equal(withIcon.showIcon, true);
   assert.equal(withoutIcon.showIcon, false);
-  assert.ok(withoutIcon.titleCenterY > withIcon.titleCenterY);
-
-  const halfChord = Math.sqrt(
-    withoutIcon.radius * withoutIcon.radius -
-      (withoutIcon.footerTop - withoutIcon.centerY) ** 2
-  );
-  const segmentArea =
-    withoutIcon.radius * withoutIcon.radius *
-      Math.acos((withoutIcon.footerTop - withoutIcon.centerY) / withoutIcon.radius) -
-    (withoutIcon.footerTop - withoutIcon.centerY) * halfChord;
-  const areaCentroidY = withoutIcon.centerY + (2 / 3) * halfChord ** 3 / segmentArea;
-  const bandMidpointY = withoutIcon.footerTop + withoutIcon.footerHeight / 2;
-
-  assert.ok(withoutIcon.titleCenterY > areaCentroidY);
-  assert.ok(withoutIcon.titleCenterY < bandMidpointY);
+  assert.equal(withoutIcon.titleAreaTop, withIcon.titleAreaTop);
+  assert.ok(withoutIcon.titleAreaBottom > withIcon.titleAreaBottom);
+  assert.equal(withoutIcon.titleAreaBottom, withoutIcon.size - withoutIcon.verticalPadding);
 });
 
 test("a title centred without the icon still stays inside the circular clip", () => {
@@ -204,7 +192,7 @@ test("a title centred without the icon still stays inside the circular clip", ()
   ["QA", "Staff iOS Engineer", "Principal iOS Platform Engineer"].forEach((title) => {
     const fitted = getFittedTitle(title, metrics, ROLE_CONFIG.ios.label, measure);
     const halfWidth = measure(fitted.text, fitted.fontSize) / 2;
-    const distanceY = metrics.titleCenterY + fitted.fontSize * 0.36 - metrics.centerY;
+    const distanceY = fitted.baselines[0] + fitted.fontSize * 0.36 - metrics.centerY;
 
     assert.ok(halfWidth * halfWidth + distanceY * distanceY < metrics.radius * metrics.radius);
   });
@@ -213,9 +201,34 @@ test("a title centred without the icon still stays inside the circular clip", ()
 test("the fitted title never overlaps the role icon", () => {
   const metrics = getCompositionMetrics(CANVAS_SIZE);
   const fitted = getFittedTitle("QA", metrics, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize * 0.45);
-  const titleBottom = metrics.titleCenterY + fitted.fontSize * 0.36;
 
-  assert.ok(titleBottom < metrics.iconCenterY - metrics.iconSize / 2);
+  assert.ok(fitted.baselines[0] < metrics.iconInkTop);
+});
+
+test("divider, title, icon and bottom edge are separated by the same padding", () => {
+  const metrics = getCompositionMetrics(CANVAS_SIZE);
+  const measure = (text, fontSize) => text.length * fontSize * 0.45;
+  const capRatio = 0.72;
+
+  for (const title of ["QA", "Victor", "Victor Alejandro Castro Lopez Fernandez Garcia de la Torre Mendoza"]) {
+    const fitted = getFittedTitle(title, metrics, ROLE_CONFIG.ios.label, measure);
+    const last = fitted.baselines[fitted.baselines.length - 1];
+    const first = fitted.baselines[0] - fitted.fontSize * capRatio;
+    const gapAbove = first - metrics.dividerBottom;
+    const gapBelow = metrics.iconInkTop - last;
+
+    assert.ok(Math.abs(gapAbove - gapBelow) < 0.000001, title);
+  }
+
+  assert.ok(Math.abs(metrics.size - (metrics.iconTop + metrics.iconSize) - metrics.verticalPadding) < 0.000001);
+});
+
+test("without the icon the title block is centred between the divider and the bottom padding", () => {
+  const metrics = getCompositionMetrics(CANVAS_SIZE, false);
+  const fitted = getFittedTitle("QA", metrics, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize * 0.45);
+  const top = fitted.baselines[0] - fitted.fontSize * 0.72;
+
+  assert.ok(Math.abs((top - metrics.dividerBottom) - (metrics.size - fitted.baselines[0])) < 0.000001);
 });
 
 test("image draw bounds cover the full circular clip area before offsets", () => {
@@ -666,4 +679,75 @@ test("the title colour flips so it stays readable on the chosen label background
 
 test("an unreadable background falls back to the light title instead of throwing", () => {
   assert.equal(getReadableTextColor("nope"), getReadableTextColor("#090909"));
+});
+
+test("short titles stay on one line at the full size", () => {
+  const metrics = getCompositionMetrics(CANVAS_SIZE);
+  const fitted = getFittedTitle("Victor", metrics, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize * 0.45);
+
+  assert.deepEqual(fitted.lines, ["Victor"]);
+  assert.ok(Math.abs(fitted.fontSize - 56) < 0.000001);
+});
+
+test("a title that does not fit at the minimum size wraps into two balanced lines", () => {
+  const metrics = getCompositionMetrics(CANVAS_SIZE);
+  const measure = (text, fontSize) => text.length * fontSize * 0.45;
+  const title = "Victor Alejandro Castro Lopez Fernandez Garcia de la Torre Mendoza";
+  const fitted = getFittedTitle(title, metrics, ROLE_CONFIG.ios.label, measure);
+
+  assert.equal(fitted.lines.length, 2);
+  assert.equal(fitted.lines.join(" "), title);
+  assert.ok(fitted.fontSize >= ptToPx(10));
+
+  assert.ok(fitted.baselines[1] <= metrics.titleAreaBottom + 0.000001);
+  assert.ok(fitted.baselines[0] - fitted.fontSize * 0.72 >= metrics.titleAreaTop - 0.000001);
+});
+
+test("a single long word is not split", () => {
+  const metrics = getCompositionMetrics(CANVAS_SIZE);
+  const fitted = getFittedTitle("Supercalifragilisticexpialidocious_Supercalifragilistic", metrics, ROLE_CONFIG.ios.label, (text, fontSize) => text.length * fontSize * 0.45);
+
+  assert.equal(fitted.lines.length, 1);
+});
+
+test("the footer spacing sits on an 8 px grid with a 4 px half step", () => {
+  const metrics = getCompositionMetrics(CANVAS_SIZE);
+  const spacing = {
+    divider: metrics.dividerThickness,
+    padding: metrics.verticalPadding,
+    titleArea: metrics.titleAreaBottom - metrics.titleAreaTop,
+    icon: metrics.iconSize,
+    band: metrics.footerHeight,
+    side: metrics.footerPadding,
+    titleSide: metrics.titleSidePadding
+  };
+
+  assert.deepEqual(spacing, { divider: 4, padding: 16, titleArea: 44, icon: 56, band: 152, side: 16, titleSide: 40 });
+
+  for (const value of Object.values(spacing)) {
+    assert.equal(value % 4, 0);
+  }
+
+  assert.equal(
+    spacing.divider + spacing.padding * 3 + spacing.titleArea + spacing.icon,
+    spacing.band
+  );
+  assert.equal(metrics.titleAreaTop - metrics.dividerBottom, spacing.padding);
+  assert.equal(metrics.iconInkTop - metrics.titleAreaBottom, spacing.padding);
+  assert.equal(metrics.size - (metrics.iconTop + metrics.iconSize), spacing.padding);
+  assert.equal(metrics.footerTop, 640 - 152);
+});
+
+test("the paddings are measured to the visible glyph using each role's icon inset", () => {
+  for (const role of Object.values(ROLE_CONFIG)) {
+    const metrics = getCompositionMetrics(CANVAS_SIZE, true, role.iconInset);
+    const inset = role.iconInset * metrics.iconSize;
+    const inkBottom = metrics.iconTop + metrics.iconSize - inset;
+
+    assert.equal(typeof role.iconInset, "number");
+    assert.ok(Math.abs(metrics.size - inkBottom - 16) < 0.000001, role.label);
+    assert.ok(Math.abs(metrics.iconInkTop - (metrics.iconTop + inset)) < 0.000001, role.label);
+    assert.ok(Math.abs(metrics.iconInkTop - metrics.titleAreaBottom - 16) < 0.000001, role.label);
+    assert.equal(metrics.titleAreaTop - metrics.dividerBottom, 16);
+  }
 });

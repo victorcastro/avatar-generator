@@ -5,6 +5,7 @@ export const ROLE_CONFIG = {
     iconSrc: "assets/icons/swift.svg",
     iconStyle: "brands",
     iconName: "swift",
+    iconInset: 0.125,
     iconLabel: "Swift"
   },
   android: {
@@ -13,6 +14,7 @@ export const ROLE_CONFIG = {
     iconSrc: "assets/icons/android.svg",
     iconStyle: "brands",
     iconName: "android",
+    iconInset: 0.3,
     iconLabel: "Android"
   },
   react: {
@@ -20,6 +22,7 @@ export const ROLE_CONFIG = {
     iconProvider: "fontawesome",
     iconStyle: "brands",
     iconName: "react",
+    iconInset: 0.05,
     iconLabel: "React"
   },
   qa: {
@@ -27,6 +30,7 @@ export const ROLE_CONFIG = {
     iconProvider: "fontawesome",
     iconStyle: "solid",
     iconName: "bug",
+    iconInset: 0,
     iconLabel: "Bug"
   }
 };

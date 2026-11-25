@@ -45,6 +45,10 @@ export function bindControls() {
     updateState("showIcon", !event.target.checked);
   });
 
+  controls.hideFooter.addEventListener("change", (event) => {
+    updateState("showFooter", !event.target.checked);
+  });
+
   controls.titleText.addEventListener("input", (event) => {
     updateState("titleText", event.target.value);
     updateTitleTextCounter();
